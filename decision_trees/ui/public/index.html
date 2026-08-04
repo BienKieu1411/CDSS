@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CDSS Decision Tree Workbench</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1>CDSS Decision Tree Workbench</h1>
+  </header>
+  <main>
+    <section class="toolbar panel">
+      <label for="tree-select">Decision tree</label>
+      <select id="tree-select"></select>
+      <button class="secondary" id="format-json">Format JSON</button>
+      <button id="validate-draft">Validate draft</button>
+      <button class="good" id="save-draft" disabled>Save draft riêng</button>
+      <span class="meta" id="bundle-meta">Loading bundle…</span>
+    </section>
+    <div class="layout">
+      <section class="panel graph-panel">
+        <div class="graph-heading"><h2>Decision graph</h2><button class="secondary" id="fit-graph" type="button">Căn chỉnh graph</button></div>
+        <div class="graph-scroll"><div id="graph" role="img" aria-label="Decision tree graph"></div></div>
+        <p class="legend"><span><i class="dot start"></i>start</span><span><i class="dot condition"></i>condition</span><span><i class="dot inference"></i>inference</span><span><i class="dot link"></i>link</span><span><i class="dot end"></i>end</span></p>
+        <div id="path-status" class="path-status">Nhập dữ liệu để xem đường đi trên cây.</div>
+        <h3>Node inspector</h3>
+        <pre class="json-block" id="node-inspector">Click a node to inspect it.</pre>
+      </section>
+      <section class="panel work-panel">
+        <h2>Input → output</h2>
+        <p class="small" id="input-help"></p>
+        <div id="input-form" class="input-grid"></div>
+        <div class="actions"><button id="run-tree">Run baseline</button><button class="good" id="run-draft">Run edited draft</button><button class="secondary" id="clear-input">Clear inputs</button></div>
+
+        <h3>Result / decision</h3>
+        <pre class="json-block result" id="result-box">No run yet.</pre>
+        <div class="result-grid"><div><h3>Trace</h3><pre class="json-block" id="trace-box">[]</pre></div><div><h3>Links visited</h3><pre class="json-block" id="links-box">[]</pre></div></div>
+        <h3>Source references</h3>
+        <pre class="json-block" id="sources-box">[]</pre>
+
+        <h2 class="section-gap">Tree JSON draft</h2>
+        <textarea id="tree-editor" class="editor" spellcheck="false"></textarea>
+        <div id="draft-status" class="status">Baseline tree loaded. Baseline is read-only.</div>
+      </section>
+    </div>
+  </main>
+  <script src="/vendor/cytoscape.min.js"></script>
+  <script src="/vendor/cytoscape-dagre.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

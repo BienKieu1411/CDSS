@@ -1,0 +1,135 @@
+{
+  "treeId": "bp_thresholds_targets",
+  "testInput": {
+    "bp.category": "high_normal",
+    "risk.class": "high",
+    "treatment.hasHighRiskComorbidity": true
+  },
+  "result": {
+    "treeId": "bp_thresholds_targets",
+    "status": "completed",
+    "outcomeCode": "high_normal_high_risk_treatment_started",
+    "actions": [],
+    "sets": {
+      "treatment.recommendation": "medication_now_high_risk",
+      "treatment.targetSystolicMmHg": 130,
+      "treatment.targetDiastolicMmHg": 80,
+      "treatment.controlWindowMonths": "3-6"
+    },
+    "resultCode": "high_normal_high_risk_treatment",
+    "severity": "high",
+    "entryTreeId": "bp_thresholds_targets",
+    "terminalTreeId": "bp_thresholds_targets",
+    "bundleId": "vsh-vnha-2022-image-targets",
+    "bundleVersion": "0.2.0",
+    "context": {
+      "bp.category": "high_normal",
+      "risk.class": "high",
+      "treatment.hasHighRiskComorbidity": true,
+      "treatment.recommendation": "medication_now_high_risk",
+      "treatment.targetSystolicMmHg": 130,
+      "treatment.targetDiastolicMmHg": 80,
+      "treatment.controlWindowMonths": "3-6"
+    },
+    "linksVisited": [],
+    "trace": [
+      {
+        "treeId": "bp_thresholds_targets",
+        "nodeId": "threshold_start",
+        "type": "start",
+        "status": "entered"
+      },
+      {
+        "treeId": "bp_thresholds_targets",
+        "nodeId": "threshold_high_normal",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "bp_thresholds_targets",
+        "nodeId": "threshold_high_normal_risk",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "bp_thresholds_targets",
+        "nodeId": "threshold_infer_high_risk",
+        "type": "end",
+        "outcomeCode": "high_normal_high_risk_treatment_started",
+        "actions": [],
+        "sets": {
+          "treatment.recommendation": "medication_now_high_risk",
+          "treatment.targetSystolicMmHg": 130,
+          "treatment.targetDiastolicMmHg": 80,
+          "treatment.controlWindowMonths": "3-6"
+        }
+      }
+    ],
+    "sourceRefs": [
+      {
+        "sourceId": "image_02_bp_thresholds_targets",
+        "page": 1,
+        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+        "tableOrFigure": "02_bp_thresholds_and_targets.png",
+        "note": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo ngưỡng/nguy cơ."
+      },
+      {
+        "sourceId": "image_02_bp_thresholds_targets",
+        "page": 1,
+        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+        "tableOrFigure": "02_bp_thresholds_and_targets.png",
+        "note": "Ngưỡng HA và đích điều trị"
+      },
+      {
+        "sourceId": "image_02_bp_thresholds_targets",
+        "page": 1,
+        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+        "tableOrFigure": "02_bp_thresholds_and_targets.png",
+        "note": "HA bình thường-cao 130-139/85-89?"
+      },
+      {
+        "sourceId": "image_02_bp_thresholds_targets",
+        "page": 1,
+        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+        "tableOrFigure": "02_bp_thresholds_and_targets.png",
+        "note": "Nguy cơ cao/bệnh đồng mắc nguy cơ cao?"
+      },
+      {
+        "sourceId": "image_02_bp_thresholds_targets",
+        "page": 1,
+        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+        "tableOrFigure": "02_bp_thresholds_and_targets.png",
+        "note": "Điều trị thuốc ở bệnh nhân nguy cơ cao"
+      },
+      {
+        "sourceId": "image_02_bp_thresholds_targets",
+        "page": 1,
+        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+        "tableOrFigure": "02_bp_thresholds_and_targets.png",
+        "note": "Điều trị nguy cơ cao"
+      }
+    ],
+    "validation": {
+      "trees": 5,
+      "variables": 69,
+      "nodes": 89,
+      "edges": 88,
+      "links": 1
+    },
+    "decision": {
+      "status": "completed",
+      "resultCode": "high_normal_high_risk_treatment",
+      "outcomeCode": "high_normal_high_risk_treatment_started",
+      "sets": {
+        "treatment.recommendation": "medication_now_high_risk",
+        "treatment.targetSystolicMmHg": 130,
+        "treatment.targetDiastolicMmHg": 80,
+        "treatment.controlWindowMonths": "3-6"
+      },
+      "severity": "high",
+      "actions": [],
+      "missingData": [],
+      "reason": null
+    }
+  }
+}

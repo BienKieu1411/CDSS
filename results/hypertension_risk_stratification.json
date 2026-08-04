@@ -1,0 +1,146 @@
+{
+  "treeId": "hypertension_risk_stratification",
+  "testInput": {
+    "bp.category": "grade1",
+    "bp.systolicMmHg": 150,
+    "bp.diastolicMmHg": 95,
+    "risk.factorCount": 3,
+    "risk.highRiskComorbidity": false
+  },
+  "result": {
+    "treeId": "hypertension_risk_stratification",
+    "status": "completed",
+    "outcomeCode": "risk_high",
+    "actions": [],
+    "sets": {
+      "risk.class": "high"
+    },
+    "resultCode": "risk_high",
+    "severity": "high",
+    "entryTreeId": "hypertension_risk_stratification",
+    "terminalTreeId": "hypertension_risk_stratification",
+    "bundleId": "vsh-vnha-2022-image-targets",
+    "bundleVersion": "0.2.0",
+    "context": {
+      "bp.category": "grade1",
+      "bp.systolicMmHg": 150,
+      "bp.diastolicMmHg": 95,
+      "risk.factorCount": 3,
+      "risk.highRiskComorbidity": false,
+      "risk.class": "high"
+    },
+    "linksVisited": [],
+    "trace": [
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_start",
+        "type": "start",
+        "status": "entered"
+      },
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_high_comorbidity",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_grade2",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_grade1",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_grade1_three",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_infer_high_grade1",
+        "type": "end",
+        "outcomeCode": "risk_high",
+        "actions": [],
+        "sets": {
+          "risk.class": "high"
+        }
+      }
+    ],
+    "sourceRefs": [
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Phân tầng nguy cơ theo bảng nguy cơ trong năm nhóm phân loại."
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Phân tầng nguy cơ tim mạch"
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Có TOD/CKD ≥3/ĐTĐ/bệnh tim mạch?"
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "HA độ 2?"
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "HA độ 1?"
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Có ≥3 yếu tố nguy cơ?"
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Nguy cơ cao"
+      }
+    ],
+    "validation": {
+      "trees": 5,
+      "variables": 69,
+      "nodes": 89,
+      "edges": 88,
+      "links": 1
+    },
+    "decision": {
+      "status": "completed",
+      "resultCode": "risk_high",
+      "outcomeCode": "risk_high",
+      "sets": {
+        "risk.class": "high"
+      },
+      "severity": "high",
+      "actions": [],
+      "missingData": [],
+      "reason": null
+    }
+  }
+}

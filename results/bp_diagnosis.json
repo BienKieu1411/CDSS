@@ -1,0 +1,154 @@
+{
+  "treeId": "bp_diagnosis",
+  "testInput": {
+    "bp.measurementMethod": "office_3rd",
+    "bp.office1.systolicMmHg": 130,
+    "bp.office1.diastolicMmHg": 80,
+    "bp.office1.targetOrganDamageOrCvd": false,
+    "bp.office2.systolicMmHg": 130,
+    "bp.office2.diastolicMmHg": 80,
+    "bp.office2.targetOrganDamageOrCvd": false,
+    "bp.office3.systolicMmHg": 125,
+    "bp.office3.diastolicMmHg": 80
+  },
+  "result": {
+    "treeId": "bp_diagnosis",
+    "status": "completed",
+    "outcomeCode": "normal_bp",
+    "actions": [],
+    "sets": {
+      "bp.category": "normal"
+    },
+    "resultCode": "normal_bp",
+    "severity": "info",
+    "entryTreeId": "bp_diagnosis",
+    "terminalTreeId": "bp_diagnosis",
+    "bundleId": "vsh-vnha-2022-image-targets",
+    "bundleVersion": "0.2.0",
+    "context": {
+      "bp.measurementMethod": "office_3rd",
+      "bp.office1.systolicMmHg": 130,
+      "bp.office1.diastolicMmHg": 80,
+      "bp.office1.targetOrganDamageOrCvd": false,
+      "bp.office2.systolicMmHg": 130,
+      "bp.office2.diastolicMmHg": 80,
+      "bp.office2.targetOrganDamageOrCvd": false,
+      "bp.office3.systolicMmHg": 125,
+      "bp.office3.diastolicMmHg": 80,
+      "bp.category": "normal"
+    },
+    "linksVisited": [],
+    "trace": [
+      {
+        "treeId": "bp_diagnosis",
+        "nodeId": "bp_start",
+        "type": "start",
+        "status": "entered"
+      },
+      {
+        "treeId": "bp_diagnosis",
+        "nodeId": "bp_crisis_gate",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "bp_diagnosis",
+        "nodeId": "bp_second_gate",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "bp_diagnosis",
+        "nodeId": "bp_method_office",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "bp_diagnosis",
+        "nodeId": "bp_office3_normal",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "bp_diagnosis",
+        "nodeId": "bp_infer_normal",
+        "type": "end",
+        "outcomeCode": "normal_bp",
+        "actions": [],
+        "sets": {
+          "bp.category": "normal"
+        }
+      }
+    ],
+    "sourceRefs": [
+      {
+        "sourceId": "image_01_bp_diagnosis",
+        "page": 1,
+        "section": "Sơ đồ chẩn đoán tăng huyết áp",
+        "tableOrFigure": "01_bp_diagnosis.png",
+        "note": "Chẩn đoán tăng huyết áp bằng đo phòng khám, HATN và HALT."
+      },
+      {
+        "sourceId": "image_01_bp_diagnosis",
+        "page": 1,
+        "section": "Sơ đồ chẩn đoán tăng huyết áp",
+        "tableOrFigure": "01_bp_diagnosis.png",
+        "note": "Bắt đầu chẩn đoán HA"
+      },
+      {
+        "sourceId": "image_01_bp_diagnosis",
+        "page": 1,
+        "section": "Sơ đồ chẩn đoán tăng huyết áp",
+        "tableOrFigure": "01_bp_diagnosis.png",
+        "note": "HA phòng khám lần 1 ≥180/120 và có tổn thương cơ quan đích/bệnh tim mạch?"
+      },
+      {
+        "sourceId": "image_01_bp_diagnosis",
+        "page": 1,
+        "section": "Sơ đồ chẩn đoán tăng huyết áp",
+        "tableOrFigure": "01_bp_diagnosis.png",
+        "note": "HA phòng khám lần 2 140-179/90-119 và có tổn thương cơ quan đích/bệnh tim mạch?"
+      },
+      {
+        "sourceId": "image_01_bp_diagnosis",
+        "page": 1,
+        "section": "Sơ đồ chẩn đoán tăng huyết áp",
+        "tableOrFigure": "01_bp_diagnosis.png",
+        "note": "Dùng kết quả khám phòng khám lần 3?"
+      },
+      {
+        "sourceId": "image_01_bp_diagnosis",
+        "page": 1,
+        "section": "Sơ đồ chẩn đoán tăng huyết áp",
+        "tableOrFigure": "01_bp_diagnosis.png",
+        "note": "HATT <130 và HATTr <85?"
+      },
+      {
+        "sourceId": "image_01_bp_diagnosis",
+        "page": 1,
+        "section": "Sơ đồ chẩn đoán tăng huyết áp",
+        "tableOrFigure": "01_bp_diagnosis.png",
+        "note": "HA bình thường"
+      }
+    ],
+    "validation": {
+      "trees": 5,
+      "variables": 69,
+      "nodes": 89,
+      "edges": 88,
+      "links": 1
+    },
+    "decision": {
+      "status": "completed",
+      "resultCode": "normal_bp",
+      "outcomeCode": "normal_bp",
+      "sets": {
+        "bp.category": "normal"
+      },
+      "severity": "info",
+      "actions": [],
+      "missingData": [],
+      "reason": null
+    }
+  }
+}

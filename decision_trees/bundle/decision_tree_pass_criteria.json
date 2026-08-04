@@ -1,0 +1,37 @@
+{
+  "criteriaVersion": "decision-tree-pass-criteria.v1",
+  "policy": "strict",
+  "description": "A tree passes only when every clinical, structural, provenance, and missing-data gate is clean.",
+  "stopLoopWhen": "all_requested_trees_pass_strictly",
+  "maxRounds": 10,
+  "verifier": {
+    "statusExactly": "pass",
+    "issuesMustBeEmpty": true,
+    "allowWarnings": false,
+    "coverage": {
+      "required": true,
+      "minimumCoverageRatio": 1.0,
+      "minimumCoveragePercentage": 100,
+      "uncoveredClaimsMustBeEmpty": true
+    },
+    "missingData": {
+      "missingVariablesMustBeEmpty": true,
+      "missingItemsMustBeEmpty": true
+    }
+  },
+  "local": {
+    "semanticErrorsMustBeEmpty": true,
+    "allClinicalNodesNeedSourceRefs": true,
+    "sourcePagesMustBeInEvidence": true,
+    "predicateFieldsMustBeDeclaredInputs": true,
+    "edgeCardinalityMustBeValid": true,
+    "allNodesReachable": true,
+    "linkGraphMustBeAcyclic": true,
+    "canonicalBundleValidatorMustPass": true
+  },
+  "promotion": {
+    "neverOverwriteReviewedBaseline": true,
+    "clinicalReviewRequiredMustRemainTrue": true,
+    "bundleDraftOnly": true
+  }
+}

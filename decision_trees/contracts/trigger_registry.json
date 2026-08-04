@@ -1,0 +1,67 @@
+{
+  "formatVersion": "clinical-flow-trigger-registry.v1",
+  "treeBundle": "decision_trees/bundle/decision_tree_bundle.json",
+  "owner": "clinical-flow",
+  "notes": [
+    "Các tree có thể được clinical flow gọi trực tiếp hoặc được gọi qua node LINK.",
+    "Mặc định ưu tiên một lần chạy cho mỗi encounter và lưu bundleVersion cùng trace."
+  ],
+  "triggers": [
+    {
+      "id": "bp_diagnosis_started",
+      "event": "encounter.hypertension_assessment_started",
+      "entryTreeId": "bp_diagnosis",
+      "activationMode": "direct",
+      "priority": 100,
+      "runPolicy": "once_per_encounter",
+      "requiredVariables": ["bp.measurementMethod", "bp.office1.systolicMmHg", "bp.office1.diastolicMmHg"],
+      "guard": {
+        "all": [
+          {"field": "bp.measurementMethod", "op": "present"},
+          {"field": "bp.office1.systolicMmHg", "op": "present"},
+          {"field": "bp.office1.diastolicMmHg", "op": "present"}
+        ]
+      }
+    },
+    {
+      "id": "hypertension_risk_stratification_started",
+      "event": "decision.bp_diagnosis_completed",
+      "entryTreeId": "hypertension_risk_stratification",
+      "activationMode": "direct",
+      "priority": 110,
+      "runPolicy": "once_per_encounter",
+      "requiredVariables": ["bp.category", "bp.systolicMmHg", "bp.diastolicMmHg", "risk.factorCount", "risk.highRiskComorbidity"],
+      "guard": {"field": "bp.category", "op": "in", "value": ["normal", "high_normal", "grade1", "grade2", "hypertension"]}
+    },
+    {
+      "id": "bp_thresholds_targets_started",
+      "event": "decision.hypertension_risk_stratification_completed",
+      "entryTreeId": "bp_thresholds_targets",
+      "activationMode": "direct",
+      "priority": 120,
+      "runPolicy": "once_per_encounter",
+      "requiredVariables": ["bp.category", "risk.class", "treatment.hasHighRiskComorbidity"],
+      "guard": {"field": "bp.category", "op": "in", "value": ["high_normal", "grade1", "grade2", "hypertension", "masked_hypertension"]}
+    },
+    {
+      "id": "optimized_hypertension_treatment_started",
+      "event": "decision.bp_thresholds_targets_completed",
+      "entryTreeId": "optimized_hypertension_treatment",
+      "activationMode": "direct",
+      "priority": 130,
+      "runPolicy": "once_per_encounter",
+      "requiredVariables": ["patient.ageYears", "bp.assessmentOfficeSystolicMmHg", "bp.assessmentOfficeDiastolicMmHg", "bp.category", "treatment.hasHighRiskComorbidity", "treatment.mandatoryIndication", "medication.agentCount", "medication.uncontrolledDespiteTripleTherapy"],
+      "guard": {"field": "bp.category", "op": "in", "value": ["high_normal", "grade1", "grade2", "hypertension", "masked_hypertension"]}
+    },
+    {
+      "id": "uncontrolled_resistant_assessment_started",
+      "event": "decision.optimized_hypertension_treatment_completed",
+      "entryTreeId": "uncontrolled_resistant_hypertension",
+      "activationMode": "link_or_direct",
+      "priority": 200,
+      "runPolicy": "once_per_encounter",
+      "requiredVariables": ["bp.officeAverageSystolicMmHg", "bp.officeReadingCount", "medication.regimenStableWeeks", "medication.agentCount", "medication.includesDiuretic", "resistant.egfrMlMin", "resistant.potassiumMmolL", "resistant.sodiumMmolL", "pregnancy.status", "resistant.severeLiverDisease", "resistant.systolicDropAt12WeeksMmHg"],
+      "guard": {"field": "bp.officeAverageSystolicMmHg", "op": "present"}
+    }
+  ]
+}

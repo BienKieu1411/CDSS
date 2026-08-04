@@ -1,0 +1,18 @@
+{
+  "name": "cdss-decision-tree-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node.js local CDSS decision-tree workbench with Cytoscape graph visualization",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "smoke": "node test_ui_smoke.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cytoscape": "^3.34.0",
+    "cytoscape-dagre": "^4.0.0"
+  }
+}

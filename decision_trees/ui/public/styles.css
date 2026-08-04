@@ -1,0 +1,26 @@
+:root { --ink:#172033; --muted:#64748b; --line:#dbe3ee; --panel:#fff; --bg:#f4f7fb; --accent:#2563eb; --good:#15803d; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,sans-serif; }
+header { padding:22px 28px 16px; background:#101b33; color:#fff; display:flex; align-items:end; justify-content:space-between; gap:16px; }
+header h1 { margin:0; font-size:23px; letter-spacing:-.02em; } header p { margin:4px 0 0; color:#b9c7df; }
+.badge { background:#1f9d68; padding:6px 10px; border-radius:999px; font-size:12px; white-space:nowrap; }
+main { padding:18px 24px 36px; max-width:1800px; margin:auto; } .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; box-shadow:0 3px 12px #15315d0b; }
+.toolbar { padding:12px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; } label { font-weight:650; color:#344054; }
+select,input,textarea,button { font:inherit; } select,input { border:1px solid #c8d4e4; border-radius:8px; padding:8px 10px; background:#fff; color:var(--ink); }
+button { border:0; border-radius:8px; padding:9px 13px; cursor:pointer; color:#fff; background:var(--accent); font-weight:650; } button.secondary { color:#28405e; background:#e8eef7; } button.good { background:var(--good); } button:disabled { cursor:not-allowed; opacity:.5; }
+.meta { color:var(--muted); font-size:12px; margin-left:auto; } .layout { display:grid; grid-template-columns:minmax(400px,.95fr) minmax(0,1.65fr); gap:16px; margin-top:16px; } .work-panel { grid-column:1; grid-row:1; } .graph-panel { grid-column:2; grid-row:1; }
+.panel { padding:15px; min-width:0; } h2 { font-size:16px; margin:0 0 11px; } h3 { font-size:13px; margin:14px 0 7px; color:#44546b; }
+.graph-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; } .graph-heading h2 { margin-bottom:0; }
+.graph-scroll { overflow:hidden; border:1px solid var(--line); border-radius:9px; background:radial-gradient(circle at top, #ffffff 0%, #f6f9fe 100%); min-height:620px; height:720px; padding:0; position:relative; } #graph { display:block; width:100%; height:100%; min-width:0; }
+.legend { color:var(--muted); font-size:12px; margin:8px 0 0; } .legend span { display:inline-block; margin-right:14px; } .dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+.dot.start { background:#e1fbfb; } .dot.condition { background:#fff8ed; } .dot.inference { background:#dffcf5; } .dot.link { background:#f7d3e6; } .dot.end { background:#dffcf5; }
+.path-status { margin-top:9px; padding:9px 11px; border:1px solid #dbe3ee; border-radius:8px; background:#f8fafc; color:#64748b; font-size:12px; min-height:38px; }
+.path-status.pending { background:#fffbeb; border-color:#fbbf24; color:#92400e; }
+.path-status.completed { background:#ecfdf3; border-color:#86efac; color:#166534; }
+.cy-panzoom-hint { color:var(--muted); font-size:12px; }
+.editor { width:100%; min-height:360px; resize:vertical; border:1px solid #c8d4e4; border-radius:8px; padding:11px; font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace; color:#14213b; }
+.section-gap { margin-top:18px; } .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:9px; } .status { margin-top:10px; padding:9px 11px; border-radius:8px; background:#f1f5f9; color:#4b5e78; white-space:pre-wrap; } .status.good { background:#ecfdf3; color:#166534; } .status.bad { background:#fef2f2; color:#991b1b; }
+.small { font-size:12px; color:var(--muted); } .input-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(205px,1fr)); gap:10px; } .input-card { border:1px solid var(--line); border-radius:8px; padding:9px; background:#fbfdff; }
+.input-card label { display:block; font-size:12px; margin-bottom:5px; } .input-card small { display:block; color:var(--muted); margin-top:4px; } .input-card input,.input-card select { width:100%; }
+.json-block { background:#101827; color:#d9e4f6; border-radius:8px; padding:11px; max-height:330px; overflow:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; white-space:pre-wrap; word-break:break-word; }
+.result-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; } @media (max-width:1050px) { .layout { grid-template-columns:1fr; } .work-panel,.graph-panel { grid-column:auto; grid-row:auto; } .meta { width:100%; margin-left:0; } }
