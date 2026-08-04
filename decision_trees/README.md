@@ -15,10 +15,11 @@ decision_trees/
 │   └── decision_tree_generation_prompt.md   # prompt sinh cây
 ├── contracts/                               # tích hợp clinical flow
 │   ├── clinical_flow_contract.md
+│   ├── extraction_manifest.json               # danh sách ảnh đầu vào cho multi-agent
 │   └── trigger_registry.json
 ├── pipeline/                                # Gemini + multi-agent
-│   ├── multi_agent_pipeline.py
-│   ├── build_target_bundle.py                # deterministic image-target bundle builder
+│   ├── multi_agent_pipeline.py               # ảnh → evidence → variables → trees → verify/repair
+│   ├── build_target_bundle.py                # baseline deterministic dùng cho runtime/test
 │   ├── generate_decision_tree.py
 │   └── create_decision_tree_example.py
 ├── runtime/                                 # chạy và validate tree
@@ -49,9 +50,15 @@ cd decision_trees/ui
 npm run smoke
 ```
 
-Pipeline đa tác tử có thể gửi trực tiếp 5 ảnh mục tiêu vào Gemini; các vòng
-verify/repair được giới hạn theo file pass criteria. Artifact chạy thử nếu có
-phải nằm ngoài baseline bundle.
+Pipeline đa tác tử đọc `contracts/extraction_manifest.json`, gửi từng ảnh mục
+tiêu cho các evidence agents, chạy variable agents theo từng cây, hợp nhất
+catalog, sinh tree song song và lặp verifier/repair tối đa 10 vòng. Pipeline
+không đọc baseline bundle để làm template và không tự ghi đè baseline; kết quả
+đạt strict gate được ghi thành `runs/<timestamp>/bundle.draft.json` để clinical
+review.
+
+`build_target_bundle.py` chỉ tạo lại baseline deterministic đã được review để
+phục vụ runtime/test. Nó không được gọi trong luồng multi-agent extraction.
 
 `run_all_trees.py` ghi kết quả kiểm thử vào `results/`, mỗi file tương ứng một
 `treeId` trong bundle.

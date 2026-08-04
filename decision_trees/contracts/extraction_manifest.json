@@ -1,0 +1,41 @@
+{
+  "manifestVersion": "decision-tree-extraction-manifest.v1",
+  "locale": "vi-VN",
+  "sources": [
+    {
+      "treeId": "bp_diagnosis",
+      "sourceId": "image_01_bp_diagnosis",
+      "file": "01_bp_diagnosis.png",
+      "title": "Sơ đồ chẩn đoán tăng huyết áp",
+      "purpose": "Phân loại và xác nhận tình trạng huyết áp của người bệnh."
+    },
+    {
+      "treeId": "bp_thresholds_targets",
+      "sourceId": "image_02_bp_thresholds_targets",
+      "file": "02_bp_thresholds_and_targets.png",
+      "title": "Ngưỡng huyết áp ban đầu và đích điều trị",
+      "purpose": "Xác định ngưỡng bắt đầu điều trị và mục tiêu huyết áp."
+    },
+    {
+      "treeId": "optimized_hypertension_treatment",
+      "sourceId": "image_03_optimized_treatment",
+      "file": "03_optimized_hypertension_treatment.png",
+      "title": "Sơ đồ điều trị tăng huyết áp tối ưu",
+      "purpose": "Đề xuất chiến lược điều trị tăng huyết áp theo tình huống lâm sàng."
+    },
+    {
+      "treeId": "hypertension_risk_stratification",
+      "sourceId": "image_04_risk_stratification",
+      "file": "04_hypertension_risk_stratification.png",
+      "title": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+      "purpose": "Phân tầng nguy cơ tim mạch ở người bệnh tăng huyết áp."
+    },
+    {
+      "treeId": "uncontrolled_resistant_hypertension",
+      "sourceId": "image_05_uncontrolled_resistant",
+      "file": "05_uncontrolled_resistant_hypertension.png",
+      "title": "Phân loại tăng huyết áp không kiểm soát hoặc kháng trị",
+      "purpose": "Phân loại tăng huyết áp không kiểm soát và tăng huyết áp kháng trị."
+    }
+  ]
+}
