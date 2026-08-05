@@ -3,49 +3,144 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CDSS Decision Tree Workbench</title>
+  <title>Cây quyết định</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
   <header>
-    <h1>CDSS Decision Tree Workbench</h1>
+    <h1>Cây quyết định</h1>
+    <button class="header-action" id="new-tree-button" type="button">Tạo cây mới từ ảnh</button>
   </header>
   <main>
     <section class="toolbar panel">
-      <label for="tree-select">Decision tree</label>
-      <select id="tree-select"></select>
-      <button class="secondary" id="format-json">Format JSON</button>
-      <button id="validate-draft">Validate draft</button>
-      <button class="good" id="save-draft" disabled>Save draft riêng</button>
-      <span class="meta" id="bundle-meta">Loading bundle…</span>
+      <label for="tree-select">Chọn cây</label>
+      <select id="tree-select" aria-label="Chọn cây quyết định"></select>
+      <span class="tree-purpose" id="tree-purpose"></span>
     </section>
+
     <div class="layout">
-      <section class="panel graph-panel">
-        <div class="graph-heading"><h2>Decision graph</h2><button class="secondary" id="fit-graph" type="button">Căn chỉnh graph</button></div>
-        <div class="graph-scroll"><div id="graph" role="img" aria-label="Decision tree graph"></div></div>
-        <p class="legend"><span><i class="dot start"></i>start</span><span><i class="dot condition"></i>condition</span><span><i class="dot inference"></i>inference</span><span><i class="dot link"></i>link</span><span><i class="dot end"></i>end</span></p>
+      <section class="panel graph-panel" id="graph-panel">
+        <div class="graph-heading">
+          <h2 id="graph-title">Sơ đồ quyết định</h2>
+          <div class="graph-actions">
+            <button class="secondary" id="edit-tree" type="button">Chỉnh sửa cây</button>
+            <button class="secondary" id="fit-graph" type="button">Căn chỉnh</button>
+            <button class="secondary" id="fullscreen-graph" type="button" aria-label="Hiển thị cây toàn màn hình" aria-pressed="false">Toàn màn hình</button>
+          </div>
+        </div>
+        <div class="graph-scroll"><div id="graph" role="img" aria-label="Sơ đồ cây quyết định"></div></div>
         <div id="path-status" class="path-status">Nhập dữ liệu để xem đường đi trên cây.</div>
-        <h3>Node inspector</h3>
-        <pre class="json-block" id="node-inspector">Click a node to inspect it.</pre>
       </section>
+
       <section class="panel work-panel">
-        <h2>Input → output</h2>
+        <h2>Thông tin người bệnh</h2>
         <p class="small" id="input-help"></p>
         <div id="input-form" class="input-grid"></div>
-        <div class="actions"><button id="run-tree">Run baseline</button><button class="good" id="run-draft">Run edited draft</button><button class="secondary" id="clear-input">Clear inputs</button></div>
+        <div class="actions">
+          <button id="run-tree" type="button">Chạy cây</button>
+          <button class="secondary" id="run-draft" type="button" disabled>Chạy bản chỉnh sửa</button>
+          <button class="secondary" id="clear-input" type="button">Xóa dữ liệu</button>
+        </div>
 
-        <h3>Result / decision</h3>
-        <pre class="json-block result" id="result-box">No run yet.</pre>
-        <div class="result-grid"><div><h3>Trace</h3><pre class="json-block" id="trace-box">[]</pre></div><div><h3>Links visited</h3><pre class="json-block" id="links-box">[]</pre></div></div>
-        <h3>Source references</h3>
-        <pre class="json-block" id="sources-box">[]</pre>
-
-        <h2 class="section-gap">Tree JSON draft</h2>
-        <textarea id="tree-editor" class="editor" spellcheck="false"></textarea>
-        <div id="draft-status" class="status">Baseline tree loaded. Baseline is read-only.</div>
+        <h2 class="section-gap">Kết quả</h2>
+        <div id="result-box" class="result-card">Chưa có kết quả.</div>
+        <div id="ui-status" class="status" aria-live="polite"></div>
       </section>
     </div>
   </main>
+
+  <dialog id="new-tree-dialog" class="new-tree-dialog">
+    <form id="new-tree-form" method="dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="dialog-kicker">TẠO CÂY MỚI</p>
+          <h2>Tạo cây từ ảnh guideline</h2>
+        </div>
+        <button class="dialog-close" id="close-new-tree" type="button" aria-label="Đóng">Đóng</button>
+      </div>
+      <p class="dialog-copy">Tải ảnh lên để hệ thống trích xuất biến, dựng cây và kiểm tra trước khi đưa vào danh sách.</p>
+      <div class="form-grid">
+        <div class="field">
+          <label for="new-tree-name">Tên cây</label>
+          <input id="new-tree-name" name="name" type="text" placeholder="Ví dụ: Phân tầng nguy cơ" required>
+        </div>
+        <div class="field field-wide">
+          <label for="new-tree-purpose">Mục đích</label>
+          <textarea id="new-tree-purpose" name="purpose" rows="3" placeholder="Mô tả ngắn mục đích của cây" required></textarea>
+        </div>
+      </div>
+      <label class="file-drop" for="new-tree-image">
+        <span class="file-drop-title">Chọn ảnh guideline</span>
+        <span id="new-tree-file-name" class="file-drop-name">PNG hoặc JPEG, tối đa 8 MB</span>
+        <input id="new-tree-image" name="image" type="file" accept="image/png,image/jpeg" required>
+      </label>
+      <div class="upload-actions">
+        <button class="secondary" id="cancel-new-tree" type="button">Hủy</button>
+        <button id="start-pipeline" type="submit">Bắt đầu tạo</button>
+      </div>
+      <div id="pipeline-status" class="status" aria-live="polite"></div>
+    </form>
+  </dialog>
+
+  <dialog id="edit-tree-dialog" class="edit-tree-dialog new-tree-dialog">
+    <form id="edit-tree-form" method="dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="dialog-kicker">CHỈNH SỬA CÂY</p>
+          <h2 id="edit-dialog-title">Chỉnh sửa cây quyết định</h2>
+        </div>
+        <button class="dialog-close" id="close-edit-tree" type="button" aria-label="Đóng">Đóng</button>
+      </div>
+      <p class="dialog-copy">Chọn một node trên cây hoặc trong danh sách, sau đó chỉnh sửa nội dung bằng biểu mẫu. Cây chuẩn chỉ thay đổi khi bạn lưu riêng bản nháp.</p>
+      <div class="node-picker-row">
+        <label for="node-select">Node cần sửa</label>
+        <select id="node-select" aria-label="Node cần sửa"></select>
+      </div>
+      <div id="node-type-help" class="node-type-help"></div>
+      <section class="node-form-section">
+        <div class="field">
+          <label for="node-title">Tiêu đề hiển thị</label>
+          <input id="node-title" type="text" placeholder="Ví dụ: Có tổn thương cơ quan đích?">
+        </div>
+        <div class="field">
+          <label for="node-detail">Mô tả ngắn</label>
+          <textarea id="node-detail" rows="2" placeholder="Thông tin giải thích thêm cho người dùng"></textarea>
+        </div>
+      </section>
+      <section id="condition-editor-panel" class="node-form-section" hidden>
+        <div class="section-heading-row">
+          <div>
+            <h3>Điều kiện quyết định</h3>
+            <p class="small">Chỉnh biến, phép so sánh và giá trị. Có thể thêm nhóm “tất cả” hoặc “một trong”.</p>
+          </div>
+          <button class="secondary compact-button" id="add-condition-group" type="button">Thêm nhóm</button>
+        </div>
+        <div id="condition-builder" class="condition-builder"></div>
+      </section>
+      <section id="link-editor-panel" class="node-form-section" hidden>
+        <div class="field">
+          <label for="node-link-target">Cây được liên kết</label>
+          <select id="node-link-target" aria-label="Cây được liên kết"></select>
+        </div>
+      </section>
+      <section id="edge-editor-panel" class="node-form-section">
+        <div class="section-heading-row">
+          <div>
+            <h3>Nhãn các nhánh đi ra</h3>
+            <p class="small">Nhãn này hiển thị trên đường nối giữa các node.</p>
+          </div>
+        </div>
+        <div id="edge-builder" class="edge-builder"></div>
+      </section>
+      <div class="edit-actions">
+        <button class="secondary" id="validate-tree" type="button">Kiểm tra thay đổi</button>
+        <button id="apply-tree" type="button" disabled>Áp dụng xem trước</button>
+        <button id="save-draft" type="button" disabled>Lưu bản nháp</button>
+      </div>
+      <div id="draft-status" class="status" aria-live="polite"></div>
+    </form>
+  </dialog>
+
   <script src="/vendor/cytoscape.min.js"></script>
   <script src="/vendor/cytoscape-dagre.min.js"></script>
   <script src="/app.js"></script>

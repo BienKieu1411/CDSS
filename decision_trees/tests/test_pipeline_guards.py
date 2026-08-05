@@ -11,7 +11,12 @@ if __package__ in (None, ""):
 
 from decision_trees.config.paths import PASS_CRITERIA_PATH
 from decision_trees.config.paths import BUNDLE_PATH
-from decision_trees.pipeline.multi_agent_pipeline import candidate_validation_errors, strict_verifier_errors
+from decision_trees.pipeline.multi_agent_pipeline import (
+    candidate_validation_errors,
+    canonicalize_evidence_claims,
+    evidence_variable_reference_errors,
+    strict_verifier_errors,
+)
 
 
 def main() -> None:
@@ -51,6 +56,33 @@ def main() -> None:
     candidate["nodes"][0]["sourceRefs"][0]["sourceId"] = "image_05_uncontrolled_resistant"
     errors = candidate_validation_errors("bp_diagnosis", candidate, bundle)
     assert any("outside target evidence" in error for error in errors)
+
+    evidence_bundle = {
+        "variables": [
+            {"id": "bp.systolicMmHg", "dataType": "number"},
+            {"id": "bp.diastolicMmHg", "dataType": "number"},
+            {"id": "laboratory.potassiumMmolL", "dataType": "number"},
+        ]
+    }
+    evidence = {
+        "claims": [{
+            "claimId": "bp",
+            "variablesJson": json.dumps([{"name": "HATT", "type": "number"}, {"name": "HATTr", "type": "number"}]),
+            "predicateJson": json.dumps({"and": [{"between": ["HATT", 130, 139]}, {"between": ["HATTr", 85, 89]}]}),
+        }]
+    }
+    normalized = canonicalize_evidence_claims(evidence, "bp_thresholds_targets", evidence_bundle)
+    assert evidence_variable_reference_errors(normalized, evidence_bundle) == []
+    assert normalized["claims"][0]["predicateJson"]
+    lab_evidence = {
+        "claims": [{
+            "claimId": "lab",
+            "variablesJson": json.dumps(["K+"]),
+            "predicateJson": json.dumps({"K+": {"$gte": 5.5}}),
+        }]
+    }
+    lab_normalized = canonicalize_evidence_claims(lab_evidence, "uncontrolled_resistant_hypertension", evidence_bundle)
+    assert evidence_variable_reference_errors(lab_normalized, evidence_bundle) == []
     print("pipeline strict pass gate tests: ok")
 
 

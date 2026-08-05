@@ -65,9 +65,25 @@ async function main() {
 
     const page = await request(port, "GET", "/");
     assert.equal(page.status, 200);
-    assert.match(page.body, /CDSS Decision Tree Workbench/);
+    assert.match(page.body, /Cây quyết định/);
     assert.match(page.body, /vendor\/cytoscape\.min\.js/);
     assert.match(page.body, /path-status/);
+    assert.match(page.body, /new-tree-button/);
+    assert.match(page.body, /new-tree-image/);
+    assert.match(page.body, /Tạo cây mới từ ảnh/);
+    assert.match(page.body, /edit-tree/);
+    assert.match(page.body, /fullscreen-graph/);
+    assert.match(page.body, /Toàn màn hình/);
+    assert.match(page.body, /node-select/);
+    assert.match(page.body, /condition-builder/);
+    assert.match(page.body, /validate-tree/);
+    assert.match(page.body, /Chỉnh sửa cây/);
+    assert.match(page.body, /run-draft/);
+    assert.doesNotMatch(page.body, /tree-editor/);
+    assert.doesNotMatch(page.body, /node-inspector/);
+    assert.doesNotMatch(page.body, /Source references/);
+    assert.doesNotMatch(page.body, /Trace/);
+    assert.doesNotMatch(page.body, /Format JSON/);
     assert.doesNotMatch(page.body, /NO LLM · NO API KEY/);
     assert.doesNotMatch(page.body, /Node\.js local UI/);
     const cytoscapeAsset = await request(port, "GET", "/vendor/cytoscape.min.js");
@@ -85,6 +101,14 @@ async function main() {
     const runDraftApi = await request(port, "POST", "/api/run-draft", { treeId: bp.id, tree: bp, variables: input });
     assert.equal(runDraftApi.status, 200);
     assert.equal(runDraftApi.body.result.resultCode, "normal_bp");
+
+    const uploadValidation = await request(port, "POST", "/api/pipeline/upload", {});
+    assert.equal(uploadValidation.status, 400);
+    assert.match(uploadValidation.body.errors[0], /treeId/);
+
+    const missingJob = await request(port, "GET", "/api/pipeline/jobs/unknown-job");
+    assert.equal(missingJob.status, 400);
+    assert.match(missingJob.body.errors[0], /Không tìm thấy/);
 
     console.log(JSON.stringify({ status: "ok", node: process.version, trees: bundle.trees.length, resultCode: run.result.resultCode }));
   } finally {

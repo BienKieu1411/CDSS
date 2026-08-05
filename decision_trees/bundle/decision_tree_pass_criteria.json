@@ -19,6 +19,83 @@
       "missingItemsMustBeEmpty": true
     }
   },
+  "evidence": {
+    "minimumClaimsByTree": {
+      "bp_diagnosis": 5,
+      "bp_thresholds_targets": 5,
+      "optimized_hypertension_treatment": 10,
+      "hypertension_risk_stratification": 10,
+      "uncontrolled_resistant_hypertension": 8
+    },
+    "requiredAliasGroupsByTree": {
+      "bp_diagnosis": [
+        ["ha_pk_1", "ha_pk_1_systolic"],
+        ["ha_pk_2_systolic", "ha_pk_2"],
+        ["ha_pk_3_systolic", "ha_pk_3"],
+        ["hatn_systolic", "home_systolic"],
+        ["halt_day_systolic", "ambulatory_day_systolic"],
+        ["halt_24h_systolic", "ambulatory_24h_systolic"]
+      ],
+      "bp_thresholds_targets": [
+        ["HATT", "bp_systolic"],
+        ["HATTr", "bp_diastolic"],
+        ["BTMXV", "has_cvd"],
+        ["ĐTĐ", "has_diabetes"],
+        ["BTM", "has_ckd"],
+        ["BĐM", "organ_damage", "comorbidity_present"],
+        ["target_HATT", "target_systolic"],
+        ["target_HATTr", "target_diastolic"]
+      ],
+      "optimized_hypertension_treatment": [
+        ["bp_systolic", "systolic_bp", "office_bp_systolic"],
+        ["bp_diastolic", "diastolic_bp", "office_bp_diastolic"],
+        ["bp_category", "hypertension_category"],
+        ["risk_level"],
+        ["has_cvd", "bkmxv_present"],
+        ["has_ckd", "ckd_present"],
+        ["has_diabetes", "diabetes_present"],
+        ["treatment_step"],
+        ["resistant_hypertension"],
+        ["compulsory_indication", "compelling_indication"]
+      ],
+      "hypertension_risk_stratification": [
+        ["HATT", "bp_systolic"],
+        ["HATTr", "bp_diastolic"],
+        ["YTNC_count", "risk_factor_count"],
+        ["has_TOD_CVD_DM", "tod_cvd_dm"],
+        ["age"],
+        ["gender"],
+        ["heart_rate"],
+        ["diabetes"],
+        ["LDL_C", "ldl"],
+        ["triglyceride"],
+        ["family_history_cvd", "family_cvd"],
+        ["smoking"],
+        ["socioeconomic_risk_factors", "socioeconomic"],
+        ["LVH_ECG", "lvh"],
+        ["eGFR", "egfr"],
+        ["other_TOD", "other_tod"],
+        ["coronary_heart_disease"],
+        ["heart_failure"],
+        ["stroke"],
+        ["peripheral_artery_disease"],
+        ["atrial_fibrillation"],
+        ["ckd_stage"]
+      ],
+      "uncontrolled_resistant_hypertension": [
+        ["seated_sbp"],
+        ["regimen_stable_weeks"],
+        ["antihypertensive_agents_count"],
+        ["includes_diuretic"],
+        ["eGFR", "egfr"],
+        ["K+", "potassium", "k"],
+        ["Na+", "sodium", "na"],
+        ["pregnancy"],
+        ["liver"],
+        ["sbp_decrease_12_wks_mmhg", "sbp_decrease_12wks"]
+      ]
+    }
+  },
   "local": {
     "semanticErrorsMustBeEmpty": true,
     "allClinicalNodesNeedSourceRefs": true,

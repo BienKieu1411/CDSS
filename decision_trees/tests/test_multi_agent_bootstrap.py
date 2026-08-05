@@ -15,6 +15,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from decision_trees.pipeline.multi_agent_pipeline import GeminiClient, build_extraction_context, main
+from decision_trees.config.paths import PASS_CRITERIA_PATH
 from decision_trees.runtime.validate_decision_tree_bundle import validate_bundle
 
 
@@ -34,10 +35,18 @@ def fake_generate_json(self: GeminiClient, role: str, prompt: str, schema: dict,
         tree_id = role.split(":", 1)[1]
         return {
             "treeId": tree_id,
-            "claims": [],
+            "claims": [{
+                "claimId": "mock-claim",
+                "claim": "Offline mock claim.",
+                "predicateJson": json.dumps({"field": "mock.input", "op": "eq", "value": "yes"}),
+                "variablesJson": json.dumps(["mock.input"]),
+                "sourceRefsJson": json.dumps([source_ref("image_01_bp_diagnosis", "01_bp_diagnosis.png")]),
+                "confidence": "high",
+                "notes": "Offline test evidence.",
+            }],
             "missingEvidence": [],
         }
-    if role.startswith("variable-architect"):
+    if role.startswith("variable-architect") or role.startswith("variable-repair"):
         return {
             "variablesJson": json.dumps([
                 {
@@ -54,6 +63,16 @@ def fake_generate_json(self: GeminiClient, role: str, prompt: str, schema: dict,
             ]),
             "derivationRulesJson": "[]",
             "warnings": [],
+        }
+    if role.startswith("variable-verifier:"):
+        return {
+            "treeId": role.split(":")[-1],
+            "status": "pass",
+            "issues": [],
+            "coverageJson": json.dumps({"totalClaims": 0, "coveredClaims": [], "uncoveredClaims": [], "coverageRatio": 1.0, "coveragePercentage": 100}),
+            "missingVariablesJson": "[]",
+            "invalidVariablesJson": "[]",
+            "notes": "Offline variable verification passed.",
         }
     if role.startswith("builder:") or role.startswith("repair:"):
         tree_id = role.split(":")[-1]
@@ -129,11 +148,16 @@ def main_test() -> None:
 
     with TemporaryDirectory() as temporary:
         out_dir = Path(temporary) / "run"
+        pass_criteria = json.loads(PASS_CRITERIA_PATH.read_text(encoding="utf-8"))
+        pass_criteria["evidence"] = {"minimumClaimsByTree": {}, "requiredAliasGroupsByTree": {}}
+        pass_criteria_path = Path(temporary) / "pass_criteria.json"
+        pass_criteria_path.write_text(json.dumps(pass_criteria), encoding="utf-8")
         argv = [
             "multi_agent_pipeline.py",
             "--out-dir", str(out_dir),
             "--max-rounds", "2",
             "--dotenv", str(Path(temporary) / "missing.env"),
+            "--pass-criteria", str(pass_criteria_path),
         ]
         with patch.dict("os.environ", {"GEMINI_KEY": "offline-test-key"}, clear=False), patch.object(GeminiClient, "generate_json", fake_generate_json), patch.object(sys, "argv", argv), contextlib.redirect_stdout(io.StringIO()):
             main()
@@ -148,5 +172,53 @@ def main_test() -> None:
     print("multi-agent bootstrap tests: ok")
 
 
+def variable_feedback_loop_test() -> None:
+    """The builder must wait for a failed variable verifier to be repaired."""
+    verifier_counts: dict[str, int] = {}
+    builder_called = False
+
+    def feedback_generate_json(self: GeminiClient, role: str, prompt: str, schema: dict, image_paths=None) -> dict:
+        nonlocal builder_called
+        if role.startswith("variable-verifier:"):
+            tree_id = role.split(":")[-1]
+            verifier_counts[tree_id] = verifier_counts.get(tree_id, 0) + 1
+            if tree_id == "bp_diagnosis" and verifier_counts[tree_id] == 1:
+                return {
+                    "treeId": tree_id,
+                    "status": "fail",
+                    "issues": [{"severity": "P1", "variableId": "mock.input", "message": "retry once", "sourceRef": "image_01_bp_diagnosis", "suggestedFix": "regenerate complete catalog"}],
+                    "coverageJson": json.dumps({"totalClaims": 1, "coveredClaims": [], "uncoveredClaims": ["claim-1"], "coverageRatio": 0.0, "coveragePercentage": 0}),
+                    "missingVariablesJson": json.dumps(["mock.input"]),
+                    "invalidVariablesJson": "[]",
+                    "notes": "Retry required.",
+                }
+        if role.startswith("builder:"):
+            builder_called = True
+        return fake_generate_json(self, role, prompt, schema, image_paths)
+
+    with TemporaryDirectory() as temporary:
+        out_dir = Path(temporary) / "run"
+        pass_criteria = json.loads(PASS_CRITERIA_PATH.read_text(encoding="utf-8"))
+        pass_criteria["evidence"] = {"minimumClaimsByTree": {}, "requiredAliasGroupsByTree": {}}
+        pass_criteria_path = Path(temporary) / "pass_criteria.json"
+        pass_criteria_path.write_text(json.dumps(pass_criteria), encoding="utf-8")
+        argv = [
+            "multi_agent_pipeline.py",
+            "--out-dir", str(out_dir),
+            "--max-rounds", "2",
+            "--dotenv", str(Path(temporary) / "missing.env"),
+            "--pass-criteria", str(pass_criteria_path),
+        ]
+        with patch.dict("os.environ", {"GEMINI_KEY": "offline-test-key"}, clear=False), patch.object(GeminiClient, "generate_json", feedback_generate_json), patch.object(sys, "argv", argv), contextlib.redirect_stdout(io.StringIO()):
+            main()
+        report = json.loads((out_dir / "run_report.json").read_text(encoding="utf-8"))
+        assert report["variableStage"]["allPassed"] is True
+        assert len(json.loads((out_dir / "variable_agent_attempts.json").read_text(encoding="utf-8"))["bp_diagnosis"]) == 2
+        assert builder_called is True
+
+    print("multi-agent variable feedback loop: ok")
+
+
 if __name__ == "__main__":
     main_test()
+    variable_feedback_loop_test()

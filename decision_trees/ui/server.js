@@ -14,7 +14,8 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
-const { spawnSync } = require("node:child_process");
+const crypto = require("node:crypto");
+const { spawnSync, spawn } = require("node:child_process");
 const { URL } = require("node:url");
 
 const UI_DIR = __dirname;
@@ -23,6 +24,7 @@ const DECISION_DIR = path.join(PROJECT_ROOT, "decision_trees");
 const BUNDLE_PATH = path.join(DECISION_DIR, "bundle", "decision_tree_bundle.json");
 const ENGINE_PATH = path.join(DECISION_DIR, "runtime", "decision_tree_engine.py");
 const VALIDATOR_PATH = path.join(DECISION_DIR, "runtime", "validate_decision_tree_bundle.py");
+const PIPELINE_PATH = path.join(DECISION_DIR, "pipeline", "multi_agent_pipeline.py");
 const PYTHON_PATH = process.env.CDSS_PYTHON || process.env.PYTHON || "python3";
 const PUBLIC_DIR = path.join(UI_DIR, "public");
 const VENDOR_ASSETS = {
@@ -30,7 +32,11 @@ const VENDOR_ASSETS = {
   "/vendor/cytoscape-dagre.min.js": path.join(UI_DIR, "node_modules", "cytoscape-dagre", "dist", "cytoscape-dagre.min.js"),
 };
 const DRAFTS_DIR = path.join(UI_DIR, "drafts");
-const MAX_BODY_BYTES = 12 * 1024 * 1024;
+const PIPELINE_JOBS_DIR = path.join(UI_DIR, ".pipeline-jobs");
+const UPLOADS_DIR = path.join(DECISION_DIR, "images", "uploads");
+const MAX_BODY_BYTES = 16 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+const pipelineJobs = new Map();
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -200,6 +206,130 @@ function runDraft(treeId, tree, rawVariables) {
   return { ok: true, treeId, draftValidation: validation, ...execution };
 }
 
+function makeJobId() {
+  return `${new Date().toISOString().replace(/[-:.TZ]/g, "")}-${crypto.randomBytes(4).toString("hex")}`;
+}
+
+function imageExtension(mimeType, fileName) {
+  const byMime = { "image/png": ".png", "image/jpeg": ".jpg" };
+  if (byMime[mimeType]) return byMime[mimeType];
+  const extension = path.extname(String(fileName || "")).toLowerCase();
+  if ([".png", ".jpg", ".jpeg"].includes(extension)) return extension === ".jpeg" ? ".jpg" : extension;
+  throw new Error("Chỉ hỗ trợ ảnh PNG hoặc JPEG");
+}
+
+function decodeUploadedImage(data, mimeType, fileName) {
+  if (typeof data !== "string" || !data) throw new Error("Ảnh tải lên không hợp lệ");
+  const extension = imageExtension(mimeType, fileName);
+  const encoded = data.includes(",") ? data.slice(data.indexOf(",") + 1) : data;
+  const buffer = Buffer.from(encoded, "base64");
+  if (!buffer.length || buffer.length > MAX_IMAGE_BYTES) throw new Error("Ảnh phải nhỏ hơn 8 MB");
+  const isPng = buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+  const isJpeg = buffer.length >= 3 && buffer.subarray(0, 3).equals(Buffer.from([255, 216, 255]));
+  if ((extension === ".png" && !isPng) || (extension === ".jpg" && !isJpeg)) throw new Error("Nội dung ảnh không khớp định dạng PNG/JPEG");
+  return { buffer, extension };
+}
+
+function publicPipelineJob(job) {
+  return {
+    jobId: job.jobId,
+    treeId: job.treeId,
+    status: job.status,
+    message: job.message,
+    bundleReady: Boolean(job.bundlePath && fs.existsSync(job.bundlePath)),
+    report: job.report ? {
+      loopStatus: job.report.loopStatus,
+      managerStatus: job.report.managerStatus,
+      approvedTreeIds: job.report.approvedTreeIds,
+      bundleSummary: job.report.bundleSummary,
+      variableStage: job.report.variableStage,
+    } : undefined,
+    error: job.error,
+  };
+}
+
+function startPipelineJob(payload) {
+  const treeId = safeTreeId(payload.treeId);
+  const name = typeof payload.name === "string" ? payload.name.trim() : "";
+  const purpose = typeof payload.purpose === "string" ? payload.purpose.trim() : "";
+  if (!name || !purpose) throw new Error("Tên cây và mục đích là bắt buộc");
+  if (name.length > 200 || purpose.length > 1000) throw new Error("Tên cây hoặc mục đích quá dài");
+  const baseline = loadBundle();
+  if (getTreeMap(baseline)[treeId] || [...pipelineJobs.values()].some((job) => job.treeId === treeId && ["queued", "running", "completed"].includes(job.status))) {
+    throw new Error(`Mã cây đã tồn tại: ${treeId}`);
+  }
+  const { buffer, extension } = decodeUploadedImage(payload.data, payload.mimeType, payload.fileName);
+  const jobId = makeJobId();
+  const jobDir = path.join(PIPELINE_JOBS_DIR, jobId);
+  const runDir = path.join(jobDir, "run");
+  const imageName = `${jobId}${extension}`;
+  const imagePath = path.join(UPLOADS_DIR, imageName);
+  const manifestPath = path.join(jobDir, "manifest.json");
+  fs.mkdirSync(jobDir, { recursive: true });
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  fs.writeFileSync(imagePath, buffer);
+  writeJson(manifestPath, {
+    manifestVersion: "decision-tree-extraction-manifest.v1",
+    locale: "vi-VN",
+    sources: [{
+      treeId,
+      sourceId: `upload_${jobId}`,
+      file: path.join("uploads", imageName),
+      title: name,
+      purpose,
+    }],
+  });
+  const job = { jobId, treeId, runDir, manifestPath, status: "queued", message: "Đang xếp hàng chạy pipeline…", output: "" };
+  pipelineJobs.set(jobId, job);
+  const child = spawn(PYTHON_PATH, [
+    PIPELINE_PATH,
+    "--manifest", manifestPath,
+    "--tree-id", treeId,
+    "--out-dir", runDir,
+    "--max-rounds", "10",
+    "--max-workers", "1",
+  ], { cwd: DECISION_DIR, env: { ...process.env, PYTHONUNBUFFERED: "1" } });
+  job.status = "running";
+  job.message = "Đang trích xuất biến, xây cây và kiểm tra…";
+  const appendOutput = (chunk) => { job.output = `${job.output}${chunk}`.slice(-12000); };
+  child.stdout.on("data", appendOutput);
+  child.stderr.on("data", appendOutput);
+  child.on("error", (error) => {
+    job.status = "failed";
+    job.error = error.message;
+    job.message = "Không thể khởi chạy pipeline.";
+  });
+  child.on("close", (code) => {
+    const reportPath = path.join(runDir, "run_report.json");
+    const bundlePath = path.join(runDir, "bundle.draft.json");
+    if (fs.existsSync(reportPath)) {
+      try { job.report = readJson(reportPath); } catch (error) { job.error = error.message; }
+    }
+    if (fs.existsSync(bundlePath)) job.bundlePath = bundlePath;
+    if (code === 0 && job.bundlePath) {
+      job.status = "completed";
+      job.message = "Đã tạo cây và vượt qua kiểm tra tự động.";
+    } else {
+      job.status = "failed";
+      job.error = job.error || job.report?.nextStep || `Pipeline kết thúc với mã ${code}`;
+      job.message = "Cây chưa đạt điều kiện để hiển thị.";
+    }
+  });
+  return publicPipelineJob(job);
+}
+
+function getPipelineJob(jobId) {
+  const job = pipelineJobs.get(jobId);
+  if (!job) throw new Error("Không tìm thấy phiên tạo cây");
+  return job;
+}
+
+function loadPipelineBundle(jobId) {
+  const job = getPipelineJob(jobId);
+  if (!job.bundlePath || !fs.existsSync(job.bundlePath)) throw new Error("Cây chưa sẵn sàng");
+  return readJson(job.bundlePath);
+}
+
 function listDrafts() {
   if (!fs.existsSync(DRAFTS_DIR)) return [];
   return fs.readdirSync(DRAFTS_DIR).filter((name) => name.endsWith(".json")).sort().reverse().slice(0, 100).map((name) => ({
@@ -261,6 +391,12 @@ async function handle(request, response) {
       if (url.pathname === "/api/health") return jsonResponse(response, 200, { ok: true, runtime: "node", python: PYTHON_PATH, bundlePath: BUNDLE_PATH });
       if (url.pathname === "/api/bundle") return jsonResponse(response, 200, loadBundle());
       if (url.pathname === "/api/drafts") return jsonResponse(response, 200, { ok: true, drafts: listDrafts() });
+      if (url.pathname.startsWith("/api/pipeline/jobs/")) {
+        const parts = url.pathname.split("/").filter(Boolean);
+        const jobId = decodeURIComponent(parts[3] || "");
+        if (parts[4] === "bundle") return jsonResponse(response, 200, loadPipelineBundle(jobId));
+        return jsonResponse(response, 200, { ok: true, ...publicPipelineJob(getPipelineJob(jobId)) });
+      }
       if (url.pathname.startsWith("/vendor/")) return serveVendor(response, url.pathname);
       return serveStatic(response, url.pathname);
     }
@@ -270,6 +406,12 @@ async function handle(request, response) {
     if (url.pathname === "/api/validate-draft") return jsonResponse(response, 200, validateTreePayload(payload.treeId, payload.tree));
     if (url.pathname === "/api/save-draft") return jsonResponse(response, 200, saveDraft(payload.treeId, payload.tree));
     if (url.pathname === "/api/run") return jsonResponse(response, 200, { ok: true, ...runEngine(payload.treeId, payload.variables || {}) });
+    if (url.pathname === "/api/pipeline/upload") return jsonResponse(response, 202, { ok: true, ...startPipelineJob(payload) });
+    if (url.pathname === "/api/pipeline/run") {
+      const job = getPipelineJob(payload.jobId);
+      if (job.status !== "completed" || !job.bundlePath) throw new Error("Cây mới chưa sẵn sàng để chạy");
+      return jsonResponse(response, 200, { ok: true, ...runEngine(payload.treeId, payload.variables || {}, job.bundlePath) });
+    }
     if (url.pathname === "/api/run-draft") {
       const result = runDraft(payload.treeId, payload.tree, payload.variables || {});
       return jsonResponse(response, result.ok ? 200 : 400, result);
@@ -298,6 +440,6 @@ function main() {
   });
 }
 
-module.exports = { BUNDLE_PATH, PYTHON_PATH, createServer, loadBundle, validateTreePayload, coerceVariables, runEngine, runDraft, saveDraft };
+module.exports = { BUNDLE_PATH, PYTHON_PATH, createServer, loadBundle, validateTreePayload, coerceVariables, runEngine, runDraft, saveDraft, startPipelineJob, publicPipelineJob };
 
 if (require.main === module) main();
