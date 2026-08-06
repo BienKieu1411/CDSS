@@ -59,18 +59,12 @@ def resistant_base() -> dict[str, Any]:
         "medication.regimenStableWeeks": 4,
         "medication.agentCount": 3,
         "medication.includesDiuretic": True,
-        "resistant.egfrMlMin": 60,
-        "resistant.potassiumMmolL": 4.2,
-        "resistant.sodiumMmolL": 140,
-        "pregnancy.status": "not_pregnant",
-        "resistant.severeLiverDisease": False,
-        "resistant.systolicDropAt12WeeksMmHg": 9.0,
     }
 
 
 def test_result_files_contract() -> None:
     bundle_summary = validate_bundle(BUNDLE_PATH)
-    assert bundle_summary == {"trees": 5, "variables": 69, "nodes": 89, "edges": 88, "links": 1}
+    assert bundle_summary == {"trees": 5, "variables": 55, "nodes": 82, "edges": 80, "links": 1}
     result_paths = sorted(RESULTS_DIR.glob("*.json"))
     assert {path.stem for path in result_paths} == TREE_IDS
 
@@ -107,12 +101,25 @@ def test_branch_matrix() -> None:
 
     threshold_cases = [
         ("high_normal_lifestyle", {"bp.category": "high_normal", "risk.class": "low", "treatment.hasHighRiskComorbidity": False}, "high_normal_lifestyle", "high_normal_lifestyle_followup"),
+        ("high_normal_comorbidity", {"bp.category": "high_normal", "risk.class": "low", "treatment.hasHighRiskComorbidity": True}, "high_normal_comorbidity", "high_normal_comorbidity_treatment_started"),
         ("high_normal_high_risk", {"bp.category": "high_normal", "risk.class": "high", "treatment.hasHighRiskComorbidity": False}, "high_normal_high_risk_treatment", "high_normal_high_risk_treatment_started"),
         ("hypertension_standard", {"bp.category": "grade1", "risk.class": "low", "treatment.hasHighRiskComorbidity": False}, "hypertension_medication_start", "hypertension_treatment_started"),
+        ("hypertension_comorbidity", {"bp.category": "grade1", "risk.class": "low", "treatment.hasHighRiskComorbidity": True}, "hypertension_comorbidity_medication", "hypertension_comorbidity_treatment_started"),
         ("hypertension_high_risk", {"bp.category": "grade1", "risk.class": "high", "treatment.hasHighRiskComorbidity": False}, "hypertension_high_risk_medication", "hypertension_high_risk_treatment_started"),
     ]
     for name, variables, result_code, outcome_code in threshold_cases:
         assert_result("bp_thresholds_targets", name, variables, result_code, outcome_code)
+
+    target_cases = [
+        ("high_risk", {"bp.category": "grade1", "risk.class": "high", "treatment.hasHighRiskComorbidity": False}, "hypertension_high_risk_medication", "hypertension_high_risk_treatment_started", 130, 80, "high_risk"),
+        ("comorbidity", {"bp.category": "grade1", "risk.class": "low", "treatment.hasHighRiskComorbidity": True}, "hypertension_comorbidity_medication", "hypertension_comorbidity_treatment_started", 130, 80, "comorbidity"),
+        ("no_comorbidity", {"bp.category": "grade1", "risk.class": "low", "treatment.hasHighRiskComorbidity": False}, "hypertension_medication_start", "hypertension_treatment_started", 140, 80, "no_comorbidity"),
+    ]
+    for name, variables, result_code, outcome_code, target_systolic, target_diastolic, profile in target_cases:
+        target_result = assert_result("bp_thresholds_targets", name, variables, result_code, outcome_code)
+        assert target_result["context"]["treatment.targetSystolicMmHg"] == target_systolic
+        assert target_result["context"]["treatment.targetDiastolicMmHg"] == target_diastolic
+        assert target_result["context"]["treatment.targetProfile"] == profile
 
     optimized_common = {
         "patient.ageYears": 55,
@@ -122,14 +129,17 @@ def test_branch_matrix() -> None:
         "treatment.hasHighRiskComorbidity": True,
         "treatment.mandatoryIndication": False,
         "medication.agentCount": 3,
-        "medication.uncontrolledDespiteTripleTherapy": False,
+        "treatment.targetSystolicMmHg": 130,
+        "treatment.targetDiastolicMmHg": 80,
+        "treatment.targetProfile": "high_risk",
     }
     optimized_cases = [
         ("single_pill", {**optimized_common, "bp.category": "high_normal", "treatment.hasHighRiskComorbidity": False}, "optimized_single_pill_strategy", "optimized_single_pill_followup"),
         ("mandatory", {**optimized_common, "treatment.mandatoryIndication": True}, "mandatory_indication_treatment", "mandatory_indication_treatment_started"),
         ("combination_without_agent_count", {key: value for key, value in optimized_common.items() if key != "medication.agentCount"}, "initial_combination_followup", "initial_combination_followup"),
         ("combination_one_agent", {**optimized_common, "medication.agentCount": 1}, "initial_combination_followup", "initial_combination_followup"),
-        ("triple_followup", optimized_common, "triple_combination_followup", "triple_combination_followup"),
+        ("triple_followup", {**optimized_common, "bp.assessmentOfficeSystolicMmHg": 129, "bp.assessmentOfficeDiastolicMmHg": 79}, "triple_combination_followup", "triple_combination_followup"),
+        ("triple_uncontrolled_links", {**optimized_common, **resistant_base()}, "resistant_htn_arm", "resistant_three_or_more_with_diuretic_classified"),
         ("entry_review", {**optimized_common, "patient.ageYears": 18, "bp.assessmentOfficeSystolicMmHg": 129, "bp.assessmentOfficeDiastolicMmHg": 84, "bp.category": "normal", "treatment.hasHighRiskComorbidity": False}, "optimized_treatment_review_required", "optimized_treatment_review_required"),
     ]
     for name, variables, result_code, outcome_code in optimized_cases:
@@ -153,19 +163,15 @@ def test_branch_matrix() -> None:
     resistant_cases = [
         ("out_of_range", {"bp.officeAverageSystolicMmHg": 170, "bp.officeReadingCount": 2}, "resistant_out_of_range", "resistant_out_of_range_manage_first"),
         ("defer", {"bp.officeAverageSystolicMmHg": 150, "bp.officeReadingCount": 2, "medication.regimenStableWeeks": 3}, "resistant_defer", "resistant_defer_reassess"),
-        ("two_drug", {**resistant_base(), "medication.agentCount": 2}, "resistant_continue_therapy", "resistant_target_met"),
+        ("two_drug", {**resistant_base(), "medication.agentCount": 2}, "uncontrolled_htn_arm", "uncontrolled_two_drug_classified"),
         ("three_without_diuretic", {**resistant_base(), "medication.includesDiuretic": False}, "add_diuretic", "add_diuretic_reclassify"),
         ("invalid_agent_count", {**resistant_base(), "medication.agentCount": 1, "medication.includesDiuretic": False}, "resistant_agent_count_review_required", "resistant_agent_count_review_required"),
-        ("missing_safety_data", {key: value for key, value in resistant_base().items() if key not in {"resistant.egfrMlMin", "resistant.sodiumMmolL"}}, "resistant_safety_data_required", "resistant_safety_data_required"),
-        ("excluded", {**resistant_base(), "resistant.egfrMlMin": 20}, "resistant_excluded", "resistant_excluded_address_and_retry"),
-        ("target_met", resistant_base(), "resistant_continue_therapy", "resistant_target_met"),
-        ("target_not_met", {**resistant_base(), "resistant.systolicDropAt12WeeksMmHg": 8.6}, "resistant_escalate_reassess", "resistant_target_not_met"),
     ]
     for name, variables, result_code, outcome_code in resistant_cases:
         assert_result("uncontrolled_resistant_hypertension", name, variables, result_code, outcome_code)
 
-    linked = {**optimized_common, **resistant_base(), "medication.uncontrolledDespiteTripleTherapy": True}
-    linked_result = assert_result("optimized_hypertension_treatment", "link_to_tree_5", linked, "resistant_continue_therapy", "resistant_target_met")
+    linked = {**optimized_common, **resistant_base()}
+    linked_result = assert_result("optimized_hypertension_treatment", "link_to_tree_5", linked, "resistant_htn_arm", "resistant_three_or_more_with_diuretic_classified")
     assert linked_result["terminalTreeId"] == "uncontrolled_resistant_hypertension"
     assert linked_result["linksVisited"] == ["uncontrolled_resistant_hypertension"]
 

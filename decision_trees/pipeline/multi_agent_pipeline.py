@@ -382,8 +382,7 @@ def evidence_prompt(tree: dict[str, Any], source_text: str, bundle: dict[str, An
             "coronary_heart_disease", "heart_failure", "stroke", "peripheral_artery_disease", "atrial_fibrillation", "ckd_stage",
         ],
         "uncontrolled_resistant_hypertension": [
-            "seated_sbp", "regimen_stable_weeks", "antihypertensive_agents_count", "includes_diuretic", "eGFR",
-            "K+", "Na+", "pregnancy", "liver", "sbp_decrease_12_wks_mmhg",
+            "seated_sbp", "office_reading_count", "regimen_stable_weeks", "antihypertensive_agents_count", "includes_diuretic",
         ],
     }.get(tree["id"], [])
     return f"""Role: Evidence Extractor Agent.
@@ -507,13 +506,13 @@ def variable_prompt(evidence: dict[str, Any], bundle: dict[str, Any], tree_id: s
     tree_requirements = {
         "bp_thresholds_targets": "BTMXV, ĐTĐ, and BTM are three distinct boolean comorbidity variables; BĐM is a separate target-organ-damage/comorbidity flag. Never collapse these four evidence identifiers into one generic variable.",
         "hypertension_risk_stratification": "Keep HATT, HATTr, YTNC_count, TOD/CVD/DM, and every named risk factor/comorbidity as distinct variables. Do not replace a named factor with one aggregate risk boolean.",
-        "uncontrolled_resistant_hypertension": "Keep seated_sbp, medication count, includes_diuretic, eGFR, K+, Na+, pregnancy, liver, and 12-week SBP decrease as distinct variables with their own data types.",
-        "optimized_hypertension_treatment": "Keep cardiovascular disease, CKD, diabetes, resistant hypertension, treatment step, BP controlled, additional medication, and compulsory indication as distinct variables; do not merge named comorbidities into one generic flag.",
+        "uncontrolled_resistant_hypertension": "Keep only seated_sbp, office reading count, regimen stability, antihypertensive agent count, and includes_diuretic; this tree stops at uncontrolled/resistant classification and must not add a safety or exclusion screen.",
+        "optimized_hypertension_treatment": "Keep the two numeric target outputs from bp_thresholds_targets as derived inputs. Check agent count and encounter BP against those targets; do not use a manually supplied uncontrolledDespiteTripleTherapy boolean.",
     }.get(tree_id or "", "")
     return f"""Role: Variable Architect Agent.
 Build a draft variable catalog {scope} from the evidence pack. This is a bootstrap run: the existing catalog may be empty. Create every variable needed by the target tree, including variables written by inference/end nodes. Do not omit a variable merely because it appears in another tree; shared variables may be repeated and will be deduplicated by the aggregator.
 Return variablesJson as a JSON array of variable objects, not as a JSON-encoded string. Every variable must include id, label, dataType, unit, definition, sourceSystem, requiredForEvaluation, sourceRefs, and derivedFrom. Use only these dataType values: boolean, integer, number, string, enum. Use only these sourceSystem values: patient, encounter, vitals, laboratory, medication, problem_list, derived, clinician_input. Variable IDs must match ^[a-z][a-zA-Z0-9]*(\\.[a-zA-Z0-9_]+)*$ and use ASCII letters/numbers in the first segment. Use dot-separated IDs such as bp.systolicMmHg, bp.diastolicMmHg, bp.officeVisit1.systolicMmHg, target.organDamagePresent, and risk.cardiovascularRisk. Never use Vietnamese words/accents, spaces, hyphens, or underscore-separated IDs such as ha_phong_kham_lan_1_sys; represent that concept as bp.officeVisit1.systolicMmHg. For enum variables include allowedValues. Every sourceRef must be an object with the exact sourceId and tableOrFigure filename from the source catalog. Distinguish raw input variables from derived variables. Include derivation rules as a JSON string.
-   Every variable used with gt/gte/lt/lte must have dataType number or integer. Blood pressure values must be represented as separate numeric systolic and diastolic variables; never represent a BP reading used in a threshold predicate as one string/composite variable. A unit of mmHg is not sufficient to make a composite string computable.
+   Every variable used with gt/gte/lt/lte must have dataType number or integer. Blood pressure values must be represented as separate numeric systolic and diastolic variables; never represent a BP reading used in a threshold predicate as one string/composite variable. A unit of mmHg is not sufficient to make a composite string computable. A field-to-field comparison may use valueField, but both referenced variables must be numeric and declared.
 Tree-specific invariants: {tree_requirements}
 Existing catalog: {json.dumps(bundle['variables'], ensure_ascii=False)}
 Evidence pack: {json.dumps(evidence, ensure_ascii=False)}
@@ -564,8 +563,8 @@ def variable_repair_prompt(tree_id: str, proposal: dict[str, Any], verification:
     tree_requirements = {
         "bp_thresholds_targets": "BTMXV, ĐTĐ, BTM, and BĐM must remain distinct variables; do not repair them into one generic comorbidity flag.",
         "hypertension_risk_stratification": "Keep the blood-pressure pair, YTNC_count, TOD/CVD/DM, and each named risk factor/comorbidity as distinct variables.",
-        "uncontrolled_resistant_hypertension": "Keep each safety-screen variable and treatment-count variable distinct; never merge K+, Na+, eGFR, pregnancy, liver, or SBP decrease.",
-        "optimized_hypertension_treatment": "Keep cardiovascular disease, CKD, diabetes, resistant hypertension, treatment step, BP controlled, additional medication, and compulsory indication distinct.",
+        "uncontrolled_resistant_hypertension": "Keep only the variables pictured in the revised image: seated SBP, reading count, stable regimen weeks, agent count, and diuretic presence. Do not reintroduce safety, exclusion, laboratory, pregnancy, liver, or 12-week follow-up variables.",
+        "optimized_hypertension_treatment": "Use treatment.targetSystolicMmHg and treatment.targetDiastolicMmHg from the threshold tree as derived inputs. The uncontrolled branch is determined by agentCount and an encounter BP comparison against those fields.",
     }.get(tree_id, "")
     return f"""Role: Variable Catalog Repair Agent.
 Repair the complete variable catalog for tree '{tree_id}' using only the
@@ -607,8 +606,8 @@ Return JSON only, using the exact variable schema."""
 def tree_builder_prompt(tree: dict[str, Any], evidence: dict[str, Any], variable_proposal: dict[str, Any], bundle: dict[str, Any], exemplar: dict[str, Any]) -> str:
     return f"""Role: Decision Tree Builder Agent.
 Create a reviewable draft for tree '{tree['id']}' from evidence. Preserve the canonical node types start/condition/inference/link/end.
-This is a bootstrap extraction: the target template contains metadata only. Create the tree's inputVariables and outputVariables from the variable architect proposal and the supplied evidence. Every predicate field must be declared in the tree's inputVariables; every variable written by data.sets must be declared in outputVariables. Do not substitute a raw field from another tree. Every condition must contain logicJson whose parsed object has predicate; every inference/end/link must contain dataJson. Use exact numeric operators and no code.
-Predicate syntax is strict: a leaf is exactly {{"field":"variable.id","op":"gte","value":130}}; a compound is exactly {{"all":[leaf,...]}} or {{"any":[leaf,...]}}. Do not use function notation such as {{"gte":[{{"var":"variable.id"}},130]}}, SQL, Python, or extra keys in a predicate object. `present` is the only operator without `value`.
+This is a bootstrap extraction: the target template contains metadata only. Create the tree's inputVariables and outputVariables from the variable architect proposal and the supplied evidence. Every predicate field and valueField must be declared in the tree's inputVariables; every variable written by data.sets must be declared in outputVariables. Do not substitute a raw field from another tree. Every condition must contain logicJson whose parsed object has predicate; every inference/end/link must contain dataJson. Use exact numeric operators and no code.
+Predicate syntax is strict: a literal leaf is exactly {{"field":"variable.id","op":"gte","value":130}}; a derived numeric comparison may be {{"field":"bp.assessmentOfficeSystolicMmHg","op":"lt","valueField":"treatment.targetSystolicMmHg"}}; a compound is exactly {{"all":[leaf,...]}} or {{"any":[leaf,...]}}. Do not use function notation such as {{"gte":[{{"var":"variable.id"}},130]}}, SQL, Python, or extra keys in a predicate object. `present` is the only operator without value/valueField.
 Any field used with gt/gte/lt/lte must refer to a number/integer variable in the catalog. For blood pressure, use separate numeric systolic/diastolic variables and do not compare a composite string reading.
 Every clinical node needs sourceRefs. If evidence is insufficient, emit needs_clinical_review and explain it in notes.
 Use sourceId and tableOrFigure exactly as listed in the source catalog; do not shorten or rename image filenames. Graph rules are strict: condition nodes have exactly one true and one false edge; start and inference nodes have exactly one default edge; link and end nodes have no outgoing edge. Every node must be reachable from entryNodeId, and every clinical claim must be represented by a node/edge path.
@@ -873,15 +872,10 @@ EVIDENCE_VARIABLE_ALIASES: dict[str, dict[str, str | tuple[str, ...]]] = {
     },
     "uncontrolled_resistant_hypertension": {
         "seated_sbp": ("bp.seatedSystolicMmHg", "bp.seated.systolicMmHg", "seated.sbp"),
+        "office_reading_count": ("bp.officeReadingCount", "office.reading.count", "office_reading_count"),
         "regimen_stable_weeks": ("treatment.regimenStableWeeks", "regimen.stable.weeks"),
         "antihypertensive_agents_count": ("treatment.antihypertensiveAgentsCount", "medication.antihypertensiveAgentsCount", "antihypertensive.agents.count"),
         "includes_diuretic": ("treatment.includesDiuretic", "medication.includesDiuretic", "includes.diuretic"),
-        "eGFR": ("laboratory.eGfr", "laboratory.egfr", "laboratory.egfrValue", "eGFR", "lab.eGFR"),
-        "K+": ("laboratory.potassium", "laboratory.potassiumMmolL", "laboratory.potassiumLevel", "k", "lab.potassium"),
-        "Na+": ("laboratory.sodium", "laboratory.sodiumMmolL", "laboratory.sodiumLevel", "na", "lab.sodium"),
-        "pregnancy": ("patient.pregnancy", "patient.pregnancyStatus", "pregnancy"),
-        "liver": ("laboratory.liverFunctionNormal", "laboratory.liverAbnormalities", "laboratory.liverStatus", "laboratory.liverFunction", "laboratory.liver", "liver", "comorbidity.liverDisease"),
-        "sbp_decrease_12_wks_mmhg": ("bp.sbpDecrease12WeeksMmHg", "bp.sbpDecrease12WksMmHg", "sbp.decrease.12.wks.mmhg"),
     },
 }
 
@@ -1432,6 +1426,8 @@ def predicate_fields(value: Any) -> set[str]:
     if isinstance(value, dict):
         if isinstance(value.get("field"), str):
             fields.add(value["field"])
+        if isinstance(value.get("valueField"), str):
+            fields.add(value["valueField"])
         for child in value.values():
             fields.update(predicate_fields(child))
     elif isinstance(value, list):

@@ -142,15 +142,19 @@ function saveDraft(treeId, tree) {
   return { ...validation, saved: true, treePath, bundlePath };
 }
 
-function coerceVariables(treeId, rawVariables, bundle = loadBundle()) {
+function coerceVariablesForTrees(treeIds, rawVariables, bundle = loadBundle()) {
   if (!rawVariables || typeof rawVariables !== "object" || Array.isArray(rawVariables)) {
     throw new Error("variables must be a JSON object");
   }
-  const tree = getTreeMap(bundle)[treeId];
-  if (!tree) throw new Error(`unknown tree: ${treeId}`);
+  const treeMap = getTreeMap(bundle);
+  const inputIds = [...new Set(treeIds.flatMap((treeId) => {
+    const currentTree = treeMap[treeId];
+    if (!currentTree) throw new Error("unknown tree: " + treeId);
+    return currentTree.inputVariables || [];
+  }))];
   const variableMap = Object.fromEntries(bundle.variables.map((variable) => [variable.id, variable]));
   const output = {};
-  for (const variableId of tree.inputVariables || []) {
+  for (const variableId of inputIds) {
     if (!(variableId in rawVariables) || rawVariables[variableId] === "" || rawVariables[variableId] == null) continue;
     const variable = variableMap[variableId];
     if (!variable) throw new Error(`unknown input variable: ${variableId}`);
@@ -184,6 +188,10 @@ function coerceVariables(treeId, rawVariables, bundle = loadBundle()) {
   return output;
 }
 
+function coerceVariables(treeId, rawVariables, bundle = loadBundle()) {
+  return coerceVariablesForTrees([treeId], rawVariables, bundle);
+}
+
 function runEngine(treeId, rawVariables, bundlePath = BUNDLE_PATH) {
   const bundle = bundlePath === BUNDLE_PATH ? loadBundle() : readJson(bundlePath);
   const variables = coerceVariables(treeId, rawVariables, bundle);
@@ -196,6 +204,36 @@ function runEngine(treeId, rawVariables, bundlePath = BUNDLE_PATH) {
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
+}
+
+function runClinicalFlow(startTreeId, rawVariables, bundlePath = BUNDLE_PATH) {
+  const bundle = bundlePath === BUNDLE_PATH ? loadBundle() : readJson(bundlePath);
+  const runtimeStartTreeId = startTreeId === "optimized_hypertension_treatment" ? "bp_thresholds_targets" : startTreeId;
+  const flowTreeIds = runtimeStartTreeId === "bp_thresholds_targets"
+    ? ["bp_thresholds_targets", "optimized_hypertension_treatment", "uncontrolled_resistant_hypertension"]
+    : [runtimeStartTreeId];
+  const variables = coerceVariablesForTrees(flowTreeIds, rawVariables, bundle);
+  const tempDir = fs.mkdtempSync(path.join(UI_DIR, ".node-runtime-"));
+  const inputPath = path.join(tempDir, "input.json");
+  try {
+    writeJson(inputPath, { variables });
+    const result = runPython(ENGINE_PATH, [
+      "--bundle", bundlePath,
+      "--flow-start-tree-id", runtimeStartTreeId,
+      "--input", inputPath,
+    ]);
+    return { variables, result };
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+function runDraftFlow(startTreeId, tree, rawVariables) {
+  const validation = validateTreePayload(startTreeId, tree);
+  if (!validation.ok) return validation;
+  const candidate = replaceTree(loadBundle(), startTreeId, tree);
+  const execution = withTemporaryJson(candidate, (candidatePath) => runClinicalFlow(startTreeId, rawVariables, candidatePath));
+  return { ok: true, treeId: startTreeId, draftValidation: validation, ...execution };
 }
 
 function runDraft(treeId, tree, rawVariables) {
@@ -406,6 +444,11 @@ async function handle(request, response) {
     if (url.pathname === "/api/validate-draft") return jsonResponse(response, 200, validateTreePayload(payload.treeId, payload.tree));
     if (url.pathname === "/api/save-draft") return jsonResponse(response, 200, saveDraft(payload.treeId, payload.tree));
     if (url.pathname === "/api/run") return jsonResponse(response, 200, { ok: true, ...runEngine(payload.treeId, payload.variables || {}) });
+    if (url.pathname === "/api/run-flow") return jsonResponse(response, 200, { ok: true, ...runClinicalFlow(payload.startTreeId || "bp_thresholds_targets", payload.variables || {}) });
+    if (url.pathname === "/api/run-draft-flow") {
+      const result = runDraftFlow(payload.startTreeId || "optimized_hypertension_treatment", payload.tree, payload.variables || {});
+      return jsonResponse(response, result.ok ? 200 : 400, result);
+    }
     if (url.pathname === "/api/pipeline/upload") return jsonResponse(response, 202, { ok: true, ...startPipelineJob(payload) });
     if (url.pathname === "/api/pipeline/run") {
       const job = getPipelineJob(payload.jobId);
@@ -440,6 +483,6 @@ function main() {
   });
 }
 
-module.exports = { BUNDLE_PATH, PYTHON_PATH, createServer, loadBundle, validateTreePayload, coerceVariables, runEngine, runDraft, saveDraft, startPipelineJob, publicPipelineJob };
+module.exports = { BUNDLE_PATH, PYTHON_PATH, createServer, loadBundle, validateTreePayload, coerceVariables, coerceVariablesForTrees, runEngine, runClinicalFlow, runDraftFlow, runDraft, saveDraft, startPipelineJob, publicPipelineJob };
 
 if (require.main === module) main();

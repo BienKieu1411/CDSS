@@ -4,6 +4,8 @@ UI local chạy bằng Node.js và gọi Python engine/validator làm nguồn th
 duy nhất. UI không sao chép predicate logic sang JavaScript. Chạy baseline
 không cần API key; chức năng tạo cây mới từ ảnh cần `GEMINI_KEY` trong môi
 trường chạy server.
+Flow liên kết Cây 2 → Cây 3 → Cây 5 được thực thi qua endpoint nội bộ
+`POST /api/run-flow`; output đích HA của Cây 2 được truyền tự động vào Cây 3.
 
 ## Cài dependency và chạy
 

@@ -507,6 +507,29 @@
       }
     },
     {
+      "id": "treatment.targetProfile",
+      "label": "Nhóm đích điều trị",
+      "dataType": "enum",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Nhóm bệnh nhân dùng để chọn đích HA: nguy cơ cao, có bệnh đồng mắc hoặc không có bệnh đồng mắc.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_02_bp_thresholds_targets",
+          "page": 1,
+          "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+          "tableOrFigure": "02_bp_thresholds_and_targets.png",
+          "note": "Nhóm bệnh nhân dùng để chọn đích HA: nguy cơ cao, có bệnh đồng mắc hoặc không có bệnh đồng mắc."
+        }
+      ],
+      "allowedValues": [
+        "high_risk",
+        "comorbidity",
+        "no_comorbidity"
+      ]
+    },
+    {
       "id": "treatment.controlWindowMonths",
       "label": "Khoảng thời gian kiểm soát mục tiêu",
       "dataType": "enum",
@@ -593,96 +616,6 @@
         "minimum": 20,
         "maximum": 200
       }
-    },
-    {
-      "id": "medication.hasClassA",
-      "label": "Đang có nhóm thuốc A",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Đang sử dụng nhóm thuốc A trong phác đồ.",
-      "sourceSystem": "medication",
-      "sourceRefs": [
-        {
-          "sourceId": "image_03_optimized_treatment",
-          "page": 1,
-          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-          "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Đang sử dụng nhóm thuốc A trong phác đồ."
-        }
-      ]
-    },
-    {
-      "id": "medication.hasClassB",
-      "label": "Đang có nhóm thuốc B",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Đang sử dụng nhóm thuốc B trong phác đồ.",
-      "sourceSystem": "medication",
-      "sourceRefs": [
-        {
-          "sourceId": "image_03_optimized_treatment",
-          "page": 1,
-          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-          "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Đang sử dụng nhóm thuốc B trong phác đồ."
-        }
-      ]
-    },
-    {
-      "id": "medication.hasClassC",
-      "label": "Đang có nhóm thuốc C",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Đang sử dụng nhóm thuốc C trong phác đồ.",
-      "sourceSystem": "medication",
-      "sourceRefs": [
-        {
-          "sourceId": "image_03_optimized_treatment",
-          "page": 1,
-          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-          "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Đang sử dụng nhóm thuốc C trong phác đồ."
-        }
-      ]
-    },
-    {
-      "id": "medication.hasClassD",
-      "label": "Đang có nhóm thuốc D",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Đang sử dụng nhóm thuốc D trong phác đồ.",
-      "sourceSystem": "medication",
-      "sourceRefs": [
-        {
-          "sourceId": "image_03_optimized_treatment",
-          "page": 1,
-          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-          "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Đang sử dụng nhóm thuốc D trong phác đồ."
-        }
-      ]
-    },
-    {
-      "id": "medication.hasClassMRA",
-      "label": "Đang có nhóm thuốc MRA",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Đang sử dụng nhóm thuốc MRA trong phác đồ.",
-      "sourceSystem": "medication",
-      "sourceRefs": [
-        {
-          "sourceId": "image_03_optimized_treatment",
-          "page": 1,
-          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-          "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Đang sử dụng nhóm thuốc MRA trong phác đồ."
-        }
-      ]
     },
     {
       "id": "comorbidity.atheroscleroticCvd",
@@ -827,24 +760,6 @@
         "minimum": 0,
         "maximum": 10
       }
-    },
-    {
-      "id": "medication.uncontrolledDespiteTripleTherapy",
-      "label": "Chưa kiểm soát dù đã phối hợp ba thuốc",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "HA vẫn chưa đạt mục tiêu sau phối hợp ba thuốc phù hợp.",
-      "sourceSystem": "clinician_input",
-      "sourceRefs": [
-        {
-          "sourceId": "image_03_optimized_treatment",
-          "page": 1,
-          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-          "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "HA vẫn chưa đạt mục tiêu sau phối hợp ba thuốc phù hợp."
-        }
-      ]
     },
     {
       "id": "treatment.path",
@@ -1274,137 +1189,6 @@
       ]
     },
     {
-      "id": "resistant.egfrMlMin",
-      "label": "eGFR",
-      "dataType": "number",
-      "unit": "mL/min/1.73m2",
-      "requiredForEvaluation": false,
-      "definition": "eGFR dùng trong safety and exclusion screen.",
-      "sourceSystem": "laboratory",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "eGFR dùng trong safety and exclusion screen."
-        }
-      ],
-      "validation": {
-        "minimum": 0,
-        "maximum": 200
-      }
-    },
-    {
-      "id": "resistant.potassiumMmolL",
-      "label": "Kali máu",
-      "dataType": "number",
-      "unit": "mmol/L",
-      "requiredForEvaluation": false,
-      "definition": "Kali máu dùng trong safety and exclusion screen.",
-      "sourceSystem": "laboratory",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Kali máu dùng trong safety and exclusion screen."
-        }
-      ],
-      "validation": {
-        "minimum": 1,
-        "maximum": 10
-      }
-    },
-    {
-      "id": "resistant.sodiumMmolL",
-      "label": "Natri máu",
-      "dataType": "number",
-      "unit": "mmol/L",
-      "requiredForEvaluation": false,
-      "definition": "Natri máu dùng trong safety and exclusion screen.",
-      "sourceSystem": "laboratory",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Natri máu dùng trong safety and exclusion screen."
-        }
-      ],
-      "validation": {
-        "minimum": 80,
-        "maximum": 200
-      }
-    },
-    {
-      "id": "pregnancy.status",
-      "label": "Tình trạng thai kỳ",
-      "dataType": "enum",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Thai kỳ là một tiêu chí an toàn cần được kiểm tra.",
-      "sourceSystem": "patient",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Thai kỳ là một tiêu chí an toàn cần được kiểm tra."
-        }
-      ],
-      "allowedValues": [
-        "not_pregnant",
-        "pregnant",
-        "postpartum_0_6w",
-        "postpartum_gt_6w",
-        "unknown"
-      ]
-    },
-    {
-      "id": "resistant.severeLiverDisease",
-      "label": "Bệnh gan nặng",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Bệnh gan nặng là một tiêu chí an toàn cần được kiểm tra.",
-      "sourceSystem": "problem_list",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Bệnh gan nặng là một tiêu chí an toàn cần được kiểm tra."
-        }
-      ]
-    },
-    {
-      "id": "resistant.systolicDropAt12WeeksMmHg",
-      "label": "Mức giảm HATT tại tuần 12",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "Mức giảm HATT dùng cho điều kiện đạt mục tiêu trong hình (≥8,7 mmHg tại 12 tuần).",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Mức giảm HATT dùng cho điều kiện đạt mục tiêu trong hình (≥8,7 mmHg tại 12 tuần)."
-        }
-      ],
-      "validation": {
-        "minimum": -200,
-        "maximum": 200
-      }
-    },
-    {
       "id": "resistant.classification",
       "label": "Phân loại nhánh không kiểm soát/kháng trị",
       "dataType": "enum",
@@ -1426,75 +1210,6 @@
         "resistant_three_or_more_with_diuretic",
         "add_diuretic_and_reclassify",
         "review_required"
-      ]
-    },
-    {
-      "id": "resistant.treatmentStatus",
-      "label": "Trạng thái điều trị kháng trị",
-      "dataType": "enum",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Trạng thái sau safety screen.",
-      "sourceSystem": "derived",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Trạng thái sau safety screen."
-        }
-      ],
-      "allowedValues": [
-        "excluded",
-        "eligible",
-        "not_applicable"
-      ]
-    },
-    {
-      "id": "resistant.drugRecommendation",
-      "label": "Thuốc/hành động xử trí kháng trị",
-      "dataType": "enum",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Khuyến nghị machine-readable sau safety screen.",
-      "sourceSystem": "derived",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Khuyến nghị machine-readable sau safety screen."
-        }
-      ],
-      "allowedValues": [
-        "baxdrostat_1_to_2mg_daily",
-        "address_exclusion_and_retry",
-        "not_started"
-      ]
-    },
-    {
-      "id": "resistant.followupStatus",
-      "label": "Trạng thái theo dõi",
-      "dataType": "enum",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Kết quả theo dõi mục tiêu.",
-      "sourceSystem": "derived",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Kết quả theo dõi mục tiêu."
-        }
-      ],
-      "allowedValues": [
-        "continue",
-        "escalate_reassess",
-        "not_started"
       ]
     }
   ],
@@ -2272,7 +1987,7 @@
     {
       "id": "bp_thresholds_targets",
       "name": "BP Thresholds and Targets Tree",
-      "purpose": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo ngưỡng/nguy cơ.",
+      "purpose": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng.",
       "clinicalStatus": "under_review",
       "entryNodeId": "threshold_start",
       "inputVariables": [
@@ -2284,6 +1999,7 @@
         "treatment.recommendation",
         "treatment.targetSystolicMmHg",
         "treatment.targetDiastolicMmHg",
+        "treatment.targetProfile",
         "treatment.controlWindowMonths"
       ],
       "linksTo": [],
@@ -2332,7 +2048,7 @@
           "id": "threshold_high_normal_risk",
           "type": "condition",
           "display": {
-            "title": "Nguy cơ cao/bệnh đồng mắc nguy cơ cao?"
+            "title": "Nguy cơ cao?"
           },
           "sourceRefs": [
             {
@@ -2340,23 +2056,37 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Nguy cơ cao/bệnh đồng mắc nguy cơ cao?"
+              "note": "Nguy cơ cao?"
             }
           ],
           "logic": {
             "predicate": {
-              "any": [
-                {
-                  "field": "risk.class",
-                  "op": "eq",
-                  "value": "high"
-                },
-                {
-                  "field": "treatment.hasHighRiskComorbidity",
-                  "op": "eq",
-                  "value": true
-                }
-              ]
+              "field": "risk.class",
+              "op": "eq",
+              "value": "high"
+            }
+          }
+        },
+        {
+          "id": "threshold_high_normal_comorbidity",
+          "type": "condition",
+          "display": {
+            "title": "Có bệnh đồng mắc?"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Có bệnh đồng mắc?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "treatment.hasHighRiskComorbidity",
+              "op": "eq",
+              "value": true
             }
           }
         },
@@ -2364,8 +2094,8 @@
           "id": "threshold_infer_high_risk",
           "type": "end",
           "display": {
-            "title": "Điều trị thuốc ở bệnh nhân nguy cơ cao",
-            "detail": "Điều trị thuốc theo cá thể hóa và nguy cơ; đích <130/80 mmHg."
+            "title": "Đích HA ở bệnh nhân nguy cơ cao",
+            "detail": "Đích HATT/HATTr <130/80 mmHg."
           },
           "sourceRefs": [
             {
@@ -2373,7 +2103,7 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị thuốc ở bệnh nhân nguy cơ cao"
+              "note": "Đích HA ở bệnh nhân nguy cơ cao"
             },
             {
               "sourceId": "image_02_bp_thresholds_targets",
@@ -2390,17 +2120,18 @@
               "treatment.recommendation": "medication_now_high_risk",
               "treatment.targetSystolicMmHg": 130,
               "treatment.targetDiastolicMmHg": 80,
+              "treatment.targetProfile": "high_risk",
               "treatment.controlWindowMonths": "3-6"
             },
             "outcomeCode": "high_normal_high_risk_treatment_started"
           }
         },
         {
-          "id": "threshold_infer_lifestyle",
+          "id": "threshold_infer_comorbidity",
           "type": "end",
           "display": {
-            "title": "Thay đổi lối sống",
-            "detail": "HA bình thường-cao, nguy cơ thấp/trung bình."
+            "title": "Đích HA ở bệnh nhân có bệnh đồng mắc",
+            "detail": "Đích HATT/HATTr <130/80 mmHg."
           },
           "sourceRefs": [
             {
@@ -2408,7 +2139,43 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Thay đổi lối sống"
+              "note": "Đích HA ở bệnh nhân có bệnh đồng mắc"
+            },
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Điều trị khi có bệnh đồng mắc"
+            }
+          ],
+          "data": {
+            "resultCode": "high_normal_comorbidity",
+            "severity": "high",
+            "sets": {
+              "treatment.recommendation": "medication_now_high_risk",
+              "treatment.targetSystolicMmHg": 130,
+              "treatment.targetDiastolicMmHg": 80,
+              "treatment.targetProfile": "comorbidity",
+              "treatment.controlWindowMonths": "3-6"
+            },
+            "outcomeCode": "high_normal_comorbidity_treatment_started"
+          }
+        },
+        {
+          "id": "threshold_infer_lifestyle",
+          "type": "end",
+          "display": {
+            "title": "Đích HA khi không có bệnh đồng mắc",
+            "detail": "Đích HATT/HATTr <140/80 mmHg."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Đích HA khi không có bệnh đồng mắc"
             },
             {
               "sourceId": "image_02_bp_thresholds_targets",
@@ -2423,8 +2190,9 @@
             "severity": "low",
             "sets": {
               "treatment.recommendation": "lifestyle_first",
-              "treatment.targetSystolicMmHg": 130,
+              "treatment.targetSystolicMmHg": 140,
               "treatment.targetDiastolicMmHg": 80,
+              "treatment.targetProfile": "no_comorbidity",
               "treatment.controlWindowMonths": "3-6"
             },
             "outcomeCode": "high_normal_lifestyle_followup"
@@ -2461,7 +2229,7 @@
           "id": "threshold_htn_risk",
           "type": "condition",
           "display": {
-            "title": "Có bệnh đồng mắc/nguy cơ cao?"
+            "title": "Nguy cơ cao?"
           },
           "sourceRefs": [
             {
@@ -2469,23 +2237,37 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Có bệnh đồng mắc/nguy cơ cao?"
+              "note": "Nguy cơ cao?"
             }
           ],
           "logic": {
             "predicate": {
-              "any": [
-                {
-                  "field": "risk.class",
-                  "op": "eq",
-                  "value": "high"
-                },
-                {
-                  "field": "treatment.hasHighRiskComorbidity",
-                  "op": "eq",
-                  "value": true
-                }
-              ]
+              "field": "risk.class",
+              "op": "eq",
+              "value": "high"
+            }
+          }
+        },
+        {
+          "id": "threshold_htn_comorbidity",
+          "type": "condition",
+          "display": {
+            "title": "Có bệnh đồng mắc?"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Có bệnh đồng mắc?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "treatment.hasHighRiskComorbidity",
+              "op": "eq",
+              "value": true
             }
           }
         },
@@ -2493,8 +2275,8 @@
           "id": "threshold_infer_htn_high",
           "type": "end",
           "display": {
-            "title": "Điều trị thuốc ngay - nguy cơ cao",
-            "detail": "Thay đổi lối sống; đích <130/80 mmHg khi dung nạp."
+            "title": "Đích HA ở bệnh nhân nguy cơ cao",
+            "detail": "Đích HATT/HATTr <130/80 mmHg."
           },
           "sourceRefs": [
             {
@@ -2502,7 +2284,7 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị thuốc ngay - nguy cơ cao"
+              "note": "Đích HA ở bệnh nhân nguy cơ cao"
             },
             {
               "sourceId": "image_02_bp_thresholds_targets",
@@ -2519,17 +2301,18 @@
               "treatment.recommendation": "medication_now_high_risk",
               "treatment.targetSystolicMmHg": 130,
               "treatment.targetDiastolicMmHg": 80,
+              "treatment.targetProfile": "high_risk",
               "treatment.controlWindowMonths": "1-3"
             },
             "outcomeCode": "hypertension_high_risk_treatment_started"
           }
         },
         {
-          "id": "threshold_infer_htn_standard",
+          "id": "threshold_infer_htn_comorbidity",
           "type": "end",
           "display": {
-            "title": "Điều trị thuốc ngay",
-            "detail": "THA không có bệnh đồng mắc: đích HATT <140 và HATTr khoảng <80."
+            "title": "Đích HA ở bệnh nhân có bệnh đồng mắc",
+            "detail": "Đích HATT/HATTr <130/80 mmHg."
           },
           "sourceRefs": [
             {
@@ -2537,7 +2320,43 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị thuốc ngay"
+              "note": "Đích HA ở bệnh nhân có bệnh đồng mắc"
+            },
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Điều trị THA khi có bệnh đồng mắc"
+            }
+          ],
+          "data": {
+            "resultCode": "hypertension_comorbidity_medication",
+            "severity": "high",
+            "sets": {
+              "treatment.recommendation": "medication_now_high_risk",
+              "treatment.targetSystolicMmHg": 130,
+              "treatment.targetDiastolicMmHg": 80,
+              "treatment.targetProfile": "comorbidity",
+              "treatment.controlWindowMonths": "1-3"
+            },
+            "outcomeCode": "hypertension_comorbidity_treatment_started"
+          }
+        },
+        {
+          "id": "threshold_infer_htn_standard",
+          "type": "end",
+          "display": {
+            "title": "Đích HA khi không có bệnh đồng mắc",
+            "detail": "Đích HATT/HATTr <140/80 mmHg."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Đích HA khi không có bệnh đồng mắc"
             },
             {
               "sourceId": "image_02_bp_thresholds_targets",
@@ -2554,6 +2373,7 @@
               "treatment.recommendation": "medication_now",
               "treatment.targetSystolicMmHg": 140,
               "treatment.targetDiastolicMmHg": 80,
+              "treatment.targetProfile": "no_comorbidity",
               "treatment.controlWindowMonths": "3-6"
             },
             "outcomeCode": "hypertension_treatment_started"
@@ -2606,6 +2426,18 @@
         },
         {
           "from": "threshold_high_normal_risk",
+          "to": "threshold_high_normal_comorbidity",
+          "when": "false",
+          "label": "Không"
+        },
+        {
+          "from": "threshold_high_normal_comorbidity",
+          "to": "threshold_infer_comorbidity",
+          "when": "true",
+          "label": "Có"
+        },
+        {
+          "from": "threshold_high_normal_comorbidity",
           "to": "threshold_infer_lifestyle",
           "when": "false",
           "label": "Không"
@@ -2630,6 +2462,18 @@
         },
         {
           "from": "threshold_htn_risk",
+          "to": "threshold_htn_comorbidity",
+          "when": "false",
+          "label": "Không"
+        },
+        {
+          "from": "threshold_htn_comorbidity",
+          "to": "threshold_infer_htn_comorbidity",
+          "when": "true",
+          "label": "Có"
+        },
+        {
+          "from": "threshold_htn_comorbidity",
           "to": "threshold_infer_htn_standard",
           "when": "false",
           "label": "Không"
@@ -2641,7 +2485,7 @@
           "page": 1,
           "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
           "tableOrFigure": "02_bp_thresholds_and_targets.png",
-          "note": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo ngưỡng/nguy cơ."
+          "note": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng."
         }
       ],
       "notes": [
@@ -2651,7 +2495,7 @@
     {
       "id": "optimized_hypertension_treatment",
       "name": "Optimized Hypertension Treatment Tree",
-      "purpose": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, phối hợp thuốc và chuyển đánh giá kháng trị.",
+      "purpose": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2.",
       "clinicalStatus": "under_review",
       "entryNodeId": "optimized_start",
       "inputVariables": [
@@ -2661,18 +2505,10 @@
         "bp.category",
         "treatment.hasHighRiskComorbidity",
         "treatment.mandatoryIndication",
-        "medication.agentCount",
-        "medication.uncontrolledDespiteTripleTherapy",
-        "medication.hasClassA",
-        "medication.hasClassB",
-        "medication.hasClassC",
-        "medication.hasClassD",
-        "medication.hasClassMRA",
-        "comorbidity.atheroscleroticCvd",
-        "comorbidity.heartFailure",
-        "comorbidity.stroke",
-        "comorbidity.ckd",
-        "comorbidity.diabetes"
+        "treatment.targetSystolicMmHg",
+        "treatment.targetDiastolicMmHg",
+        "treatment.targetProfile",
+        "medication.agentCount"
       ],
       "outputVariables": [
         "treatment.path"
@@ -2702,7 +2538,7 @@
           "id": "optimized_entry_gate",
           "type": "condition",
           "display": {
-            "title": "Người lớn >18 tuổi và HA phòng khám ≥130/85?"
+            "title": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
           },
           "sourceRefs": [
             {
@@ -2710,7 +2546,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Người lớn >18 tuổi và HA phòng khám ≥130/85?"
+              "note": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
             }
           ],
           "logic": {
@@ -2722,17 +2558,14 @@
                   "value": 18
                 },
                 {
-                  "any": [
-                    {
-                      "field": "bp.assessmentOfficeSystolicMmHg",
-                      "op": "gte",
-                      "value": 130
-                    },
-                    {
-                      "field": "bp.assessmentOfficeDiastolicMmHg",
-                      "op": "gte",
-                      "value": 85
-                    }
+                  "field": "bp.category",
+                  "op": "in",
+                  "value": [
+                    "high_normal",
+                    "hypertension",
+                    "grade1",
+                    "grade2",
+                    "masked_hypertension"
                   ]
                 }
               ]
@@ -2960,7 +2793,7 @@
           "id": "optimized_triple_gate",
           "type": "condition",
           "display": {
-            "title": "Đã cần phối hợp ≥3 nhóm thuốc?"
+            "title": "Đang sử dụng ≥3 nhóm thuốc?"
           },
           "sourceRefs": [
             {
@@ -2968,7 +2801,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Đã cần phối hợp ≥3 nhóm thuốc?"
+              "note": "Đang sử dụng ≥3 nhóm thuốc?"
             }
           ],
           "logic": {
@@ -2980,33 +2813,11 @@
           }
         },
         {
-          "id": "optimized_infer_triple",
-          "type": "inference",
-          "display": {
-            "title": "Viên phối hợp A+C+D"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_03_optimized_treatment",
-              "page": 1,
-              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-              "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Viên phối hợp A+C+D"
-            }
-          ],
-          "data": {
-            "resultCode": "triple_combination_started",
-            "severity": "high",
-            "sets": {
-              "treatment.path": "triple_combination"
-            }
-          }
-        },
-        {
-          "id": "optimized_uncontrolled_gate",
+          "id": "optimized_bp_controlled_gate",
           "type": "condition",
           "display": {
-            "title": "Vẫn chưa kiểm soát sau phối hợp ba thuốc?"
+            "title": "Huyết áp lần khám này đã dưới đích từ Cây 2?",
+            "detail": "HATT < đích HATT và HATTr < đích HATTr."
           },
           "sourceRefs": [
             {
@@ -3014,15 +2825,56 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Vẫn chưa kiểm soát sau phối hợp ba thuốc?"
+              "note": "Huyết áp lần khám này đã dưới đích từ Cây 2?"
             }
           ],
           "logic": {
             "predicate": {
-              "field": "medication.uncontrolledDespiteTripleTherapy",
-              "op": "eq",
-              "value": true
+              "all": [
+                {
+                  "field": "bp.assessmentOfficeSystolicMmHg",
+                  "op": "lt",
+                  "valueField": "treatment.targetSystolicMmHg"
+                },
+                {
+                  "field": "bp.assessmentOfficeDiastolicMmHg",
+                  "op": "lt",
+                  "valueField": "treatment.targetDiastolicMmHg"
+                }
+              ]
             }
+          }
+        },
+        {
+          "id": "optimized_infer_triple",
+          "type": "end",
+          "display": {
+            "title": "Đang sử dụng ≥3 nhóm thuốc và HA đã kiểm soát",
+            "detail": "Tiếp tục theo dõi; không chuyển sang phân loại kháng trị."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Đang sử dụng ≥3 nhóm thuốc và HA đã kiểm soát"
+            },
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Theo dõi sau phối hợp ba thuốc"
+            }
+          ],
+          "data": {
+            "resultCode": "triple_combination_followup",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "triple_combination"
+            },
+            "outcomeCode": "triple_combination_followup"
           }
         },
         {
@@ -3083,26 +2935,6 @@
             "callMode": "subtree",
             "passContext": true,
             "returnPolicy": "merge_context"
-          }
-        },
-        {
-          "id": "optimized_end_triple",
-          "type": "end",
-          "display": {
-            "title": "Theo dõi sau phối hợp ba thuốc"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_03_optimized_treatment",
-              "page": 1,
-              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-              "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Theo dõi sau phối hợp ba thuốc"
-            }
-          ],
-          "data": {
-            "resultCode": "triple_combination_followup",
-            "outcomeCode": "triple_combination_followup"
           }
         },
         {
@@ -3194,7 +3026,7 @@
         },
         {
           "from": "optimized_triple_gate",
-          "to": "optimized_infer_triple",
+          "to": "optimized_bp_controlled_gate",
           "when": "true",
           "label": "Có"
         },
@@ -3205,21 +3037,16 @@
           "label": "Chưa"
         },
         {
-          "from": "optimized_infer_triple",
-          "to": "optimized_uncontrolled_gate",
-          "when": "default"
-        },
-        {
-          "from": "optimized_uncontrolled_gate",
-          "to": "optimized_infer_resistant",
+          "from": "optimized_bp_controlled_gate",
+          "to": "optimized_infer_triple",
           "when": "true",
-          "label": "Có"
+          "label": "Có — dưới đích"
         },
         {
-          "from": "optimized_uncontrolled_gate",
-          "to": "optimized_end_triple",
+          "from": "optimized_bp_controlled_gate",
+          "to": "optimized_infer_resistant",
           "when": "false",
-          "label": "Không"
+          "label": "Không — chưa dưới đích"
         },
         {
           "from": "optimized_infer_resistant",
@@ -3233,7 +3060,7 @@
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, phối hợp thuốc và chuyển đánh giá kháng trị."
+          "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
         }
       ],
       "notes": [
@@ -3906,7 +3733,7 @@
     {
       "id": "uncontrolled_resistant_hypertension",
       "name": "Hypertension General — Phân loại THA",
-      "purpose": "Phân loại đầy đủ nhánh không kiểm soát/kháng trị, safety screen, điều trị và theo dõi theo ảnh cây 5.",
+      "purpose": "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5.",
       "clinicalStatus": "under_review",
       "entryNodeId": "resistant_start",
       "inputVariables": [
@@ -3914,19 +3741,10 @@
         "bp.officeReadingCount",
         "medication.regimenStableWeeks",
         "medication.agentCount",
-        "medication.includesDiuretic",
-        "resistant.egfrMlMin",
-        "resistant.potassiumMmolL",
-        "resistant.sodiumMmolL",
-        "pregnancy.status",
-        "resistant.severeLiverDisease",
-        "resistant.systolicDropAt12WeeksMmHg"
+        "medication.includesDiuretic"
       ],
       "outputVariables": [
-        "resistant.classification",
-        "resistant.treatmentStatus",
-        "resistant.drugRecommendation",
-        "resistant.followupStatus"
+        "resistant.classification"
       ],
       "linksTo": [],
       "nodes": [
@@ -3934,8 +3752,7 @@
           "id": "resistant_start",
           "type": "start",
           "display": {
-            "title": "Hypertension General — Phân loại THA",
-            "detail": "Root"
+            "title": "Hypertension General — Phân loại THA"
           },
           "sourceRefs": [
             {
@@ -3951,8 +3768,8 @@
           "id": "resistant_range",
           "type": "condition",
           "display": {
-            "title": "Seated SBP 140–169 mmHg?",
-            "detail": "Office average, 2–3 readings"
+            "title": "HATT tư thế ngồi 140–169 mmHg?",
+            "detail": "Trung bình phòng khám, 2–3 lần đo"
           },
           "sourceRefs": [
             {
@@ -3960,7 +3777,7 @@
               "page": 1,
               "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
               "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Seated SBP 140–169 mmHg?"
+              "note": "HATT tư thế ngồi 140–169 mmHg?"
             }
           ],
           "logic": {
@@ -3992,8 +3809,8 @@
           "id": "resistant_end_out_of_range",
           "type": "end",
           "display": {
-            "title": "Out of Range — Cần đánh giá thêm",
-            "detail": "Manage first"
+            "title": "Ngoài khoảng — Cần đánh giá thêm",
+            "detail": "Ưu tiên xử trí nguyên nhân trước"
           },
           "sourceRefs": [
             {
@@ -4001,7 +3818,7 @@
               "page": 1,
               "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
               "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Out of Range — Cần đánh giá thêm"
+              "note": "Ngoài khoảng — Cần đánh giá thêm"
             }
           ],
           "data": {
@@ -4014,7 +3831,7 @@
           "type": "condition",
           "display": {
             "title": "Phác đồ ổn định ≥ 4 tuần?",
-            "detail": "No dose changes in past month"
+            "detail": "Không thay đổi liều trong tháng qua"
           },
           "sourceRefs": [
             {
@@ -4037,8 +3854,8 @@
           "id": "resistant_end_defer",
           "type": "end",
           "display": {
-            "title": "Defer — Đánh giá lại sau",
-            "detail": "Re-assess later"
+            "title": "Tạm hoãn — Đánh giá lại sau",
+            "detail": "Đánh giá lại sau"
           },
           "sourceRefs": [
             {
@@ -4046,7 +3863,7 @@
               "page": 1,
               "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
               "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Defer — Đánh giá lại sau"
+              "note": "Tạm hoãn — Đánh giá lại sau"
             }
           ],
           "data": {
@@ -4059,7 +3876,7 @@
           "type": "condition",
           "display": {
             "title": "Số nhóm thuốc hạ áp đang dùng?",
-            "detail": "Including drug classes"
+            "detail": "Tính theo nhóm thuốc"
           },
           "sourceRefs": [
             {
@@ -4128,10 +3945,10 @@
         },
         {
           "id": "resistant_infer_uncontrolled",
-          "type": "inference",
+          "type": "end",
           "display": {
-            "title": "Uncontrolled HTN — Phác đồ 2 thuốc",
-            "detail": "2-drug regimen"
+            "title": "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc",
+            "detail": "Phác đồ 2 nhóm thuốc"
           },
           "sourceRefs": [
             {
@@ -4139,7 +3956,7 @@
               "page": 1,
               "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
               "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Uncontrolled HTN — Phác đồ 2 thuốc"
+              "note": "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc"
             }
           ],
           "data": {
@@ -4147,7 +3964,8 @@
             "severity": "high",
             "sets": {
               "resistant.classification": "uncontrolled_two_drug"
-            }
+            },
+            "outcomeCode": "uncontrolled_two_drug_classified"
           }
         },
         {
@@ -4176,10 +3994,10 @@
         },
         {
           "id": "resistant_infer_resistant",
-          "type": "inference",
+          "type": "end",
           "display": {
-            "title": "Resistant HTN — ≥3 thuốc + lợi tiểu",
-            "detail": "≥3 drugs + diuretic"
+            "title": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu",
+            "detail": "≥3 nhóm thuốc + lợi tiểu"
           },
           "sourceRefs": [
             {
@@ -4187,7 +4005,7 @@
               "page": 1,
               "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
               "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Resistant HTN — ≥3 thuốc + lợi tiểu"
+              "note": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu"
             }
           ],
           "data": {
@@ -4195,7 +4013,8 @@
             "severity": "critical",
             "sets": {
               "resistant.classification": "resistant_three_or_more_with_diuretic"
-            }
+            },
+            "outcomeCode": "resistant_three_or_more_with_diuretic_classified"
           }
         },
         {
@@ -4219,282 +4038,6 @@
             "outcomeCode": "add_diuretic_reclassify",
             "sets": {
               "resistant.classification": "add_diuretic_and_reclassify"
-            }
-          }
-        },
-        {
-          "id": "resistant_safety_screen",
-          "type": "inference",
-          "display": {
-            "title": "Safety & exclusion screen",
-            "detail": "eGFR, K+, Na+, pregnancy, liver"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Safety & exclusion screen"
-            }
-          ],
-          "data": {
-            "resultCode": "resistant_safety_screen_started"
-          }
-        },
-        {
-          "id": "resistant_safety_data",
-          "type": "condition",
-          "display": {
-            "title": "Đủ dữ liệu safety screen?",
-            "detail": "eGFR, K+, Na+, pregnancy và bệnh gan phải được cung cấp trước khi phân loại."
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Đủ dữ liệu safety screen?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "all": [
-                {
-                  "field": "resistant.egfrMlMin",
-                  "op": "present"
-                },
-                {
-                  "field": "resistant.potassiumMmolL",
-                  "op": "present"
-                },
-                {
-                  "field": "resistant.sodiumMmolL",
-                  "op": "present"
-                },
-                {
-                  "field": "pregnancy.status",
-                  "op": "present"
-                },
-                {
-                  "field": "resistant.severeLiverDisease",
-                  "op": "present"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "resistant_end_safety_data_review",
-          "type": "end",
-          "display": {
-            "title": "Cần bổ sung dữ liệu safety screen",
-            "detail": "Không tự động kết luận khi thiếu eGFR, K+, Na+, thai kỳ hoặc bệnh gan."
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Cần bổ sung dữ liệu safety screen"
-            }
-          ],
-          "data": {
-            "resultCode": "resistant_safety_data_required",
-            "outcomeCode": "resistant_safety_data_required",
-            "sets": {
-              "resistant.treatmentStatus": "not_started",
-              "resistant.drugRecommendation": "not_started"
-            }
-          }
-        },
-        {
-          "id": "resistant_exclusion",
-          "type": "condition",
-          "display": {
-            "title": "Any exclusion criteria present?",
-            "detail": "K+ >5.5, eGFR <30, pregnancy..."
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Any exclusion criteria present?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "any": [
-                {
-                  "field": "resistant.egfrMlMin",
-                  "op": "lt",
-                  "value": 30
-                },
-                {
-                  "field": "resistant.potassiumMmolL",
-                  "op": "gt",
-                  "value": 5.5
-                },
-                {
-                  "field": "pregnancy.status",
-                  "op": "in",
-                  "value": [
-                    "pregnant",
-                    "postpartum_0_6w"
-                  ]
-                },
-                {
-                  "field": "resistant.severeLiverDisease",
-                  "op": "eq",
-                  "value": true
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "resistant_end_excluded",
-          "type": "end",
-          "display": {
-            "title": "Excluded — Xử trí và thử lại",
-            "detail": "Address & retry"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Excluded — Xử trí và thử lại"
-            }
-          ],
-          "data": {
-            "resultCode": "resistant_excluded",
-            "outcomeCode": "resistant_excluded_address_and_retry",
-            "sets": {
-              "resistant.treatmentStatus": "excluded",
-              "resistant.drugRecommendation": "address_exclusion_and_retry"
-            }
-          }
-        },
-        {
-          "id": "resistant_infer_eligible",
-          "type": "inference",
-          "display": {
-            "title": "Eligible for baxdrostat",
-            "detail": "1–2 mg once daily, add to regimen"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Eligible for baxdrostat"
-            }
-          ],
-          "data": {
-            "resultCode": "resistant_treatment_eligible",
-            "severity": "high",
-            "sets": {
-              "resistant.treatmentStatus": "eligible",
-              "resistant.drugRecommendation": "baxdrostat_1_to_2mg_daily"
-            }
-          }
-        },
-        {
-          "id": "resistant_infer_monitor",
-          "type": "inference",
-          "display": {
-            "title": "Monitor electrolytes & BP",
-            "detail": "Baseline, wks 1–2, 4, 12"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Monitor electrolytes & BP"
-            }
-          ],
-          "data": {
-            "resultCode": "resistant_monitoring_started"
-          }
-        },
-        {
-          "id": "resistant_target",
-          "type": "condition",
-          "display": {
-            "title": "Target met?",
-            "detail": "SBP drop ≥8.7 mmHg at 12 wks"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Target met?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "field": "resistant.systolicDropAt12WeeksMmHg",
-              "op": "gte",
-              "value": 8.7
-            }
-          }
-        },
-        {
-          "id": "resistant_end_continue",
-          "type": "end",
-          "display": {
-            "title": "Continue therapy",
-            "detail": "SBP drop ≥8.7 mmHg at 12 wks"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Continue therapy"
-            }
-          ],
-          "data": {
-            "resultCode": "resistant_continue_therapy",
-            "outcomeCode": "resistant_target_met",
-            "sets": {
-              "resistant.followupStatus": "continue"
-            }
-          }
-        },
-        {
-          "id": "resistant_end_escalate",
-          "type": "end",
-          "display": {
-            "title": "Escalate / reassess",
-            "detail": "Dose adjust or refer"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_05_uncontrolled_resistant",
-              "page": 1,
-              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-              "note": "Escalate / reassess"
-            }
-          ],
-          "data": {
-            "resultCode": "resistant_escalate_reassess",
-            "outcomeCode": "resistant_target_not_met",
-            "sets": {
-              "resistant.followupStatus": "escalate_reassess"
             }
           }
         }
@@ -4539,7 +4082,7 @@
           "from": "resistant_agent_count",
           "to": "resistant_agent_count_ge3",
           "when": "false",
-          "label": "Không phải 2"
+          "label": "≥ 3"
         },
         {
           "from": "resistant_agent_count_ge3",
@@ -4551,7 +4094,7 @@
           "from": "resistant_agent_count_ge3",
           "to": "resistant_end_agent_count_review",
           "when": "false",
-          "label": "< 2 — rà soát"
+          "label": "Không hợp lệ"
         },
         {
           "from": "resistant_diuretic",
@@ -4564,69 +4107,6 @@
           "to": "resistant_end_add_diuretic",
           "when": "false",
           "label": "No"
-        },
-        {
-          "from": "resistant_infer_uncontrolled",
-          "to": "resistant_safety_screen",
-          "when": "default",
-          "label": "Both arms"
-        },
-        {
-          "from": "resistant_infer_resistant",
-          "to": "resistant_safety_screen",
-          "when": "default",
-          "label": "Both arms"
-        },
-        {
-          "from": "resistant_safety_screen",
-          "to": "resistant_safety_data",
-          "when": "default"
-        },
-        {
-          "from": "resistant_safety_data",
-          "to": "resistant_exclusion",
-          "when": "true",
-          "label": "Đủ dữ liệu"
-        },
-        {
-          "from": "resistant_safety_data",
-          "to": "resistant_end_safety_data_review",
-          "when": "false",
-          "label": "Thiếu dữ liệu"
-        },
-        {
-          "from": "resistant_exclusion",
-          "to": "resistant_end_excluded",
-          "when": "true",
-          "label": "Yes"
-        },
-        {
-          "from": "resistant_exclusion",
-          "to": "resistant_infer_eligible",
-          "when": "false",
-          "label": "No"
-        },
-        {
-          "from": "resistant_infer_eligible",
-          "to": "resistant_infer_monitor",
-          "when": "default"
-        },
-        {
-          "from": "resistant_infer_monitor",
-          "to": "resistant_target",
-          "when": "default"
-        },
-        {
-          "from": "resistant_target",
-          "to": "resistant_end_continue",
-          "when": "true",
-          "label": "Target met"
-        },
-        {
-          "from": "resistant_target",
-          "to": "resistant_end_escalate",
-          "when": "false",
-          "label": "Not met"
         }
       ],
       "sourceRefs": [
@@ -4635,7 +4115,7 @@
           "page": 1,
           "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
           "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Phân loại đầy đủ nhánh không kiểm soát/kháng trị, safety screen, điều trị và theo dõi theo ảnh cây 5."
+          "note": "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5."
         }
       ],
       "notes": [

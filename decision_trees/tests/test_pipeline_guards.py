@@ -61,6 +61,7 @@ def main() -> None:
         "variables": [
             {"id": "bp.systolicMmHg", "dataType": "number"},
             {"id": "bp.diastolicMmHg", "dataType": "number"},
+            {"id": "bp.officeReadingCount", "dataType": "integer"},
             {"id": "laboratory.potassiumMmolL", "dataType": "number"},
         ]
     }
@@ -77,8 +78,8 @@ def main() -> None:
     lab_evidence = {
         "claims": [{
             "claimId": "lab",
-            "variablesJson": json.dumps(["K+"]),
-            "predicateJson": json.dumps({"K+": {"$gte": 5.5}}),
+            "variablesJson": json.dumps(["office_reading_count"]),
+            "predicateJson": json.dumps({"office_reading_count": {"$gte": 2}}),
         }]
     }
     lab_normalized = canonicalize_evidence_claims(lab_evidence, "uncontrolled_resistant_hypertension", evidence_bundle)

@@ -54,9 +54,36 @@ Các field chưa có dữ liệu phải giữ là `null`/missing, không đượ
 
 - `LINK` có `targetTreeId`; engine push context hiện tại vào stack và chạy cây con.
 - Cây con được phép ghi các biến dẫn xuất như `bp.category` hoặc `risk.class` vào context.
+- Clinical flow chạy `bp_thresholds_targets` trước `optimized_hypertension_treatment` và truyền `treatment.targetSystolicMmHg`, `treatment.targetDiastolicMmHg` cùng `treatment.targetProfile` vào context của Cây 3.
+- Cây 3 so sánh HATT/HATTr của encounter hiện tại với hai biến đích này bằng so sánh field-to-field; không nhận một cờ thủ công kiểu `uncontrolledDespiteTripleTherapy`.
 - Khi cây con kết thúc, engine merge `sets`, `resultCode`, `severity` và `trace` về cây cha.
 - Không dùng `LINK` để gọi ngược tạo vòng lặp. Validator phải chặn cycle trong link graph.
 - Nếu clinical flow gọi trực tiếp một cây đã được gọi qua `LINK` trong cùng encounter, áp dụng `runPolicy` để tránh chạy trùng.
+
+## Runtime flow hiện có
+
+Local runtime đã có flow executor theo chuỗi:
+
+```text
+Cây 2 (đích HA) -> Cây 3 (điều trị tối ưu) -> Cây 5 nếu HA chưa dưới đích
+```
+
+Chạy bằng Python:
+
+```bash
+python decision_trees/runtime/decision_tree_engine.py --flow-start-tree-id bp_thresholds_targets --input input.json
+```
+
+Node UI cung cấp cùng flow qua `POST /api/run-flow`. Output của Cây 2 được
+merge vào context trước khi Cây 3 chạy; Cây 3 dùng `valueField` để so sánh
+HA encounter với `treatment.targetSystolicMmHg` và
+`treatment.targetDiastolicMmHg`. Nếu Cây 3 đi qua `LINK`, engine không gọi
+lại Cây 5 lần thứ hai.
+
+Cây 1 và Cây 4 vẫn là các entrypoint upstream: clinical flow/database cần
+chạy chúng trước để tạo `bp.category`, `risk.class` và các cờ nguy cơ rồi
+đưa các output đó vào flow bắt đầu từ Cây 2. Mapping này thuộc adapter layer,
+không nằm trong JSON của decision tree.
 
 ## Mapping với database/API
 
@@ -71,7 +98,9 @@ Database có thể dùng tên field nội bộ khác, nhưng cần một lớp m
 | `risk.factorCount` | risk-assessment service | integer |
 | `risk.highRiskComorbidity` | problem/lab derived risk flag | boolean |
 | `medication.agentCount` | medication reconciliation | integer |
-| `resistant.exclusionCriteriaPresent` | safety-screen service | boolean |
+| `treatment.targetSystolicMmHg` | Cây 2 — đích HATT | number, mmHg |
+| `treatment.targetDiastolicMmHg` | Cây 2 — đích HATTr | number, mmHg |
+| `medication.includesDiuretic` | medication reconciliation | boolean |
 
 Mapping không nên nằm trong tree JSON; đặt ở adapter/database layer để guideline logic độc lập với HIS/EMR cụ thể.
 
@@ -93,7 +122,7 @@ thresholds from the target pages and every generated bundle remains
 LLM chỉ được phép sinh:
 
 - node và edge theo schema;
-- predicate từ whitelist `eq`, `in`, `gte`, `lt`, `all`, `any`;
+- predicate từ whitelist `eq`, `in`, `gte`, `lt`, `all`, `any` và `valueField` cho so sánh hai biến số;
 - variable ID đã tồn tại trong catalog;
 - source reference bắt buộc đến page/section/table/figure.
 

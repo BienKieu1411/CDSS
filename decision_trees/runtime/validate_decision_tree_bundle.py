@@ -61,18 +61,33 @@ def walk_predicate(predicate: Any, variable_map: dict[str, dict[str, Any]], wher
             fail(f"{where}: field must be a non-empty string")
         if field not in variable_map:
             fail(f"{where}: unknown variable {field}")
-        extra_keys = set(predicate) - {"field", "op", "value"}
+        extra_keys = set(predicate) - {"field", "op", "value", "valueField"}
         if extra_keys:
             fail(f"{where}: leaf predicate has unknown keys {sorted(extra_keys)}")
         op = predicate.get("op")
         if op not in OPS:
             fail(f"{where}: unsupported operator {op}")
-        if op != "present" and "value" not in predicate:
-            fail(f"{where}: operator {op} requires value")
-        if op == "present" and "value" in predicate:
-            fail(f"{where}: present operator must not include value")
-        if op != "present":
+        has_value = "value" in predicate
+        has_value_field = "valueField" in predicate
+        if op != "present" and has_value == has_value_field:
+            fail(f"{where}: operator {op} requires exactly one of value or valueField")
+        if op == "present" and (has_value or has_value_field):
+            fail(f"{where}: present operator must not include value or valueField")
+        if has_value:
             validate_predicate_value(variable_map[field], op, predicate["value"], where)
+        if has_value_field:
+            value_field = predicate["valueField"]
+            if not isinstance(value_field, str) or not value_field:
+                fail(f"{where}: valueField must be a non-empty string")
+            if value_field not in variable_map:
+                fail(f"{where}: unknown valueField {value_field}")
+            if op not in {"eq", "neq", "gt", "gte", "lt", "lte"}:
+                fail(f"{where}: valueField is only supported with scalar comparison operators")
+            if variable_map[field].get("dataType") not in {"integer", "number"}:
+                fail(f"{where}: operator {op} requires a numeric variable")
+            if variable_map[value_field].get("dataType") not in {"integer", "number"}:
+                fail(f"{where}: valueField {value_field} must be numeric")
+            return {field, value_field}
         return {field}
 
     keys = [key for key in ("all", "any", "not") if key in predicate]

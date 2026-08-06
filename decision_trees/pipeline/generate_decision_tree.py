@@ -334,7 +334,7 @@ use a safe missing-data path; never substitute a default clinical value.
 Do not add arbitrary code, JavaScript, SQL, or natural-language conditions that
 are not represented as a predicate AST.
 Condition node format: {{"id": "...", "type": "condition", "display": {{"title": "...", "detail": "...", "shortLabel": "..."}}, "logicJson": "{{\\"predicate\\":{{...}}}}", "dataJson": "{{}}", "sourceRefs": [...]}}. Put logic and data in valid JSON strings so the receiver can parse them deterministically.
-Predicate AST format: leaf {{"field":"variable.id","op":"eq|neq|gt|gte|lt|lte|in|notIn|present","value":...}}, or {{"all":[...]}}/{{"any":[...]}}/{{"not":{{...}}}}. `present` has no value. Operators and values must match the variable dataType/allowedValues.
+Predicate AST format: leaf {{"field":"variable.id","op":"eq|neq|gt|gte|lt|lte|in|notIn|present","value":...}}, or {{"field":"numeric.variable","op":"lt","valueField":"derived.numeric.target"}} for a runtime field-to-field comparison, or {{"all":[...]}}/{{"any":[...]}}/{{"not":{{...}}}}. `present` has no value. Operators and values must match the variable dataType/allowedValues.
 Edges must use when=true, false, or default. A condition has exactly one true and one false edge; start/inference have exactly one default edge; link/end are terminal in the current tree. Use LINK nodes for other trees and targetTreeId for the link.
 If the evidence is insufficient, do not guess: add an explicit note, sourceRef to the available evidence, and a safe needs_clinical_review/missing-data outcome.
 
@@ -471,11 +471,24 @@ def _walk_predicate(predicate: Any, variables: dict[str, dict[str, Any]], path: 
             errors.append(f"{path}: unsupported operator {op!r}")
             return
         if op == "present":
-            if "value" in predicate:
-                errors.append(f"{path}: present must not contain value")
+            if "value" in predicate or "valueField" in predicate:
+                errors.append(f"{path}: present must not contain value or valueField")
             return
-        if "value" not in predicate:
-            errors.append(f"{path}: operator {op} requires value")
+        has_value = "value" in predicate
+        has_value_field = "valueField" in predicate
+        if has_value == has_value_field:
+            errors.append(f"{path}: operator {op} requires exactly one of value or valueField")
+            return
+        if has_value_field:
+            value_field = predicate.get("valueField")
+            if not isinstance(value_field, str) or value_field not in variables:
+                errors.append(f"{path}: unknown valueField {value_field!r}")
+            if op not in {"eq", "neq", "gt", "gte", "lt", "lte"}:
+                errors.append(f"{path}: valueField is only supported with scalar comparison operators")
+            if variable.get("dataType") not in {"number", "integer"}:
+                errors.append(f"{path}: field-to-field comparison requires a numeric field")
+            if isinstance(value_field, str) and variables.get(value_field, {}).get("dataType") not in {"number", "integer"}:
+                errors.append(f"{path}: valueField must be numeric")
             return
         variable = variables.get(field, {}) if isinstance(field, str) else {}
         value = predicate["value"]

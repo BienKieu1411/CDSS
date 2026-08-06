@@ -13,7 +13,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from decision_trees.config.paths import BUNDLE_PATH
-from decision_trees.runtime.decision_tree_engine import MissingData, evaluate_predicate, run
+from decision_trees.runtime.decision_tree_engine import MissingData, evaluate_predicate, run, run_clinical_flow
 from decision_trees.runtime.validate_decision_tree_bundle import validate_bundle
 
 
@@ -111,11 +111,18 @@ def assert_validator_guards_graph() -> None:
 
 def assert_image_target_flows() -> None:
     tree5 = next(tree for tree in json.loads(BUNDLE.read_text(encoding="utf-8"))["trees"] if tree["id"] == "uncontrolled_resistant_hypertension")
-    assert len(tree5["nodes"]) == 22
+    assert len(tree5["nodes"]) == 12
     tree5_titles = {node["display"]["title"] for node in tree5["nodes"]}
-    assert "Safety & exclusion screen" in tree5_titles
-    assert "Any exclusion criteria present?" in tree5_titles
-    assert "Eligible for baxdrostat" in tree5_titles
+    assert "Safety & exclusion screen" not in tree5_titles
+    assert "Any exclusion criteria present?" not in tree5_titles
+    assert "Eligible for baxdrostat" not in tree5_titles
+    assert tree5["inputVariables"] == [
+        "bp.officeAverageSystolicMmHg",
+        "bp.officeReadingCount",
+        "medication.regimenStableWeeks",
+        "medication.agentCount",
+        "medication.includesDiuretic",
+    ]
 
     crisis = base_diagnosis()
     crisis.update({"bp.office1.systolicMmHg": 180, "bp.office1.diastolicMmHg": 80, "bp.office1.targetOrganDamageOrCvd": True})
@@ -142,6 +149,8 @@ def assert_image_target_flows() -> None:
 
     threshold = run(BUNDLE, "bp_thresholds_targets", {"bp.category": "high_normal", "risk.class": "high", "treatment.hasHighRiskComorbidity": True})
     assert threshold["context"]["treatment.targetSystolicMmHg"] == 130
+    assert threshold["context"]["treatment.targetDiastolicMmHg"] == 80
+    assert threshold["context"]["treatment.targetProfile"] == "high_risk"
 
     initial_combo = run(BUNDLE, "optimized_hypertension_treatment", {"patient.ageYears": 55, "bp.assessmentOfficeSystolicMmHg": 150, "bp.assessmentOfficeDiastolicMmHg": 95, "bp.category": "grade1", "treatment.hasHighRiskComorbidity": False, "treatment.mandatoryIndication": False})
     assert initial_combo["outcomeCode"] == "initial_combination_followup"
@@ -149,31 +158,23 @@ def assert_image_target_flows() -> None:
     single_pill = run(BUNDLE, "optimized_hypertension_treatment", {"patient.ageYears": 55, "bp.assessmentOfficeSystolicMmHg": 135, "bp.assessmentOfficeDiastolicMmHg": 82, "bp.category": "high_normal", "treatment.hasHighRiskComorbidity": False, "treatment.mandatoryIndication": False})
     assert single_pill["outcomeCode"] == "optimized_single_pill_followup"
 
-    excluded = run(BUNDLE, "uncontrolled_resistant_hypertension", {
+    uncontrolled = run(BUNDLE, "uncontrolled_resistant_hypertension", {
         "bp.officeAverageSystolicMmHg": 150,
         "bp.officeReadingCount": 2,
         "medication.regimenStableWeeks": 4,
-        "medication.agentCount": 3,
-        "medication.includesDiuretic": True,
-        "resistant.egfrMlMin": 20,
-        "resistant.potassiumMmolL": 4.2,
-        "resistant.sodiumMmolL": 140,
-        "pregnancy.status": "not_pregnant",
-        "resistant.severeLiverDisease": False,
+        "medication.agentCount": 2,
+        "medication.includesDiuretic": False,
     })
-    assert excluded["context"]["resistant.treatmentStatus"] == "excluded"
-    assert excluded["context"]["resistant.drugRecommendation"] == "address_exclusion_and_retry"
+    assert uncontrolled["context"]["resistant.classification"] == "uncontrolled_two_drug"
+    assert uncontrolled["resultCode"] == "uncontrolled_htn_arm"
 
-    missing_safety = run(BUNDLE, "uncontrolled_resistant_hypertension", {
+    missing_classification_data = run(BUNDLE, "uncontrolled_resistant_hypertension", {
         "bp.officeAverageSystolicMmHg": 150,
         "bp.officeReadingCount": 2,
         "medication.regimenStableWeeks": 4,
-        "medication.agentCount": 3,
-        "medication.includesDiuretic": True,
     })
-    assert missing_safety["status"] == "completed"
-    assert missing_safety["resultCode"] == "resistant_safety_data_required"
-    assert missing_safety["context"]["resistant.treatmentStatus"] == "not_started"
+    assert missing_classification_data["status"] == "needs_data"
+    assert missing_classification_data["missingData"] == ["medication.agentCount"]
 
     resistant_context = {
         "patient.ageYears": 55,
@@ -183,22 +184,39 @@ def assert_image_target_flows() -> None:
         "treatment.hasHighRiskComorbidity": True,
         "treatment.mandatoryIndication": False,
         "medication.agentCount": 3,
-        "medication.uncontrolledDespiteTripleTherapy": True,
+        "treatment.targetSystolicMmHg": 130,
+        "treatment.targetDiastolicMmHg": 80,
+        "treatment.targetProfile": "high_risk",
         "bp.officeAverageSystolicMmHg": 150,
         "bp.officeReadingCount": 2,
         "medication.regimenStableWeeks": 4,
         "medication.includesDiuretic": True,
-        "resistant.egfrMlMin": 60,
-        "resistant.potassiumMmolL": 4.2,
-        "resistant.sodiumMmolL": 140,
-        "pregnancy.status": "not_pregnant",
-        "resistant.severeLiverDisease": False,
-        "resistant.systolicDropAt12WeeksMmHg": 9.0,
     }
     resistant = run(BUNDLE, "optimized_hypertension_treatment", resistant_context)
     assert "uncontrolled_resistant_hypertension" in resistant["linksVisited"]
-    assert resistant["outcomeCode"] == "resistant_target_met"
-    assert resistant["resultCode"] == "resistant_continue_therapy"
+    assert resistant["outcomeCode"] == "resistant_three_or_more_with_diuretic_classified"
+    assert resistant["resultCode"] == "resistant_htn_arm"
+
+    controlled_context = dict(resistant_context)
+    controlled_context.update({
+        "bp.assessmentOfficeSystolicMmHg": 129,
+        "bp.assessmentOfficeDiastolicMmHg": 79,
+    })
+    controlled = run(BUNDLE, "optimized_hypertension_treatment", controlled_context)
+    assert controlled["outcomeCode"] == "triple_combination_followup"
+    assert controlled["resultCode"] == "triple_combination_followup"
+
+    target_boundary = dict(resistant_context)
+    target_boundary.update({
+        "bp.assessmentOfficeSystolicMmHg": 140,
+        "bp.assessmentOfficeDiastolicMmHg": 80,
+        "treatment.targetSystolicMmHg": 140,
+        "treatment.targetDiastolicMmHg": 80,
+        "treatment.targetProfile": "no_comorbidity",
+    })
+    boundary_result = run(BUNDLE, "optimized_hypertension_treatment", target_boundary)
+    assert boundary_result["terminalTreeId"] == "uncontrolled_resistant_hypertension"
+    assert boundary_result["resultCode"] == "resistant_htn_arm"
 
     two_drug = dict(resistant_context)
     two_drug["medication.agentCount"] = 2
@@ -214,6 +232,44 @@ def assert_image_target_flows() -> None:
     invalid_agent_count["medication.agentCount"] = 1
     invalid_agent_count_result = run(BUNDLE, "uncontrolled_resistant_hypertension", invalid_agent_count)
     assert invalid_agent_count_result["resultCode"] == "resistant_agent_count_review_required"
+
+    flow_context = {
+        "bp.category": "grade1",
+        "risk.class": "low",
+        "treatment.hasHighRiskComorbidity": False,
+        "patient.ageYears": 55,
+        "bp.assessmentOfficeSystolicMmHg": 129,
+        "bp.assessmentOfficeDiastolicMmHg": 79,
+        "treatment.mandatoryIndication": False,
+        "medication.agentCount": 3,
+        "bp.officeAverageSystolicMmHg": 150,
+        "bp.officeReadingCount": 2,
+        "medication.regimenStableWeeks": 4,
+        "medication.includesDiuretic": True,
+    }
+    controlled_flow = run_clinical_flow(BUNDLE, flow_context)
+    assert [step["treeId"] for step in controlled_flow["steps"]] == [
+        "bp_thresholds_targets",
+        "optimized_hypertension_treatment",
+    ]
+    assert controlled_flow["context"]["treatment.targetSystolicMmHg"] == 140
+    assert controlled_flow["resultCode"] == "triple_combination_followup"
+    assert controlled_flow["outcomeCode"] == "triple_combination_followup"
+
+    uncontrolled_flow_context = dict(flow_context)
+    uncontrolled_flow_context.update({
+        "bp.assessmentOfficeSystolicMmHg": 150,
+        "bp.assessmentOfficeDiastolicMmHg": 95,
+    })
+    uncontrolled_flow = run_clinical_flow(BUNDLE, uncontrolled_flow_context)
+    assert [step["treeId"] for step in uncontrolled_flow["steps"]] == [
+        "bp_thresholds_targets",
+        "optimized_hypertension_treatment",
+    ]
+    assert uncontrolled_flow["terminalTreeId"] == "uncontrolled_resistant_hypertension"
+    assert uncontrolled_flow["resultCode"] == "resistant_htn_arm"
+    assert uncontrolled_flow["outcomeCode"] == "resistant_three_or_more_with_diuretic_classified"
+    assert uncontrolled_flow["linksVisited"] == ["uncontrolled_resistant_hypertension"]
 
 
 def main() -> None:

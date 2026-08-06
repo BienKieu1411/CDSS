@@ -50,7 +50,7 @@
       "activationMode": "direct",
       "priority": 130,
       "runPolicy": "once_per_encounter",
-      "requiredVariables": ["patient.ageYears", "bp.assessmentOfficeSystolicMmHg", "bp.assessmentOfficeDiastolicMmHg", "bp.category", "treatment.hasHighRiskComorbidity", "treatment.mandatoryIndication", "medication.agentCount", "medication.uncontrolledDespiteTripleTherapy"],
+      "requiredVariables": ["patient.ageYears", "bp.assessmentOfficeSystolicMmHg", "bp.assessmentOfficeDiastolicMmHg", "bp.category", "treatment.hasHighRiskComorbidity", "treatment.mandatoryIndication", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg", "treatment.targetProfile", "medication.agentCount"],
       "guard": {"field": "bp.category", "op": "in", "value": ["high_normal", "grade1", "grade2", "hypertension", "masked_hypertension"]}
     },
     {
@@ -60,7 +60,7 @@
       "activationMode": "link_or_direct",
       "priority": 200,
       "runPolicy": "once_per_encounter",
-      "requiredVariables": ["bp.officeAverageSystolicMmHg", "bp.officeReadingCount", "medication.regimenStableWeeks", "medication.agentCount", "medication.includesDiuretic", "resistant.egfrMlMin", "resistant.potassiumMmolL", "resistant.sodiumMmolL", "pregnancy.status", "resistant.severeLiverDisease", "resistant.systolicDropAt12WeeksMmHg"],
+      "requiredVariables": ["bp.officeAverageSystolicMmHg", "bp.officeReadingCount", "medication.regimenStableWeeks", "medication.agentCount", "medication.includesDiuretic"],
       "guard": {"field": "bp.officeAverageSystolicMmHg", "op": "present"}
     }
   ]

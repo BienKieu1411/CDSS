@@ -27,7 +27,7 @@ Trong bundle, liên kết được khai báo tại node `optimized_link_resistan
 | `end` | Kết quả cuối | Kết thúc nhánh và trả kết quả |
 | `link` | Chuyển cây | Mở cây khác khi cần đánh giá sâu hơn |
 
-Tổng cộng trong 5 cây: 5 node bắt đầu, 38 node điều kiện, 7 node kết luận trung gian, 38 node kết thúc và 1 node chuyển cây.
+Tổng cộng trong 5 cây: 5 node bắt đầu, 37 node điều kiện, 1 node kết luận trung gian, 38 node kết thúc và 1 node chuyển cây. Bundle hiện có 55 biến, 82 node và 80 liên kết.
 
 ## 3. Danh sách biến được sử dụng
 
@@ -63,6 +63,7 @@ HATT là huyết áp tâm thu; HATTr là huyết áp tâm trương; HALT là huy
 | `treatment.recommendation` | Khuyến nghị điều trị ban đầu | enum | — |
 | `treatment.targetSystolicMmHg` | Đích HATT | number | mmHg |
 | `treatment.targetDiastolicMmHg` | Đích HATTr | number | mmHg |
+| `treatment.targetProfile` | Nhóm đích điều trị | enum | — |
 | `treatment.controlWindowMonths` | Khoảng thời gian kiểm soát mục tiêu | enum | tháng |
 
 Các giá trị chính của `bp.category`: bình thường, bình thường-cao, tăng huyết áp, độ 1, độ 2, cơn tăng huyết áp, áo choàng trắng, tăng huyết áp ẩn hoặc cần rà soát.
@@ -76,11 +77,6 @@ Các giá trị của `risk.class`: thấp, trung bình hoặc cao.
 | `patient.ageYears` | Tuổi bệnh nhân | integer | năm |
 | `bp.assessmentOfficeSystolicMmHg` | HATT phòng khám lúc đánh giá điều trị | number | mmHg |
 | `bp.assessmentOfficeDiastolicMmHg` | HATTr phòng khám lúc đánh giá điều trị | number | mmHg |
-| `medication.hasClassA` | Đang có nhóm thuốc A | boolean | — |
-| `medication.hasClassB` | Đang có nhóm thuốc B | boolean | — |
-| `medication.hasClassC` | Đang có nhóm thuốc C | boolean | — |
-| `medication.hasClassD` | Đang có nhóm thuốc D | boolean | — |
-| `medication.hasClassMRA` | Đang có nhóm thuốc MRA | boolean | — |
 | `comorbidity.atheroscleroticCvd` | Bệnh tim mạch do xơ vữa | boolean | — |
 | `comorbidity.heartFailure` | Suy tim | boolean | — |
 | `comorbidity.stroke` | Tiền sử đột quỵ | boolean | — |
@@ -88,7 +84,6 @@ Các giá trị của `risk.class`: thấp, trung bình hoặc cao.
 | `comorbidity.diabetes` | Đái tháo đường | boolean | — |
 | `treatment.mandatoryIndication` | Có chỉ định điều trị bắt buộc | boolean | — |
 | `medication.agentCount` | Số nhóm thuốc hạ áp | integer | nhóm thuốc |
-| `medication.uncontrolledDespiteTripleTherapy` | Chưa kiểm soát dù đã phối hợp ba thuốc | boolean | — |
 | `treatment.path` | Nhánh điều trị tối ưu | enum | — |
 
 ### 3.4. Biến phân tầng nguy cơ
@@ -114,24 +109,16 @@ Các giá trị của `risk.class`: thấp, trung bình hoặc cao.
 
 Các yếu tố từ `risk.ageOver65` đến `risk.socialEnvironmentalRisk` được dùng để tạo hoặc kiểm tra `risk.factorCount`; không nên hiểu `risk.factorCount` là một bệnh riêng.
 
-### 3.5. Biến không kiểm soát/kháng trị và safety screen
+### 3.5. Biến không kiểm soát/kháng trị
 
 | Mã biến | Tên hiển thị | Kiểu dữ liệu | Đơn vị |
 |---|---|---|---|
 | `bp.officeAverageSystolicMmHg` | HATT phòng khám trung bình | number | mmHg |
 | `bp.officeReadingCount` | Số lần đo phòng khám | integer | lần đo |
 | `medication.regimenStableWeeks` | Số tuần phác đồ ổn định | number | tuần |
+| `medication.agentCount` | Số nhóm thuốc hạ áp | integer | nhóm thuốc |
 | `medication.includesDiuretic` | Phác đồ có lợi tiểu | boolean | — |
-| `resistant.egfrMlMin` | eGFR | number | mL/min/1.73m² |
-| `resistant.potassiumMmolL` | Kali máu | number | mmol/L |
-| `resistant.sodiumMmolL` | Natri máu | number | mmol/L |
-| `pregnancy.status` | Tình trạng thai kỳ | enum | — |
-| `resistant.severeLiverDisease` | Bệnh gan nặng | boolean | — |
-| `resistant.systolicDropAt12WeeksMmHg` | Mức giảm HATT tại tuần 12 | number | mmHg |
 | `resistant.classification` | Phân loại nhánh không kiểm soát/kháng trị | enum | — |
-| `resistant.treatmentStatus` | Trạng thái điều trị kháng trị | enum | — |
-| `resistant.drugRecommendation` | Thuốc/hành động xử trí kháng trị | enum | — |
-| `resistant.followupStatus` | Trạng thái theo dõi | enum | — |
 
 ## 4. Năm cây quyết định đã xây dựng
 
@@ -166,20 +153,18 @@ Các yếu tố từ `risk.ageOver65` đến `risk.socialEnvironmentalRisk` đư
 | Nội dung | Chi tiết |
 |---|---|
 | Mã cây | `bp_thresholds_targets` |
-| Số node/liên kết | 10 node / 9 liên kết |
+| Số node/liên kết | 14 node / 13 liên kết |
 | Đầu vào chính | `bp.category`, `risk.class`, `treatment.hasHighRiskComorbidity` |
-| Đầu ra | `treatment.recommendation`, `treatment.targetSystolicMmHg`, `treatment.targetDiastolicMmHg`, `treatment.controlWindowMonths` |
+| Đầu ra | `treatment.recommendation`, `treatment.targetSystolicMmHg`, `treatment.targetDiastolicMmHg`, `treatment.targetProfile`, `treatment.controlWindowMonths` |
 | Ảnh nguồn | [`02_bp_thresholds_and_targets.png`](../images/02_bp_thresholds_and_targets.png) |
 
 **Luồng chính:**
 
-1. Nếu huyết áp bình thường-cao, kiểm tra có nguy cơ cao/bệnh đồng mắc nguy cơ cao không.
-2. Bình thường-cao nhưng nguy cơ thấp hoặc trung bình: ưu tiên thay đổi lối sống.
-3. Bình thường-cao và nguy cơ cao: điều trị thuốc theo cá thể hóa, đích trong bundle là <130/80 mmHg.
-4. Nếu đã là tăng huyết áp ≥140 và/hoặc ≥90, kiểm tra bệnh đồng mắc/nguy cơ cao.
-5. Tăng huyết áp có nguy cơ cao: điều trị thuốc ngay, đích <130/80 mmHg khi dung nạp.
-6. Tăng huyết áp không có bệnh đồng mắc nguy cơ cao: điều trị thuốc ngay, đích HATT <140 và HATTr khoảng <80.
-7. Nếu phân loại đầu vào chưa đủ để chọn nhánh, trả về cần rà soát.
+1. Nếu huyết áp bình thường-cao hoặc đã là tăng huyết áp, ưu tiên kiểm tra nguy cơ cao trước.
+2. Bệnh nhân nguy cơ cao: xuất đích HATT/HATTr <130/80 mmHg và `targetProfile=high_risk`.
+3. Không thuộc nhóm nguy cơ cao nhưng có bệnh đồng mắc: xuất đích <130/80 mmHg và `targetProfile=comorbidity`.
+4. Không có bệnh đồng mắc: xuất đích <140/80 mmHg và `targetProfile=no_comorbidity`.
+5. Khuyến nghị điều trị vẫn được giữ theo nhánh bình thường-cao hoặc tăng huyết áp; nếu phân loại đầu vào chưa đủ thì trả về cần rà soát.
 
 ### Cây 3 – Điều trị tăng huyết áp tối ưu
 
@@ -188,22 +173,22 @@ Các yếu tố từ `risk.ageOver65` đến `risk.socialEnvironmentalRisk` đư
 | Nội dung | Chi tiết |
 |---|---|
 | Mã cây | `optimized_hypertension_treatment` |
-| Số node/liên kết | 16 node / 17 liên kết |
-| Đầu vào chính | tuổi; HATT/HATTr lúc đánh giá; `bp.category`; bệnh đồng mắc/nguy cơ cao; chỉ định bắt buộc; số nhóm thuốc và tình trạng kiểm soát |
+| Số node/liên kết | 15 node / 16 liên kết |
+| Đầu vào chính | tuổi; HATT/HATTr lúc đánh giá; `bp.category`; bệnh đồng mắc/nguy cơ cao; chỉ định bắt buộc; hai ngưỡng đích từ Cây 2; số nhóm thuốc |
 | Đầu ra chính | `treatment.path` |
 | Liên kết | Nếu nghi kháng trị, chuyển sang `uncontrolled_resistant_hypertension` |
 | Ảnh nguồn | [`03_optimized_hypertension_treatment.png`](../images/03_optimized_hypertension_treatment.png) |
 
 **Luồng chính:**
 
-1. Chỉ tiếp tục nếu người bệnh >18 tuổi và HATT phòng khám ≥130 hoặc HATTr ≥85; nếu không, yêu cầu rà soát.
+1. Chỉ tiếp tục nếu người bệnh >18 tuổi và đã có phân loại HA thuộc nhóm cần flow điều trị; trị số encounter hiện tại được để riêng cho bước kiểm tra kiểm soát HA.
 2. Người có huyết áp bình thường-cao và nguy cơ thấp/trung bình: đi theo nhánh khởi trị một viên A/B/C/D theo cá thể hóa.
 3. Nếu có chỉ định điều trị bắt buộc, chọn điều trị theo bệnh đồng mắc.
 4. Nếu không có chỉ định bắt buộc nhưng cần điều trị phối hợp, kiểm tra số nhóm thuốc đang dùng.
 5. Chưa biết số nhóm thuốc: chọn nhánh phối hợp ban đầu.
-6. Đã dùng từ 3 nhóm thuốc: đi theo nhánh phối hợp ba thuốc.
-7. Nếu chưa kiểm soát dù đã phối hợp ba thuốc: nhận định có khả năng tăng huyết áp kháng trị và chuyển Cây 5.
-8. Nếu đã kiểm soát: tiếp tục theo dõi sau phối hợp ba thuốc.
+6. Đã dùng từ 3 nhóm thuốc: so sánh HATT và HATTr của encounter hiện tại với hai ngưỡng đích do Cây 2 xuất ra.
+7. Nếu cả HATT và HATTr đều thấp hơn đích: tiếp tục theo dõi sau phối hợp ba thuốc.
+8. Nếu một trong hai trị số không thấp hơn đích: chuyển Cây 5 để phân loại uncontrolled/resistant.
 
 ### Cây 4 – Phân tầng nguy cơ tim mạch
 
@@ -228,14 +213,14 @@ Các yếu tố từ `risk.ageOver65` đến `risk.socialEnvironmentalRisk` đư
 
 ### Cây 5 – Phân loại tăng huyết áp không kiểm soát/kháng trị
 
-**Mục đích:** kiểm tra người bệnh có phù hợp với nhánh không kiểm soát/kháng trị hay không, sau đó thực hiện safety screen và theo dõi đáp ứng.
+**Mục đích:** phân loại người bệnh thành uncontrolled, resistant hoặc cần thêm lợi tiểu dựa trên HA phòng khám, độ ổn định phác đồ, số nhóm thuốc và lợi tiểu.
 
 | Nội dung | Chi tiết |
 |---|---|
 | Mã cây | `uncontrolled_resistant_hypertension` |
-| Số node/liên kết | 22 node / 22 liên kết |
-| Đầu vào chính | HATT phòng khám trung bình; số lần đo; thời gian phác đồ ổn định; số nhóm thuốc; có lợi tiểu; eGFR; kali; natri; thai kỳ; bệnh gan nặng; mức giảm HATT tại tuần 12 |
-| Đầu ra | `resistant.classification`, `resistant.treatmentStatus`, `resistant.drugRecommendation`, `resistant.followupStatus` |
+| Số node/liên kết | 12 node / 11 liên kết |
+| Đầu vào chính | HATT phòng khám trung bình; số lần đo; thời gian phác đồ ổn định; số nhóm thuốc; có lợi tiểu |
+| Đầu ra | `resistant.classification` |
 | Ảnh nguồn | [`05_uncontrolled_resistant_hypertension.png`](../images/05_uncontrolled_resistant_hypertension.png) |
 
 **Luồng chính:**
@@ -246,19 +231,17 @@ Các yếu tố từ `risk.ageOver65` đến `risk.socialEnvironmentalRisk` đư
 4. Nếu dùng từ 3 nhóm thuốc trở lên: kiểm tra có thuốc lợi tiểu hay không.
 5. Từ 3 nhóm thuốc trở lên và có lợi tiểu: phân loại nhánh tăng huyết áp kháng trị.
 6. Từ 3 nhóm thuốc trở lên nhưng chưa có lợi tiểu: thêm lợi tiểu rồi phân loại lại.
-7. Trước khi kết luận điều trị, bắt buộc kiểm tra đủ eGFR, kali, natri, thai kỳ và bệnh gan nặng.
-8. Nếu có tiêu chí loại trừ, xử trí nguyên nhân và thử lại; nếu không có, đi theo nhánh đủ điều kiện điều trị.
-9. Theo dõi mức giảm HATT tại tuần 12: đạt ≥8,7 mmHg thì tiếp tục; không đạt thì điều chỉnh/liên chuyên khoa và đánh giá lại.
+7. Cây kết thúc tại kết quả phân loại; không bao gồm safety screen, exclusion screen, điều trị thuốc hoặc theo dõi tuần 12.
 
 ## 5. Bảng tổng hợp đầu vào – đầu ra
 
 | Cây | Đầu vào chính | Đầu ra chính | Dùng lại ở cây nào |
 |---|---|---|---|
 | Cây 1 – Chẩn đoán HA | Đo phòng khám, HATN, HALT, tổn thương cơ quan đích/bệnh tim mạch | `bp.category` | Cây 2, 3, 4 |
-| Cây 2 – Ngưỡng và đích | `bp.category`, `risk.class`, bệnh đồng mắc nguy cơ cao | Khuyến nghị ban đầu, đích HATT/HATTr, thời gian kiểm soát | Clinical flow/hiển thị điều trị |
-| Cây 3 – Điều trị tối ưu | Tuổi, HA lúc đánh giá, nguy cơ, bệnh đồng mắc, thuốc đang dùng | `treatment.path` | Chuyển Cây 5 khi nghi kháng trị |
+| Cây 2 – Ngưỡng và đích | `bp.category`, `risk.class`, bệnh đồng mắc nguy cơ cao | Khuyến nghị ban đầu, đích HATT/HATTr, nhóm đích | Cây 3 và UI điều trị |
+| Cây 3 – Điều trị tối ưu | Tuổi, HA lúc đánh giá, nguy cơ, bệnh đồng mắc, hai đích từ Cây 2, số nhóm thuốc | `treatment.path` | Chuyển Cây 5 khi HA chưa dưới đích |
 | Cây 4 – Phân tầng nguy cơ | Phân loại HA, trị số HA, yếu tố nguy cơ, TOD/CKD/ĐTĐ/bệnh tim mạch | `risk.class` | Cây 2 và clinical flow |
-| Cây 5 – Không kiểm soát/kháng trị | HA trung bình, số lần đo, thời gian ổn định, số thuốc, lợi tiểu, safety screen, đáp ứng tuần 12 | Phân loại, trạng thái điều trị, khuyến nghị thuốc, trạng thái theo dõi | Clinical flow/điều trị tiếp theo |
+| Cây 5 – Không kiểm soát/kháng trị | HA trung bình, số lần đo, thời gian ổn định, số thuốc, lợi tiểu | `resistant.classification` | Clinical flow/điều trị tiếp theo |
 
 ## 6. Phân biệt dữ liệu người dùng nhập và dữ liệu hệ thống tự sinh
 
@@ -268,7 +251,7 @@ Các yếu tố từ `risk.ageOver65` đến `risk.socialEnvironmentalRisk` đư
 - Phương pháp đo: phòng khám, tại nhà hoặc HALT.
 - Thông tin bệnh đồng mắc, tổn thương cơ quan đích và yếu tố nguy cơ.
 - Thuốc đang dùng, số nhóm thuốc, có lợi tiểu hay không.
-- eGFR, kali, natri, thai kỳ, bệnh gan và mức giảm HATT khi theo dõi.
+- Dữ liệu số nhóm thuốc, thời gian ổn định phác đồ và có lợi tiểu cho Cây 5.
 
 ### Hệ thống suy ra
 
@@ -277,7 +260,7 @@ Các yếu tố từ `risk.ageOver65` đến `risk.socialEnvironmentalRisk` đư
 - `treatment.recommendation`: khuyến nghị ban đầu.
 - `treatment.targetSystolicMmHg` và `treatment.targetDiastolicMmHg`: đích điều trị.
 - `treatment.path`: nhánh điều trị tối ưu.
-- Các biến `resistant.*`: kết quả phân loại và theo dõi nhánh kháng trị.
+- `resistant.classification`: kết quả phân loại nhánh không kiểm soát/kháng trị.
 
 Vì vậy, trên UI nên hiển thị câu hỏi dễ hiểu như “HATT phòng khám lần 1” hoặc “Có bệnh thận mạn không?”, còn mã biến kỹ thuật chỉ nên dùng trong JSON, database và pipeline.
 
@@ -302,4 +285,3 @@ Kết quả JSON chuẩn hiện được lưu tại [`decision_tree_bundle.json`
 - Schema JSON: [`../bundle/decision_tree_schema.json`](../bundle/decision_tree_schema.json)
 - Tiêu chí pass: [`../bundle/decision_tree_pass_criteria.json`](../bundle/decision_tree_pass_criteria.json)
 - Ảnh nguồn: [`../images/README.md`](../images/README.md)
-

@@ -65,7 +65,10 @@ def evaluate_predicate(predicate: dict[str, Any], context: dict[str, Any]) -> bo
         if op == "present":
             return field in context and context[field] is not None
         actual = get_value(context, field)
-        expected = predicate.get("value")
+        if "valueField" in predicate:
+            expected = get_value(context, predicate["valueField"])
+        else:
+            expected = predicate.get("value")
         if op == "eq":
             return actual == expected
         if op == "neq":
@@ -272,15 +275,109 @@ def run(bundle_path: Path, tree_id: str, context: dict[str, Any]) -> dict[str, A
     return result
 
 
+CLINICAL_FLOW_ORDER = (
+    "bp_thresholds_targets",
+    "optimized_hypertension_treatment",
+)
+
+
+def _unique_items(items: Iterable[Any]) -> list[Any]:
+    result: list[Any] = []
+    for item in items:
+        if item not in result:
+            result.append(item)
+    return result
+
+
+def run_clinical_flow(
+    bundle_path: Path,
+    context: dict[str, Any],
+    *,
+    start_tree_id: str = "bp_thresholds_targets",
+) -> dict[str, Any]:
+    """Run the ordered clinical flow and pass each tree's context forward.
+
+    Tree 2 therefore writes the treatment targets before Tree 3 evaluates the
+    encounter BP. Tree 3 may continue into Tree 5 through its LINK node.
+    """
+    if start_tree_id in CLINICAL_FLOW_ORDER:
+        tree_ids = list(CLINICAL_FLOW_ORDER[CLINICAL_FLOW_ORDER.index(start_tree_id):])
+    elif start_tree_id == "uncontrolled_resistant_hypertension":
+        tree_ids = [start_tree_id]
+    else:
+        raise ValueError(f"tree {start_tree_id!r} is not a clinical-flow entrypoint")
+
+    current_context = dict(context)
+    steps: list[dict[str, Any]] = []
+    trace: list[dict[str, Any]] = []
+    links_visited: list[str] = []
+    source_refs: list[dict[str, Any]] = []
+    sets: dict[str, Any] = {}
+    final_result: dict[str, Any] | None = None
+
+    for tree_id in tree_ids:
+        step = run(bundle_path, tree_id, current_context)
+        final_result = step
+        current_context.update(step.get("context", {}))
+        sets.update(step.get("sets", {}))
+        trace.extend(step.get("trace", []))
+        links_visited = _unique_items([*links_visited, *step.get("linksVisited", [])])
+        source_refs = _unique_items([*source_refs, *step.get("sourceRefs", [])])
+        steps.append({
+            "treeId": tree_id,
+            "status": step.get("status"),
+            "resultCode": step.get("resultCode"),
+            "outcomeCode": step.get("outcomeCode"),
+            "terminalTreeId": step.get("terminalTreeId"),
+            "missingData": step.get("missingData", []),
+        })
+        if step.get("status") != "completed":
+            break
+
+    assert final_result is not None
+    result = {
+        "status": final_result.get("status"),
+        "resultCode": final_result.get("resultCode"),
+        "outcomeCode": final_result.get("outcomeCode"),
+        "actions": final_result.get("actions", []),
+        "sets": sets,
+        "entryTreeId": start_tree_id,
+        "terminalTreeId": final_result.get("terminalTreeId"),
+        "bundleId": final_result.get("bundleId"),
+        "bundleVersion": final_result.get("bundleVersion"),
+        "context": current_context,
+        "linksVisited": links_visited,
+        "trace": trace,
+        "sourceRefs": source_refs,
+        "validation": final_result.get("validation"),
+        "steps": steps,
+        "decision": {
+            "status": final_result.get("status"),
+            "resultCode": final_result.get("resultCode"),
+            "outcomeCode": final_result.get("outcomeCode"),
+            "sets": sets,
+            "severity": final_result.get("severity"),
+            "actions": final_result.get("actions", []),
+            "missingData": final_result.get("missingData", []),
+            "reason": final_result.get("reason"),
+        },
+    }
+    if final_result.get("missingData"):
+        result["missingData"] = final_result["missingData"]
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--bundle", type=Path, default=BUNDLE_PATH)
-    parser.add_argument("--tree-id", required=True)
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--tree-id")
+    mode.add_argument("--flow-start-tree-id")
     parser.add_argument("--input", type=Path, required=True, help="JSON object containing flattened variable IDs")
     args = parser.parse_args()
     payload = json.loads(args.input.read_text(encoding="utf-8"))
     context = payload.get("variables", payload)
-    result = run(args.bundle, args.tree_id, context)
+    result = run_clinical_flow(args.bundle, context, start_tree_id=args.flow_start_tree_id) if args.flow_start_tree_id else run(args.bundle, args.tree_id, context)
     for key in ("patientId", "encounterId", "contextSnapshotId", "asOf"):
         if key in payload:
             result[key] = payload[key]

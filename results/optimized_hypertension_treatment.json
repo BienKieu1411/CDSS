@@ -8,32 +8,25 @@
     "treatment.hasHighRiskComorbidity": true,
     "treatment.mandatoryIndication": false,
     "medication.agentCount": 3,
-    "medication.uncontrolledDespiteTripleTherapy": true,
+    "treatment.targetSystolicMmHg": 130,
+    "treatment.targetDiastolicMmHg": 80,
+    "treatment.targetProfile": "high_risk",
     "bp.officeAverageSystolicMmHg": 150,
     "bp.officeReadingCount": 2,
     "medication.regimenStableWeeks": 4,
-    "medication.includesDiuretic": true,
-    "resistant.egfrMlMin": 60,
-    "resistant.potassiumMmolL": 4.2,
-    "resistant.sodiumMmolL": 140,
-    "pregnancy.status": "not_pregnant",
-    "resistant.severeLiverDisease": false,
-    "resistant.systolicDropAt12WeeksMmHg": 9.0
+    "medication.includesDiuretic": true
   },
   "result": {
     "treeId": "uncontrolled_resistant_hypertension",
     "status": "completed",
-    "resultCode": "resistant_continue_therapy",
+    "resultCode": "resistant_htn_arm",
     "sets": {
       "treatment.path": "resistant_referral",
-      "resistant.classification": "resistant_three_or_more_with_diuretic",
-      "resistant.treatmentStatus": "eligible",
-      "resistant.drugRecommendation": "baxdrostat_1_to_2mg_daily",
-      "resistant.followupStatus": "continue"
+      "resistant.classification": "resistant_three_or_more_with_diuretic"
     },
-    "severity": null,
+    "severity": "critical",
     "actions": [],
-    "outcomeCode": "resistant_target_met",
+    "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
     "entryTreeId": "optimized_hypertension_treatment",
     "terminalTreeId": "uncontrolled_resistant_hypertension",
     "bundleId": "vsh-vnha-2022-image-targets",
@@ -46,22 +39,15 @@
       "treatment.hasHighRiskComorbidity": true,
       "treatment.mandatoryIndication": false,
       "medication.agentCount": 3,
-      "medication.uncontrolledDespiteTripleTherapy": true,
+      "treatment.targetSystolicMmHg": 130,
+      "treatment.targetDiastolicMmHg": 80,
+      "treatment.targetProfile": "high_risk",
       "bp.officeAverageSystolicMmHg": 150,
       "bp.officeReadingCount": 2,
       "medication.regimenStableWeeks": 4,
       "medication.includesDiuretic": true,
-      "resistant.egfrMlMin": 60,
-      "resistant.potassiumMmolL": 4.2,
-      "resistant.sodiumMmolL": 140,
-      "pregnancy.status": "not_pregnant",
-      "resistant.severeLiverDisease": false,
-      "resistant.systolicDropAt12WeeksMmHg": 9.0,
       "treatment.path": "resistant_referral",
-      "resistant.classification": "resistant_three_or_more_with_diuretic",
-      "resistant.treatmentStatus": "eligible",
-      "resistant.drugRecommendation": "baxdrostat_1_to_2mg_daily",
-      "resistant.followupStatus": "continue"
+      "resistant.classification": "resistant_three_or_more_with_diuretic"
     },
     "linksVisited": [
       "uncontrolled_resistant_hypertension"
@@ -111,20 +97,9 @@
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_infer_triple",
-        "type": "inference",
-        "resultCode": "triple_combination_started",
-        "sets": {
-          "treatment.path": "triple_combination"
-        },
-        "severity": "high",
-        "actions": []
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_uncontrolled_gate",
+        "nodeId": "optimized_bp_controlled_gate",
         "type": "condition",
-        "value": true
+        "value": false
       },
       {
         "treeId": "optimized_hypertension_treatment",
@@ -182,70 +157,11 @@
       {
         "treeId": "uncontrolled_resistant_hypertension",
         "nodeId": "resistant_infer_resistant",
-        "type": "inference",
-        "resultCode": "resistant_htn_arm",
-        "sets": {
-          "resistant.classification": "resistant_three_or_more_with_diuretic"
-        },
-        "severity": "critical",
-        "actions": []
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_safety_screen",
-        "type": "inference",
-        "resultCode": "resistant_safety_screen_started",
-        "sets": {},
-        "severity": null,
-        "actions": []
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_safety_data",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_exclusion",
-        "type": "condition",
-        "value": false
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_infer_eligible",
-        "type": "inference",
-        "resultCode": "resistant_treatment_eligible",
-        "sets": {
-          "resistant.treatmentStatus": "eligible",
-          "resistant.drugRecommendation": "baxdrostat_1_to_2mg_daily"
-        },
-        "severity": "high",
-        "actions": []
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_infer_monitor",
-        "type": "inference",
-        "resultCode": "resistant_monitoring_started",
-        "sets": {},
-        "severity": null,
-        "actions": []
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_target",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_end_continue",
         "type": "end",
-        "outcomeCode": "resistant_target_met",
+        "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
         "actions": [],
         "sets": {
-          "resistant.followupStatus": "continue"
+          "resistant.classification": "resistant_three_or_more_with_diuretic"
         }
       }
     ],
@@ -255,7 +171,7 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, phối hợp thuốc và chuyển đánh giá kháng trị."
+        "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
       },
       {
         "sourceId": "image_03_optimized_treatment",
@@ -269,7 +185,7 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Người lớn >18 tuổi và HA phòng khám ≥130/85?"
+        "note": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
@@ -304,21 +220,14 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Đã cần phối hợp ≥3 nhóm thuốc?"
+        "note": "Đang sử dụng ≥3 nhóm thuốc?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Viên phối hợp A+C+D"
-      },
-      {
-        "sourceId": "image_03_optimized_treatment",
-        "page": 1,
-        "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-        "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Vẫn chưa kiểm soát sau phối hợp ba thuốc?"
+        "note": "Huyết áp lần khám này đã dưới đích từ Cây 2?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
@@ -353,7 +262,7 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Phân loại đầy đủ nhánh không kiểm soát/kháng trị, safety screen, điều trị và theo dõi theo ảnh cây 5."
+        "note": "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5."
       },
       {
         "sourceId": "image_05_uncontrolled_resistant",
@@ -367,7 +276,7 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Seated SBP 140–169 mmHg?"
+        "note": "HATT tư thế ngồi 140–169 mmHg?"
       },
       {
         "sourceId": "image_05_uncontrolled_resistant",
@@ -402,77 +311,25 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Resistant HTN — ≥3 thuốc + lợi tiểu"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Safety & exclusion screen"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Đủ dữ liệu safety screen?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Any exclusion criteria present?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Eligible for baxdrostat"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Monitor electrolytes & BP"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Target met?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Continue therapy"
+        "note": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu"
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 69,
-      "nodes": 89,
-      "edges": 88,
+      "variables": 55,
+      "nodes": 82,
+      "edges": 80,
       "links": 1
     },
     "decision": {
       "status": "completed",
-      "resultCode": "resistant_continue_therapy",
-      "outcomeCode": "resistant_target_met",
+      "resultCode": "resistant_htn_arm",
+      "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
       "sets": {
         "treatment.path": "resistant_referral",
-        "resistant.classification": "resistant_three_or_more_with_diuretic",
-        "resistant.treatmentStatus": "eligible",
-        "resistant.drugRecommendation": "baxdrostat_1_to_2mg_daily",
-        "resistant.followupStatus": "continue"
+        "resistant.classification": "resistant_three_or_more_with_diuretic"
       },
-      "severity": null,
+      "severity": "critical",
       "actions": [],
       "missingData": [],
       "reason": null

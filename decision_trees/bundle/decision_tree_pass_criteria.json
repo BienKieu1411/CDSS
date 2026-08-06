@@ -84,15 +84,10 @@
       ],
       "uncontrolled_resistant_hypertension": [
         ["seated_sbp"],
+        ["office_reading_count"],
         ["regimen_stable_weeks"],
         ["antihypertensive_agents_count"],
-        ["includes_diuretic"],
-        ["eGFR", "egfr"],
-        ["K+", "potassium", "k"],
-        ["Na+", "sodium", "na"],
-        ["pregnancy"],
-        ["liver"],
-        ["sbp_decrease_12_wks_mmhg", "sbp_decrease_12wks"]
+        ["includes_diuretic"]
       ]
     }
   },

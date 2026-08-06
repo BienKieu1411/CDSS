@@ -3,7 +3,7 @@
 
 const assert = require("node:assert/strict");
 const http = require("node:http");
-const { createServer, loadBundle, validateTreePayload, runEngine, runDraft } = require("./server.js");
+const { createServer, loadBundle, validateTreePayload, runEngine, runClinicalFlow, runDraftFlow, runDraft } = require("./server.js");
 
 function request(port, method, pathname, payload) {
   return new Promise((resolve, reject) => {
@@ -55,6 +55,29 @@ async function main() {
   assert.equal(draftRun.ok, true, JSON.stringify(draftRun));
   assert.equal(draftRun.result.resultCode, "normal_bp");
 
+  const flowInput = {
+    "bp.category": "grade1",
+    "risk.class": "low",
+    "treatment.hasHighRiskComorbidity": false,
+    "patient.ageYears": 55,
+    "bp.assessmentOfficeSystolicMmHg": 150,
+    "bp.assessmentOfficeDiastolicMmHg": 95,
+    "treatment.mandatoryIndication": false,
+    "medication.agentCount": 3,
+    "bp.officeAverageSystolicMmHg": 150,
+    "bp.officeReadingCount": 2,
+    "medication.regimenStableWeeks": 4,
+    "medication.includesDiuretic": true,
+  };
+  const flow = runClinicalFlow("bp_thresholds_targets", flowInput);
+  assert.equal(flow.result.terminalTreeId, "uncontrolled_resistant_hypertension");
+  assert.equal(flow.result.resultCode, "resistant_htn_arm");
+  assert.equal(flow.result.context["treatment.targetSystolicMmHg"], 140);
+  const treatmentTree = bundle.trees.find((item) => item.id === "optimized_hypertension_treatment");
+  const draftFlow = runDraftFlow(treatmentTree.id, treatmentTree, flowInput);
+  assert.equal(draftFlow.ok, true, JSON.stringify(draftFlow));
+  assert.equal(draftFlow.result.terminalTreeId, "uncontrolled_resistant_hypertension");
+
   const port = 18765;
   const server = createServer();
   await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));
@@ -93,6 +116,15 @@ async function main() {
     const runApi = await request(port, "POST", "/api/run", { treeId: bp.id, variables: input });
     assert.equal(runApi.status, 200);
     assert.equal(runApi.body.result.resultCode, "normal_bp");
+
+    const flowApi = await request(port, "POST", "/api/run-flow", { startTreeId: "bp_thresholds_targets", variables: flowInput });
+    assert.equal(flowApi.status, 200);
+    assert.equal(flowApi.body.result.terminalTreeId, "uncontrolled_resistant_hypertension");
+    assert.equal(flowApi.body.result.resultCode, "resistant_htn_arm");
+
+    const draftFlowApi = await request(port, "POST", "/api/run-draft-flow", { startTreeId: treatmentTree.id, tree: treatmentTree, variables: flowInput });
+    assert.equal(draftFlowApi.status, 200);
+    assert.equal(draftFlowApi.body.result.terminalTreeId, "uncontrolled_resistant_hypertension");
 
     const draftApi = await request(port, "POST", "/api/validate-draft", { treeId: bp.id, tree: bp });
     assert.equal(draftApi.status, 200);

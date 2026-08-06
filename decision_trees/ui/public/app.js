@@ -25,14 +25,6 @@ const displayTranslations = new Map([
   ["Defer — Đánh giá lại sau", "Tạm hoãn — Đánh giá lại sau"],
   ["Uncontrolled HTN — Phác đồ 2 thuốc", "THA chưa kiểm soát — Phác đồ 2 thuốc"],
   ["Resistant HTN — ≥3 thuốc + lợi tiểu", "THA kháng trị — ≥3 thuốc + lợi tiểu"],
-  ["Safety & exclusion screen", "Kiểm tra an toàn và tiêu chí loại trừ"],
-  ["Any exclusion criteria present?", "Có tiêu chí loại trừ?"],
-  ["Excluded — Xử trí và thử lại", "Loại trừ — Xử trí và thử lại"],
-  ["Eligible for baxdrostat", "Đủ điều kiện dùng baxdrostat"],
-  ["Monitor electrolytes & BP", "Theo dõi điện giải và huyết áp"],
-  ["Target met?", "Đã đạt mục tiêu?"],
-  ["Continue therapy", "Tiếp tục điều trị"],
-  ["Escalate / reassess", "Tăng cường / đánh giá lại"],
   ["Yes", "Có"],
   ["No", "Không"],
   ["Exactly 2", "Đúng 2"],
@@ -42,7 +34,6 @@ const displayTranslations = new Map([
   [" (reading)", ""],
   [" (week)", ""],
   [" (class)", ""],
-  ["safety and exclusion screen", "kiểm tra an toàn và tiêu chí loại trừ"],
   ["clinical flow", "luồng lâm sàng"],
 ]);
 function localizeText(value) {
@@ -92,6 +83,26 @@ function nodeData(node) {
   return {};
 }
 function linkTarget(node) { return nodeData(node).targetTreeId; }
+const OPTIMIZED_TREE_ID = "optimized_hypertension_treatment";
+const FLOW_DERIVED_VARIABLES = new Set([
+  "treatment.recommendation",
+  "treatment.targetSystolicMmHg",
+  "treatment.targetDiastolicMmHg",
+  "treatment.targetProfile",
+  "treatment.controlWindowMonths",
+]);
+function inputVariableIdsForTree(current) {
+  if (state.treeId !== OPTIMIZED_TREE_ID) return current.inputVariables || [];
+  const flowTreeIds = ["bp_thresholds_targets", OPTIMIZED_TREE_ID, "uncontrolled_resistant_hypertension"];
+  const ids = [];
+  for (const treeId of flowTreeIds) {
+    const source = treeId === state.treeId ? current : state.bundle.trees.find((item) => item.id === treeId);
+    for (const variableId of source?.inputVariables || []) {
+      if (!FLOW_DERIVED_VARIABLES.has(variableId) && !ids.includes(variableId)) ids.push(variableId);
+    }
+  }
+  return ids;
+}
 
 function clearPathHighlight(message = "Nhập dữ liệu để xem đường đi trên cây.") {
   if (graphInstance) {
@@ -203,7 +214,7 @@ function renderInputForm(current) {
   const variables = Object.fromEntries(state.bundle.variables.map((item) => [item.id, item]));
   const form = $("input-form");
   form.innerHTML = "";
-  (current.inputVariables || []).forEach((id) => {
+  inputVariableIdsForTree(current).forEach((id) => {
     const variable = variables[id];
     if (!variable) return;
     const card = document.createElement("div");
@@ -235,7 +246,7 @@ function renderInputForm(current) {
     }
     form.appendChild(card);
   });
-  $("input-help").textContent = current.inputVariables?.length ? "Nhập các thông tin cần thiết; đường đi sẽ sáng lên tương ứng." : "Cây này không yêu cầu dữ liệu đầu vào.";
+  $("input-help").textContent = inputVariableIdsForTree(current).length ? "Nhập các thông tin cần thiết; đường đi sẽ sáng lên tương ứng." : "Cây này không yêu cầu dữ liệu đầu vào.";
 }
 
 function collectInputs() {
@@ -306,14 +317,20 @@ function renderResult(result) {
 }
 
 function runtimeJobForCurrentTree() { return state.treeJobs[state.treeId]; }
+function usesClinicalFlow() { return state.treeId === OPTIMIZED_TREE_ID; }
 
 async function runTree() {
   $("run-tree").disabled = true;
   try {
     const jobId = runtimeJobForCurrentTree();
-    const response = jobId
-      ? await api("/api/pipeline/run", { method: "POST", body: JSON.stringify({ jobId, treeId: state.treeId, variables: collectInputs() }) })
-      : await api("/api/run", { method: "POST", body: JSON.stringify({ treeId: state.treeId, variables: collectInputs() }) });
+    const variables = collectInputs();
+    const response = usesClinicalFlow()
+      ? (state.editedTrees[state.treeId]
+        ? await api("/api/run-draft-flow", { method: "POST", body: JSON.stringify({ startTreeId: state.treeId, tree: state.editedTrees[state.treeId], variables }) })
+        : await api("/api/run-flow", { method: "POST", body: JSON.stringify({ startTreeId: "bp_thresholds_targets", variables }) }))
+      : jobId
+        ? await api("/api/pipeline/run", { method: "POST", body: JSON.stringify({ jobId, treeId: state.treeId, variables }) })
+        : await api("/api/run", { method: "POST", body: JSON.stringify({ treeId: state.treeId, variables }) });
     renderResult(response.result);
     showStatus("Đã chạy cây quyết định.", "good");
   } catch (error) {
@@ -659,7 +676,10 @@ async function runDraft() {
   }
   $("run-draft").disabled = true;
   try {
-    const response = await api("/api/run-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: edited, variables: collectInputs() }) });
+    const variables = collectInputs();
+    const response = usesClinicalFlow()
+      ? await api("/api/run-draft-flow", { method: "POST", body: JSON.stringify({ startTreeId: state.treeId, tree: edited, variables }) })
+      : await api("/api/run-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: edited, variables }) });
     renderResult(response.result);
     showStatus("Đã chạy bản chỉnh sửa; cây chuẩn vẫn giữ nguyên.", "good");
   } catch (error) {
@@ -678,11 +698,15 @@ function schedulePathPreview() {
   state.previewTimer = setTimeout(async () => {
     try {
       const jobId = runtimeJobForCurrentTree();
-      const response = state.editedTrees[state.treeId]
-        ? await api("/api/run-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: state.editedTrees[state.treeId], variables }) })
-        : jobId
-        ? await api("/api/pipeline/run", { method: "POST", body: JSON.stringify({ jobId, treeId: state.treeId, variables }) })
-        : await api("/api/run", { method: "POST", body: JSON.stringify({ treeId: state.treeId, variables }) });
+      const response = usesClinicalFlow()
+        ? (state.editedTrees[state.treeId]
+          ? await api("/api/run-draft-flow", { method: "POST", body: JSON.stringify({ startTreeId: state.treeId, tree: state.editedTrees[state.treeId], variables }) })
+          : await api("/api/run-flow", { method: "POST", body: JSON.stringify({ startTreeId: "bp_thresholds_targets", variables }) }))
+        : state.editedTrees[state.treeId]
+          ? await api("/api/run-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: state.editedTrees[state.treeId], variables }) })
+          : jobId
+            ? await api("/api/pipeline/run", { method: "POST", body: JSON.stringify({ jobId, treeId: state.treeId, variables }) })
+            : await api("/api/run", { method: "POST", body: JSON.stringify({ treeId: state.treeId, variables }) });
       if (sequence === state.previewSequence) highlightPath(response.result);
     } catch (error) {
       if (sequence === state.previewSequence) $("path-status").textContent = `Không thể xem đường đi: ${error.message}`;

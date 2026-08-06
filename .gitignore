@@ -4,3 +4,7 @@ __pycache__/
 *.py[cod]
 runs/
 node_modules/
+decision_trees/ui/.node-runtime-*/
+decision_trees/ui/.pipeline-jobs/
+decision_trees/ui/drafts/
+decision_trees/images/uploads/
