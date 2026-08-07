@@ -22,7 +22,7 @@
     "entryTreeId": "bp_thresholds_targets",
     "terminalTreeId": "bp_thresholds_targets",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.2.0",
+    "bundleVersion": "0.3.0",
     "context": {
       "bp.category": "high_normal",
       "risk.class": "high",
@@ -114,9 +114,9 @@
     ],
     "validation": {
       "trees": 5,
-      "variables": 55,
-      "nodes": 82,
-      "edges": 80,
+      "variables": 57,
+      "nodes": 90,
+      "edges": 88,
       "links": 1
     },
     "decision": {

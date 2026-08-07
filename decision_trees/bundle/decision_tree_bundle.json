@@ -1,7 +1,7 @@
 {
   "formatVersion": "decision-tree-bundle.v1",
   "bundleId": "vsh-vnha-2022-image-targets",
-  "bundleVersion": "0.2.0",
+  "bundleVersion": "0.3.0",
   "locale": "vi-VN",
   "clinicalStatus": "under_review",
   "clinicalReviewRequired": true,
@@ -574,47 +574,25 @@
       }
     },
     {
-      "id": "bp.assessmentOfficeSystolicMmHg",
-      "label": "HATT phòng khám lúc đánh giá điều trị",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "HATT phòng khám tại thời điểm bắt đầu flow điều trị tối ưu.",
-      "sourceSystem": "vitals",
+      "id": "encounter.number",
+      "label": "Số lần khám",
+      "dataType": "integer",
+      "unit": "encounter",
+      "requiredForEvaluation": true,
+      "definition": "Số thứ tự của lần khám hiện tại; 1 là bệnh nhân mới, lớn hơn 1 là bệnh nhân tái khám.",
+      "sourceSystem": "encounter",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "HATT phòng khám tại thời điểm bắt đầu flow điều trị tối ưu."
+          "note": "Số thứ tự của lần khám hiện tại; 1 là bệnh nhân mới, lớn hơn 1 là bệnh nhân tái khám."
         }
       ],
       "validation": {
-        "minimum": 40,
-        "maximum": 300
-      }
-    },
-    {
-      "id": "bp.assessmentOfficeDiastolicMmHg",
-      "label": "HATTr phòng khám lúc đánh giá điều trị",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "HATTr phòng khám tại thời điểm bắt đầu flow điều trị tối ưu.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_03_optimized_treatment",
-          "page": 1,
-          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-          "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "HATTr phòng khám tại thời điểm bắt đầu flow điều trị tối ưu."
-        }
-      ],
-      "validation": {
-        "minimum": 20,
-        "maximum": 200
+        "minimum": 1,
+        "maximum": 1000
       }
     },
     {
@@ -733,12 +711,12 @@
       ]
     },
     {
-      "id": "medication.agentCount",
-      "label": "Số nhóm thuốc hạ áp",
+      "id": "medication.previousEncounterAgentCount",
+      "label": "Số nhóm thuốc được kê ở lần khám trước",
       "dataType": "integer",
       "unit": "class",
       "requiredForEvaluation": false,
-      "definition": "Số nhóm thuốc hạ áp đang sử dụng.",
+      "definition": "Số nhóm thuốc được kê tại encounter n-1; dùng để xác định giai đoạn 1, 2, 3 hoặc 4 thuốc khi tái khám.",
       "sourceSystem": "medication",
       "sourceRefs": [
         {
@@ -746,20 +724,111 @@
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Số nhóm thuốc hạ áp đang sử dụng."
+          "note": "Số nhóm thuốc được kê tại encounter n-1; dùng để xác định giai đoạn 1, 2, 3 hoặc 4 thuốc khi tái khám."
         },
         {
           "sourceId": "image_05_uncontrolled_resistant",
           "page": 1,
           "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
           "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Số nhóm thuốc hạ áp đang sử dụng trong cây 5."
+          "note": "Số nhóm thuốc được kê tại encounter n-1; dùng để xác định giai đoạn 1, 2, 3 hoặc 4 thuốc khi tái khám."
         }
       ],
       "validation": {
-        "minimum": 0,
-        "maximum": 10
+        "minimum": 1,
+        "maximum": 4
       }
+    },
+    {
+      "id": "medication.previousEncounterIncludesDiuretic",
+      "label": "Lần khám trước có thuốc lợi tiểu",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Lần khám n-1 có thiazide, lợi tiểu quai hoặc MRA hay không; dùng khi chuyển phân loại không kiểm soát/kháng trị.",
+      "sourceSystem": "medication",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Lần khám n-1 có thiazide, lợi tiểu quai hoặc MRA hay không; dùng khi chuyển phân loại không kiểm soát/kháng trị."
+        },
+        {
+          "sourceId": "image_05_uncontrolled_resistant",
+          "page": 1,
+          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+          "note": "Lần khám n-1 có thiazide, lợi tiểu quai hoặc MRA hay không; dùng khi chuyển phân loại không kiểm soát/kháng trị."
+        }
+      ]
+    },
+    {
+      "id": "bp.controlledAfterTwoDrugs",
+      "label": "Huyết áp đã kiểm soát sau 2 nhóm thuốc",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 2 thuốc đều thấp hơn đích do Cây 2 xuất ra.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 2 thuốc đều thấp hơn đích do Cây 2 xuất ra."
+        }
+      ],
+      "derivedFrom": [
+        "treatment.targetSystolicMmHg",
+        "treatment.targetDiastolicMmHg"
+      ]
+    },
+    {
+      "id": "bp.controlledAfterThreeDrugs",
+      "label": "Huyết áp đã kiểm soát sau 3 nhóm thuốc",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 3 thuốc đều thấp hơn đích do Cây 2 xuất ra.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 3 thuốc đều thấp hơn đích do Cây 2 xuất ra."
+        }
+      ],
+      "derivedFrom": [
+        "treatment.targetSystolicMmHg",
+        "treatment.targetDiastolicMmHg"
+      ]
+    },
+    {
+      "id": "bp.controlledAfterFourDrugs",
+      "label": "Huyết áp đã kiểm soát sau 4 nhóm thuốc",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 4 thuốc đều thấp hơn đích do Cây 2 xuất ra.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 4 thuốc đều thấp hơn đích do Cây 2 xuất ra."
+        }
+      ],
+      "derivedFrom": [
+        "treatment.targetSystolicMmHg",
+        "treatment.targetDiastolicMmHg"
+      ]
     },
     {
       "id": "treatment.path",
@@ -1169,24 +1238,6 @@
         "minimum": 0,
         "maximum": 104
       }
-    },
-    {
-      "id": "medication.includesDiuretic",
-      "label": "Phác đồ có lợi tiểu",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Có thiazide, lợi tiểu quai hoặc MRA trong phác đồ.",
-      "sourceSystem": "medication",
-      "sourceRefs": [
-        {
-          "sourceId": "image_05_uncontrolled_resistant",
-          "page": 1,
-          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-          "note": "Có thiazide, lợi tiểu quai hoặc MRA trong phác đồ."
-        }
-      ]
     },
     {
       "id": "resistant.classification",
@@ -2495,20 +2546,22 @@
     {
       "id": "optimized_hypertension_treatment",
       "name": "Optimized Hypertension Treatment Tree",
-      "purpose": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2.",
+      "purpose": "Điều trị tăng huyết áp theo lần khám, số nhóm thuốc được kê ở encounter n-1 và tình trạng kiểm soát HA theo đích từ Cây 2.",
       "clinicalStatus": "under_review",
       "entryNodeId": "optimized_start",
       "inputVariables": [
         "patient.ageYears",
-        "bp.assessmentOfficeSystolicMmHg",
-        "bp.assessmentOfficeDiastolicMmHg",
+        "encounter.number",
         "bp.category",
-        "treatment.hasHighRiskComorbidity",
         "treatment.mandatoryIndication",
         "treatment.targetSystolicMmHg",
         "treatment.targetDiastolicMmHg",
         "treatment.targetProfile",
-        "medication.agentCount"
+        "medication.previousEncounterAgentCount",
+        "medication.previousEncounterIncludesDiuretic",
+        "bp.controlledAfterTwoDrugs",
+        "bp.controlledAfterThreeDrugs",
+        "bp.controlledAfterFourDrugs"
       ],
       "outputVariables": [
         "treatment.path"
@@ -2522,7 +2575,7 @@
           "type": "start",
           "display": {
             "title": "Điều trị tăng huyết áp tối ưu",
-            "detail": "HA phòng khám ≥130/85 mmHg ở người lớn >18 tuổi; khám toàn diện và đánh giá nguy cơ."
+            "detail": "Phân nhánh theo lần khám và giai đoạn số nhóm thuốc."
           },
           "sourceRefs": [
             {
@@ -2573,10 +2626,11 @@
           }
         },
         {
-          "id": "optimized_low_risk_high_normal",
+          "id": "optimized_encounter_type",
           "type": "condition",
           "display": {
-            "title": "HA bình thường-cao và nguy cơ thấp/trung bình?"
+            "title": "Đây là bệnh nhân mới (lần khám số 1)?",
+            "detail": "Lần khám = 1: không kiểm tra lại số lượng thuốc."
           },
           "sourceRefs": [
             {
@@ -2584,64 +2638,22 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "HA bình thường-cao và nguy cơ thấp/trung bình?"
+              "note": "Đây là bệnh nhân mới (lần khám số 1)?"
             }
           ],
           "logic": {
             "predicate": {
-              "all": [
-                {
-                  "field": "bp.category",
-                  "op": "eq",
-                  "value": "high_normal"
-                },
-                {
-                  "field": "treatment.hasHighRiskComorbidity",
-                  "op": "eq",
-                  "value": false
-                }
-              ]
+              "field": "encounter.number",
+              "op": "eq",
+              "value": 1
             }
           }
         },
         {
-          "id": "optimized_infer_lifestyle",
-          "type": "end",
-          "display": {
-            "title": "Một viên A/B/C/D",
-            "detail": "Khởi trị một viên theo cá thể hóa và nguy cơ."
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_03_optimized_treatment",
-              "page": 1,
-              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-              "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Một viên A/B/C/D"
-            },
-            {
-              "sourceId": "image_03_optimized_treatment",
-              "page": 1,
-              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-              "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Theo dõi sau khởi trị một viên"
-            }
-          ],
-          "data": {
-            "resultCode": "optimized_single_pill_strategy",
-            "severity": "medium",
-            "sets": {
-              "treatment.path": "single_pill_strategy"
-            },
-            "outcomeCode": "optimized_single_pill_followup"
-          }
-        },
-        {
-          "id": "optimized_mandatory",
+          "id": "optimized_new_mandatory",
           "type": "condition",
           "display": {
-            "title": "Có chỉ định điều trị bắt buộc?",
-            "detail": "Bệnh mạch vành, suy tim, bệnh thận mạn, đái tháo đường hoặc chỉ định bắt buộc khác."
+            "title": "Bệnh nhân mới có chỉ định điều trị bắt buộc?"
           },
           "sourceRefs": [
             {
@@ -2649,7 +2661,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Có chỉ định điều trị bắt buộc?"
+              "note": "Bệnh nhân mới có chỉ định điều trị bắt buộc?"
             }
           ],
           "logic": {
@@ -2661,10 +2673,10 @@
           }
         },
         {
-          "id": "optimized_infer_mandatory",
+          "id": "optimized_infer_new_mandatory",
           "type": "end",
           "display": {
-            "title": "Điều trị theo bệnh đồng mắc"
+            "title": "Bệnh nhân mới — điều trị theo bệnh đồng mắc"
           },
           "sourceRefs": [
             {
@@ -2672,30 +2684,31 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Điều trị theo bệnh đồng mắc"
+              "note": "Bệnh nhân mới — điều trị theo bệnh đồng mắc"
             },
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Điều trị theo chỉ định bắt buộc"
+              "note": "Khởi trị theo chỉ định bắt buộc"
             }
           ],
           "data": {
-            "resultCode": "mandatory_indication_treatment",
+            "resultCode": "new_patient_mandatory_indication",
             "severity": "high",
             "sets": {
-              "treatment.path": "mandatory_indication"
+              "treatment.path": "new_patient_mandatory_indication"
             },
-            "outcomeCode": "mandatory_indication_treatment_started"
+            "outcomeCode": "new_patient_mandatory_indication_started"
           }
         },
         {
-          "id": "optimized_htn_gate",
-          "type": "condition",
+          "id": "optimized_infer_new",
+          "type": "end",
           "display": {
-            "title": "Nguy cơ cao với HA bình thường-cao hoặc THA cần điều trị phối hợp?"
+            "title": "Bệnh nhân mới — khởi trị phác đồ ban đầu",
+            "detail": "Không dùng số lượng thuốc hiện tại để phân nhánh."
           },
           "sourceRefs": [
             {
@@ -2703,44 +2716,59 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Nguy cơ cao với HA bình thường-cao hoặc THA cần điều trị phối hợp?"
+              "note": "Bệnh nhân mới — khởi trị phác đồ ban đầu"
+            },
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Khởi trị phác đồ ban đầu"
+            }
+          ],
+          "data": {
+            "resultCode": "new_patient_initial_treatment",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "new_patient_initial_treatment"
+            },
+            "outcomeCode": "new_patient_initial_treatment_started"
+          }
+        },
+        {
+          "id": "optimized_followup_count_valid",
+          "type": "condition",
+          "display": {
+            "title": "Lần khám trước có 1–4 nhóm thuốc được kê?",
+            "detail": "Tái khám dùng encounter n-1 để xác định giai đoạn."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Lần khám trước có 1–4 nhóm thuốc được kê?"
             }
           ],
           "logic": {
             "predicate": {
-              "any": [
-                {
-                  "all": [
-                    {
-                      "field": "bp.category",
-                      "op": "eq",
-                      "value": "high_normal"
-                    },
-                    {
-                      "field": "treatment.hasHighRiskComorbidity",
-                      "op": "eq",
-                      "value": true
-                    }
-                  ]
-                },
-                {
-                  "field": "bp.category",
-                  "op": "in",
-                  "value": [
-                    "hypertension",
-                    "grade1",
-                    "grade2"
-                  ]
-                }
+              "field": "medication.previousEncounterAgentCount",
+              "op": "in",
+              "value": [
+                1,
+                2,
+                3,
+                4
               ]
             }
           }
         },
         {
-          "id": "optimized_infer_combo",
-          "type": "end",
+          "id": "optimized_previous_count_one",
+          "type": "condition",
           "display": {
-            "title": "Viên phối hợp A+C hoặc D liều thấp"
+            "title": "Lần khám trước kê 1 nhóm thuốc?"
           },
           "sourceRefs": [
             {
@@ -2748,30 +2776,53 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Viên phối hợp A+C hoặc D liều thấp"
+              "note": "Lần khám trước kê 1 nhóm thuốc?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "medication.previousEncounterAgentCount",
+              "op": "eq",
+              "value": 1
+            }
+          }
+        },
+        {
+          "id": "optimized_infer_stage_one",
+          "type": "end",
+          "display": {
+            "title": "Giai đoạn 1 thuốc — phối hợp lên 2 thuốc"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Giai đoạn 1 thuốc — phối hợp lên 2 thuốc"
             },
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Theo dõi sau khởi trị phối hợp"
+              "note": "Phối hợp lên 2 thuốc"
             }
           ],
           "data": {
-            "resultCode": "initial_combination_followup",
+            "resultCode": "followup_stage_1_escalate_two_drugs",
             "severity": "high",
             "sets": {
-              "treatment.path": "initial_combination"
+              "treatment.path": "followup_stage_1_escalate_two_drugs"
             },
-            "outcomeCode": "initial_combination_followup"
+            "outcomeCode": "followup_stage_1_escalate_two_drugs"
           }
         },
         {
-          "id": "optimized_agent_count_present",
+          "id": "optimized_previous_count_two",
           "type": "condition",
           "display": {
-            "title": "Đã biết số nhóm thuốc đang dùng?"
+            "title": "Lần khám trước kê 2 nhóm thuốc?"
           },
           "sourceRefs": [
             {
@@ -2779,21 +2830,23 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Đã biết số nhóm thuốc đang dùng?"
+              "note": "Lần khám trước kê 2 nhóm thuốc?"
             }
           ],
           "logic": {
             "predicate": {
-              "field": "medication.agentCount",
-              "op": "present"
+              "field": "medication.previousEncounterAgentCount",
+              "op": "eq",
+              "value": 2
             }
           }
         },
         {
-          "id": "optimized_triple_gate",
+          "id": "optimized_control_after_two",
           "type": "condition",
           "display": {
-            "title": "Đang sử dụng ≥3 nhóm thuốc?"
+            "title": "Huyết áp đã kiểm soát sau 2 nhóm thuốc?",
+            "detail": "Cờ được clinical flow tính theo đích của Cây 2."
           },
           "sourceRefs": [
             {
@@ -2801,23 +2854,108 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Đang sử dụng ≥3 nhóm thuốc?"
+              "note": "Huyết áp đã kiểm soát sau 2 nhóm thuốc?"
             }
           ],
           "logic": {
             "predicate": {
-              "field": "medication.agentCount",
-              "op": "gte",
+              "field": "bp.controlledAfterTwoDrugs",
+              "op": "eq",
+              "value": true
+            }
+          }
+        },
+        {
+          "id": "optimized_infer_two_controlled",
+          "type": "end",
+          "display": {
+            "title": "Giai đoạn 2 thuốc — huyết áp đã kiểm soát"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Giai đoạn 2 thuốc — huyết áp đã kiểm soát"
+            },
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Duy trì 2 thuốc và theo dõi"
+            }
+          ],
+          "data": {
+            "resultCode": "followup_two_drugs_controlled",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "followup_two_drugs_controlled"
+            },
+            "outcomeCode": "followup_two_drugs_controlled"
+          }
+        },
+        {
+          "id": "optimized_infer_escalate_three",
+          "type": "end",
+          "display": {
+            "title": "Giai đoạn 2 thuốc — huyết áp chưa kiểm soát, tăng lên 3 thuốc"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Giai đoạn 2 thuốc — huyết áp chưa kiểm soát, tăng lên 3 thuốc"
+            },
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Tăng lên 3 thuốc"
+            }
+          ],
+          "data": {
+            "resultCode": "followup_escalate_three_drugs",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "followup_escalate_three_drugs"
+            },
+            "outcomeCode": "followup_escalate_three_drugs"
+          }
+        },
+        {
+          "id": "optimized_previous_count_three",
+          "type": "condition",
+          "display": {
+            "title": "Lần khám trước kê 3 nhóm thuốc?"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Lần khám trước kê 3 nhóm thuốc?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "medication.previousEncounterAgentCount",
+              "op": "eq",
               "value": 3
             }
           }
         },
         {
-          "id": "optimized_bp_controlled_gate",
+          "id": "optimized_control_after_three",
           "type": "condition",
           "display": {
-            "title": "Huyết áp lần khám này đã dưới đích từ Cây 2?",
-            "detail": "HATT < đích HATT và HATTr < đích HATTr."
+            "title": "Huyết áp đã kiểm soát sau 3 nhóm thuốc?",
+            "detail": "Cờ được clinical flow tính theo đích của Cây 2."
           },
           "sourceRefs": [
             {
@@ -2825,32 +2963,22 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Huyết áp lần khám này đã dưới đích từ Cây 2?"
+              "note": "Huyết áp đã kiểm soát sau 3 nhóm thuốc?"
             }
           ],
           "logic": {
             "predicate": {
-              "all": [
-                {
-                  "field": "bp.assessmentOfficeSystolicMmHg",
-                  "op": "lt",
-                  "valueField": "treatment.targetSystolicMmHg"
-                },
-                {
-                  "field": "bp.assessmentOfficeDiastolicMmHg",
-                  "op": "lt",
-                  "valueField": "treatment.targetDiastolicMmHg"
-                }
-              ]
+              "field": "bp.controlledAfterThreeDrugs",
+              "op": "eq",
+              "value": true
             }
           }
         },
         {
-          "id": "optimized_infer_triple",
+          "id": "optimized_infer_three_controlled",
           "type": "end",
           "display": {
-            "title": "Đang sử dụng ≥3 nhóm thuốc và HA đã kiểm soát",
-            "detail": "Tiếp tục theo dõi; không chuyển sang phân loại kháng trị."
+            "title": "Giai đoạn 3 thuốc — huyết áp đã kiểm soát"
           },
           "sourceRefs": [
             {
@@ -2858,31 +2986,140 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Đang sử dụng ≥3 nhóm thuốc và HA đã kiểm soát"
+              "note": "Giai đoạn 3 thuốc — huyết áp đã kiểm soát"
             },
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Theo dõi sau phối hợp ba thuốc"
+              "note": "Duy trì 3 thuốc và theo dõi"
             }
           ],
           "data": {
-            "resultCode": "triple_combination_followup",
+            "resultCode": "followup_three_drugs_controlled",
             "severity": "high",
             "sets": {
-              "treatment.path": "triple_combination"
+              "treatment.path": "followup_three_drugs_controlled"
             },
-            "outcomeCode": "triple_combination_followup"
+            "outcomeCode": "followup_three_drugs_controlled"
+          }
+        },
+        {
+          "id": "optimized_infer_escalate_four",
+          "type": "end",
+          "display": {
+            "title": "Giai đoạn 3 thuốc — huyết áp chưa kiểm soát, tăng lên 4 thuốc"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Giai đoạn 3 thuốc — huyết áp chưa kiểm soát, tăng lên 4 thuốc"
+            },
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Tăng lên 4 thuốc"
+            }
+          ],
+          "data": {
+            "resultCode": "followup_escalate_four_drugs",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "followup_escalate_four_drugs"
+            },
+            "outcomeCode": "followup_escalate_four_drugs"
+          }
+        },
+        {
+          "id": "optimized_previous_count_four",
+          "type": "condition",
+          "display": {
+            "title": "Lần khám trước kê 4 nhóm thuốc?"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Lần khám trước kê 4 nhóm thuốc?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "medication.previousEncounterAgentCount",
+              "op": "eq",
+              "value": 4
+            }
+          }
+        },
+        {
+          "id": "optimized_control_after_four",
+          "type": "condition",
+          "display": {
+            "title": "Huyết áp đã kiểm soát sau 4 nhóm thuốc?",
+            "detail": "Cờ được clinical flow tính theo đích của Cây 2."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Huyết áp đã kiểm soát sau 4 nhóm thuốc?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "bp.controlledAfterFourDrugs",
+              "op": "eq",
+              "value": true
+            }
+          }
+        },
+        {
+          "id": "optimized_infer_four_controlled",
+          "type": "end",
+          "display": {
+            "title": "Giai đoạn 4 thuốc — huyết áp đã kiểm soát"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Giai đoạn 4 thuốc — huyết áp đã kiểm soát"
+            },
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Duy trì 4 thuốc và theo dõi"
+            }
+          ],
+          "data": {
+            "resultCode": "followup_four_drugs_controlled",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "followup_four_drugs_controlled"
+            },
+            "outcomeCode": "followup_four_drugs_controlled"
           }
         },
         {
           "id": "optimized_infer_resistant",
           "type": "inference",
           "display": {
-            "title": "THA kháng trị - chuyển đánh giá chuyên khoa",
-            "detail": "Thêm MRA hoặc thuốc phù hợp và đánh giá theo cây không kiểm soát/kháng trị."
+            "title": "Giai đoạn 4 thuốc — huyết áp chưa kiểm soát, chuyển phân loại",
+            "detail": "Chuyển Cây 5 để phân loại không kiểm soát/kháng trị."
           },
           "sourceRefs": [
             {
@@ -2890,7 +3127,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "THA kháng trị - chuyển đánh giá chuyên khoa"
+              "note": "Giai đoạn 4 thuốc — huyết áp chưa kiểm soát, chuyển phân loại"
             },
             {
               "sourceId": "image_05_uncontrolled_resistant",
@@ -2941,7 +3178,7 @@
           "id": "optimized_end_review",
           "type": "end",
           "display": {
-            "title": "Chưa đủ dữ liệu chọn nhánh điều trị"
+            "title": "Chưa đủ dữ liệu chọn giai đoạn điều trị"
           },
           "sourceRefs": [
             {
@@ -2949,12 +3186,15 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Chưa đủ dữ liệu chọn nhánh điều trị"
+              "note": "Chưa đủ dữ liệu chọn giai đoạn điều trị"
             }
           ],
           "data": {
             "resultCode": "optimized_treatment_review_required",
-            "outcomeCode": "optimized_treatment_review_required"
+            "outcomeCode": "optimized_treatment_review_required",
+            "sets": {
+              "treatment.path": "review_required"
+            }
           }
         }
       ],
@@ -2966,9 +3206,9 @@
         },
         {
           "from": "optimized_entry_gate",
-          "to": "optimized_low_risk_high_normal",
+          "to": "optimized_encounter_type",
           "when": "true",
-          "label": "Có"
+          "label": "Đủ điều kiện"
         },
         {
           "from": "optimized_entry_gate",
@@ -2977,76 +3217,124 @@
           "label": "Không"
         },
         {
-          "from": "optimized_low_risk_high_normal",
-          "to": "optimized_infer_lifestyle",
+          "from": "optimized_encounter_type",
+          "to": "optimized_new_mandatory",
+          "when": "true",
+          "label": "Bệnh nhân mới — lần 1"
+        },
+        {
+          "from": "optimized_encounter_type",
+          "to": "optimized_followup_count_valid",
+          "when": "false",
+          "label": "Tái khám — lần >1"
+        },
+        {
+          "from": "optimized_new_mandatory",
+          "to": "optimized_infer_new_mandatory",
           "when": "true",
           "label": "Có"
         },
         {
-          "from": "optimized_low_risk_high_normal",
-          "to": "optimized_mandatory",
+          "from": "optimized_new_mandatory",
+          "to": "optimized_infer_new",
           "when": "false",
           "label": "Không"
         },
         {
-          "from": "optimized_mandatory",
-          "to": "optimized_infer_mandatory",
+          "from": "optimized_followup_count_valid",
+          "to": "optimized_previous_count_one",
           "when": "true",
-          "label": "Có"
+          "label": "1–4 thuốc"
         },
         {
-          "from": "optimized_mandatory",
-          "to": "optimized_htn_gate",
-          "when": "false",
-          "label": "Không"
-        },
-        {
-          "from": "optimized_htn_gate",
-          "to": "optimized_agent_count_present",
-          "when": "true",
-          "label": "Có"
-        },
-        {
-          "from": "optimized_htn_gate",
+          "from": "optimized_followup_count_valid",
           "to": "optimized_end_review",
           "when": "false",
-          "label": "Không"
+          "label": "Không hợp lệ"
         },
         {
-          "from": "optimized_agent_count_present",
-          "to": "optimized_triple_gate",
+          "from": "optimized_previous_count_one",
+          "to": "optimized_infer_stage_one",
           "when": "true",
-          "label": "Đã biết"
+          "label": "1 thuốc"
         },
         {
-          "from": "optimized_agent_count_present",
-          "to": "optimized_infer_combo",
+          "from": "optimized_previous_count_one",
+          "to": "optimized_previous_count_two",
           "when": "false",
-          "label": "Chưa biết"
+          "label": "Không phải 1"
         },
         {
-          "from": "optimized_triple_gate",
-          "to": "optimized_bp_controlled_gate",
+          "from": "optimized_previous_count_two",
+          "to": "optimized_control_after_two",
           "when": "true",
-          "label": "Có"
+          "label": "2 thuốc"
         },
         {
-          "from": "optimized_triple_gate",
-          "to": "optimized_infer_combo",
+          "from": "optimized_previous_count_two",
+          "to": "optimized_previous_count_three",
           "when": "false",
-          "label": "Chưa"
+          "label": "Không phải 2"
         },
         {
-          "from": "optimized_bp_controlled_gate",
-          "to": "optimized_infer_triple",
+          "from": "optimized_control_after_two",
+          "to": "optimized_infer_two_controlled",
           "when": "true",
-          "label": "Có — dưới đích"
+          "label": "Đã kiểm soát"
         },
         {
-          "from": "optimized_bp_controlled_gate",
+          "from": "optimized_control_after_two",
+          "to": "optimized_infer_escalate_three",
+          "when": "false",
+          "label": "Chưa kiểm soát"
+        },
+        {
+          "from": "optimized_previous_count_three",
+          "to": "optimized_control_after_three",
+          "when": "true",
+          "label": "3 thuốc"
+        },
+        {
+          "from": "optimized_previous_count_three",
+          "to": "optimized_previous_count_four",
+          "when": "false",
+          "label": "Không phải 3"
+        },
+        {
+          "from": "optimized_control_after_three",
+          "to": "optimized_infer_three_controlled",
+          "when": "true",
+          "label": "Đã kiểm soát"
+        },
+        {
+          "from": "optimized_control_after_three",
+          "to": "optimized_infer_escalate_four",
+          "when": "false",
+          "label": "Chưa kiểm soát"
+        },
+        {
+          "from": "optimized_previous_count_four",
+          "to": "optimized_control_after_four",
+          "when": "true",
+          "label": "4 thuốc"
+        },
+        {
+          "from": "optimized_previous_count_four",
+          "to": "optimized_end_review",
+          "when": "false",
+          "label": "Không hợp lệ"
+        },
+        {
+          "from": "optimized_control_after_four",
+          "to": "optimized_infer_four_controlled",
+          "when": "true",
+          "label": "Đã kiểm soát"
+        },
+        {
+          "from": "optimized_control_after_four",
           "to": "optimized_infer_resistant",
           "when": "false",
-          "label": "Không — chưa dưới đích"
+          "label": "Chưa kiểm soát"
         },
         {
           "from": "optimized_infer_resistant",
@@ -3060,11 +3348,11 @@
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
+          "note": "Điều trị tăng huyết áp theo encounter và giai đoạn số nhóm thuốc."
         }
       ],
       "notes": [
-        "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+        "Bệnh nhân mới (encounter = 1) không kiểm tra số nhóm thuốc; bệnh nhân tái khám (encounter > 1) dùng số nhóm thuốc được kê ở encounter n-1 và cờ kiểm soát sau 2, 3 hoặc 4 thuốc."
       ]
     },
     {
@@ -3733,15 +4021,15 @@
     {
       "id": "uncontrolled_resistant_hypertension",
       "name": "Hypertension General — Phân loại THA",
-      "purpose": "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5.",
+      "purpose": "Phân loại nhánh không kiểm soát hoặc kháng trị dựa trên huyết áp, phác đồ ổn định và thuốc được kê ở encounter n-1.",
       "clinicalStatus": "under_review",
       "entryNodeId": "resistant_start",
       "inputVariables": [
         "bp.officeAverageSystolicMmHg",
         "bp.officeReadingCount",
         "medication.regimenStableWeeks",
-        "medication.agentCount",
-        "medication.includesDiuretic"
+        "medication.previousEncounterAgentCount",
+        "medication.previousEncounterIncludesDiuretic"
       ],
       "outputVariables": [
         "resistant.classification"
@@ -3875,8 +4163,8 @@
           "id": "resistant_agent_count",
           "type": "condition",
           "display": {
-            "title": "Số nhóm thuốc hạ áp đang dùng?",
-            "detail": "Tính theo nhóm thuốc"
+            "title": "Số nhóm thuốc được kê ở lần khám trước?",
+            "detail": "Đọc từ encounter n-1 để phân loại phác đồ 2 nhóm thuốc."
           },
           "sourceRefs": [
             {
@@ -3889,7 +4177,7 @@
           ],
           "logic": {
             "predicate": {
-              "field": "medication.agentCount",
+              "field": "medication.previousEncounterAgentCount",
               "op": "eq",
               "value": 2
             }
@@ -3899,8 +4187,8 @@
           "id": "resistant_agent_count_ge3",
           "type": "condition",
           "display": {
-            "title": "Số nhóm thuốc ≥3?",
-            "detail": "Chỉ chấp nhận đúng 2 hoặc từ 3 nhóm thuốc trở lên."
+            "title": "Lần khám trước kê từ 3 nhóm thuốc trở lên?",
+            "detail": "Đọc từ encounter n-1."
           },
           "sourceRefs": [
             {
@@ -3913,7 +4201,7 @@
           ],
           "logic": {
             "predicate": {
-              "field": "medication.agentCount",
+              "field": "medication.previousEncounterAgentCount",
               "op": "gte",
               "value": 3
             }
@@ -3972,8 +4260,8 @@
           "id": "resistant_diuretic",
           "type": "condition",
           "display": {
-            "title": "Phác đồ có lợi tiểu?",
-            "detail": "Thiazide, lợi tiểu quai hoặc MRA"
+            "title": "Lần khám trước có thuốc lợi tiểu?",
+            "detail": "Thiazide, lợi tiểu quai hoặc MRA trong encounter n-1."
           },
           "sourceRefs": [
             {
@@ -3986,7 +4274,7 @@
           ],
           "logic": {
             "predicate": {
-              "field": "medication.includesDiuretic",
+              "field": "medication.previousEncounterIncludesDiuretic",
               "op": "eq",
               "value": true
             }

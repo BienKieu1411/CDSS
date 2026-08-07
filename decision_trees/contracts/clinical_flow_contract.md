@@ -55,7 +55,8 @@ Các field chưa có dữ liệu phải giữ là `null`/missing, không đượ
 - `LINK` có `targetTreeId`; engine push context hiện tại vào stack và chạy cây con.
 - Cây con được phép ghi các biến dẫn xuất như `bp.category` hoặc `risk.class` vào context.
 - Clinical flow chạy `bp_thresholds_targets` trước `optimized_hypertension_treatment` và truyền `treatment.targetSystolicMmHg`, `treatment.targetDiastolicMmHg` cùng `treatment.targetProfile` vào context của Cây 3.
-- Cây 3 so sánh HATT/HATTr của encounter hiện tại với hai biến đích này bằng so sánh field-to-field; không nhận một cờ thủ công kiểu `uncontrolledDespiteTripleTherapy`.
+- `encounter.number = 1` là bệnh nhân mới; `encounter.number > 1` là tái khám. Với tái khám, clinical flow đọc đơn thuốc của encounter n-1 để tạo `medication.previousEncounterAgentCount` và `medication.previousEncounterIncludesDiuretic`.
+- Clinical flow so sánh đồng thời HATT/HATTr của lần đánh giá sau từng giai đoạn với hai đích của Cây 2 và tạo đúng một trong các cờ `bp.controlledAfterTwoDrugs`, `bp.controlledAfterThreeDrugs`, `bp.controlledAfterFourDrugs` tương ứng. Cây 3 chỉ đọc cờ của giai đoạn đang xét; không gộp 0–1–2 thuốc.
 - Khi cây con kết thúc, engine merge `sets`, `resultCode`, `severity` và `trace` về cây cha.
 - Không dùng `LINK` để gọi ngược tạo vòng lặp. Validator phải chặn cycle trong link graph.
 - Nếu clinical flow gọi trực tiếp một cây đã được gọi qua `LINK` trong cùng encounter, áp dụng `runPolicy` để tránh chạy trùng.
@@ -75,10 +76,9 @@ python decision_trees/runtime/decision_tree_engine.py --flow-start-tree-id bp_th
 ```
 
 Node UI cung cấp cùng flow qua `POST /api/run-flow`. Output của Cây 2 được
-merge vào context trước khi Cây 3 chạy; Cây 3 dùng `valueField` để so sánh
-HA encounter với `treatment.targetSystolicMmHg` và
-`treatment.targetDiastolicMmHg`. Nếu Cây 3 đi qua `LINK`, engine không gọi
-lại Cây 5 lần thứ hai.
+merge vào context trước khi Cây 3 chạy; Cây 3 dùng `encounter.number`, số
+nhóm thuốc ở encounter n-1 và các cờ kiểm soát theo giai đoạn. Nếu Cây 3 đi
+qua `LINK`, engine không gọi lại Cây 5 lần thứ hai.
 
 Cây 1 và Cây 4 vẫn là các entrypoint upstream: clinical flow/database cần
 chạy chúng trước để tạo `bp.category`, `risk.class` và các cờ nguy cơ rồi
@@ -97,10 +97,14 @@ Database có thể dùng tên field nội bộ khác, nhưng cần một lớp m
 | `bp.abpm.daytime.systolicMmHg` | monitoring.abpm.daytimeSBP | number, mmHg |
 | `risk.factorCount` | risk-assessment service | integer |
 | `risk.highRiskComorbidity` | problem/lab derived risk flag | boolean |
-| `medication.agentCount` | medication reconciliation | integer |
+| `encounter.number` | encounter sequence | integer |
+| `medication.previousEncounterAgentCount` | medication reconciliation của encounter n-1 | integer |
+| `medication.previousEncounterIncludesDiuretic` | medication reconciliation của encounter n-1 | boolean |
 | `treatment.targetSystolicMmHg` | Cây 2 — đích HATT | number, mmHg |
 | `treatment.targetDiastolicMmHg` | Cây 2 — đích HATTr | number, mmHg |
-| `medication.includesDiuretic` | medication reconciliation | boolean |
+| `bp.controlledAfterTwoDrugs` | clinical flow — so sánh sau 2 thuốc với đích Cây 2 | boolean |
+| `bp.controlledAfterThreeDrugs` | clinical flow — so sánh sau 3 thuốc với đích Cây 2 | boolean |
+| `bp.controlledAfterFourDrugs` | clinical flow — so sánh sau 4 thuốc với đích Cây 2 | boolean |
 
 Mapping không nên nằm trong tree JSON; đặt ở adapter/database layer để guideline logic độc lập với HIS/EMR cụ thể.
 

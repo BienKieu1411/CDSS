@@ -2,19 +2,17 @@
   "treeId": "optimized_hypertension_treatment",
   "testInput": {
     "patient.ageYears": 55,
-    "bp.assessmentOfficeSystolicMmHg": 150,
-    "bp.assessmentOfficeDiastolicMmHg": 95,
+    "encounter.number": 2,
     "bp.category": "grade2",
-    "treatment.hasHighRiskComorbidity": true,
     "treatment.mandatoryIndication": false,
-    "medication.agentCount": 3,
-    "treatment.targetSystolicMmHg": 130,
-    "treatment.targetDiastolicMmHg": 80,
-    "treatment.targetProfile": "high_risk",
+    "medication.previousEncounterAgentCount": 4,
+    "medication.previousEncounterIncludesDiuretic": true,
+    "bp.controlledAfterTwoDrugs": false,
+    "bp.controlledAfterThreeDrugs": false,
+    "bp.controlledAfterFourDrugs": false,
     "bp.officeAverageSystolicMmHg": 150,
     "bp.officeReadingCount": 2,
-    "medication.regimenStableWeeks": 4,
-    "medication.includesDiuretic": true
+    "medication.regimenStableWeeks": 4
   },
   "result": {
     "treeId": "uncontrolled_resistant_hypertension",
@@ -30,22 +28,20 @@
     "entryTreeId": "optimized_hypertension_treatment",
     "terminalTreeId": "uncontrolled_resistant_hypertension",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.2.0",
+    "bundleVersion": "0.3.0",
     "context": {
       "patient.ageYears": 55,
-      "bp.assessmentOfficeSystolicMmHg": 150,
-      "bp.assessmentOfficeDiastolicMmHg": 95,
+      "encounter.number": 2,
       "bp.category": "grade2",
-      "treatment.hasHighRiskComorbidity": true,
       "treatment.mandatoryIndication": false,
-      "medication.agentCount": 3,
-      "treatment.targetSystolicMmHg": 130,
-      "treatment.targetDiastolicMmHg": 80,
-      "treatment.targetProfile": "high_risk",
+      "medication.previousEncounterAgentCount": 4,
+      "medication.previousEncounterIncludesDiuretic": true,
+      "bp.controlledAfterTwoDrugs": false,
+      "bp.controlledAfterThreeDrugs": false,
+      "bp.controlledAfterFourDrugs": false,
       "bp.officeAverageSystolicMmHg": 150,
       "bp.officeReadingCount": 2,
       "medication.regimenStableWeeks": 4,
-      "medication.includesDiuretic": true,
       "treatment.path": "resistant_referral",
       "resistant.classification": "resistant_three_or_more_with_diuretic"
     },
@@ -67,37 +63,43 @@
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_low_risk_high_normal",
+        "nodeId": "optimized_encounter_type",
         "type": "condition",
         "value": false
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_mandatory",
+        "nodeId": "optimized_followup_count_valid",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "optimized_hypertension_treatment",
+        "nodeId": "optimized_previous_count_one",
         "type": "condition",
         "value": false
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_htn_gate",
+        "nodeId": "optimized_previous_count_two",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "optimized_hypertension_treatment",
+        "nodeId": "optimized_previous_count_three",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "optimized_hypertension_treatment",
+        "nodeId": "optimized_previous_count_four",
         "type": "condition",
         "value": true
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_agent_count_present",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_triple_gate",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_bp_controlled_gate",
+        "nodeId": "optimized_control_after_four",
         "type": "condition",
         "value": false
       },
@@ -171,7 +173,7 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
+        "note": "Điều trị tăng huyết áp theo encounter và giai đoạn số nhóm thuốc."
       },
       {
         "sourceId": "image_03_optimized_treatment",
@@ -192,49 +194,56 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "HA bình thường-cao và nguy cơ thấp/trung bình?"
+        "note": "Đây là bệnh nhân mới (lần khám số 1)?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Có chỉ định điều trị bắt buộc?"
+        "note": "Lần khám trước có 1–4 nhóm thuốc được kê?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Nguy cơ cao với HA bình thường-cao hoặc THA cần điều trị phối hợp?"
+        "note": "Lần khám trước kê 1 nhóm thuốc?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Đã biết số nhóm thuốc đang dùng?"
+        "note": "Lần khám trước kê 2 nhóm thuốc?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Đang sử dụng ≥3 nhóm thuốc?"
+        "note": "Lần khám trước kê 3 nhóm thuốc?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Huyết áp lần khám này đã dưới đích từ Cây 2?"
+        "note": "Lần khám trước kê 4 nhóm thuốc?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "THA kháng trị - chuyển đánh giá chuyên khoa"
+        "note": "Huyết áp đã kiểm soát sau 4 nhóm thuốc?"
+      },
+      {
+        "sourceId": "image_03_optimized_treatment",
+        "page": 1,
+        "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+        "tableOrFigure": "03_optimized_hypertension_treatment.png",
+        "note": "Giai đoạn 4 thuốc — huyết áp chưa kiểm soát, chuyển phân loại"
       },
       {
         "sourceId": "image_05_uncontrolled_resistant",
@@ -316,9 +325,9 @@
     ],
     "validation": {
       "trees": 5,
-      "variables": 55,
-      "nodes": 82,
-      "edges": 80,
+      "variables": 57,
+      "nodes": 90,
+      "edges": 88,
       "links": 1
     },
     "decision": {

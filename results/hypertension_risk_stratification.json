@@ -20,7 +20,7 @@
     "entryTreeId": "hypertension_risk_stratification",
     "terminalTreeId": "hypertension_risk_stratification",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.2.0",
+    "bundleVersion": "0.3.0",
     "context": {
       "bp.category": "grade1",
       "bp.systolicMmHg": 150,
@@ -125,9 +125,9 @@
     ],
     "validation": {
       "trees": 5,
-      "variables": 55,
-      "nodes": 82,
-      "edges": 80,
+      "variables": 57,
+      "nodes": 90,
+      "edges": 88,
       "links": 1
     },
     "decision": {
