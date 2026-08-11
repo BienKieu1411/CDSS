@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one representative completed case for each image-target tree."""
+"""Run one representative completed case for each active decision tree."""
 
 from __future__ import annotations
 
@@ -18,50 +18,52 @@ RESULTS_DIR = PROJECT_ROOT / "results"
 
 TEST_CASES = {
     "bp_diagnosis": {
-        "bp.measurementMethod": "office_3rd",
         "bp.office1.systolicMmHg": 130,
         "bp.office1.diastolicMmHg": 80,
-        "bp.office1.targetOrganDamageOrCvd": False,
         "bp.office2.systolicMmHg": 130,
         "bp.office2.diastolicMmHg": 80,
-        "bp.office2.targetOrganDamageOrCvd": False,
         "bp.office3.systolicMmHg": 125,
         "bp.office3.diastolicMmHg": 80,
+        "patient.diagnosisCodes": "",
     },
     "bp_thresholds_targets": {
         "bp.category": "high_normal",
-        "risk.class": "high",
-        "treatment.hasHighRiskComorbidity": True,
+        "risk.class": "low",
+        "patient.diagnosisCodes": "",
+        "encounter.number": 2,
     },
     "optimized_hypertension_treatment": {
-        "patient.ageYears": 55,
-        "bp.assessmentOfficeSystolicMmHg": 150,
-        "bp.assessmentOfficeDiastolicMmHg": 95,
-        "bp.category": "grade2",
-        "treatment.hasHighRiskComorbidity": True,
-        "treatment.mandatoryIndication": False,
-        "medication.agentCount": 3,
-        "treatment.targetSystolicMmHg": 130,
-        "treatment.targetDiastolicMmHg": 80,
-        "treatment.targetProfile": "high_risk",
-        "bp.officeAverageSystolicMmHg": 150,
-        "bp.officeReadingCount": 2,
-        "medication.regimenStableWeeks": 4,
-        "medication.includesDiuretic": True,
+        "patient.birthDate": "1990-01-01",
+        "asOf": "2026-08-11",
+        "bp.category": "hypertension",
+        "treatment.recommendation": "medication_now",
+        "risk.class": "low",
+        "treatment.hasHighRiskComorbidity": False,
+        "encounter.number": 2,
+        "patient.diagnosisCodes": "",
+        "medication.previousEncounterDrugNames": "Losartan, amlodipine",
+        "bp.controlledAfterTwoDrugs": False,
+        "bp.controlledAfterThreeDrugs": False,
+        "bp.controlledAfterFourDrugs": False,
     },
     "hypertension_risk_stratification": {
-        "bp.category": "grade1",
-        "bp.systolicMmHg": 150,
-        "bp.diastolicMmHg": 95,
-        "risk.factorCount": 3,
-        "risk.highRiskComorbidity": False,
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "patient.diagnosisCodes": "",
+        "risk.ageOver65": False,
+        "risk.maleSex": False,
+        "risk.heartRateOver80": False,
+        "risk.overweight": False,
+        "risk.lipidAbnormality": False,
+        "risk.familyHistoryPrematureCvd": False,
+        "risk.currentSmoker": False,
+        "risk.socialEnvironmentalRisk": False,
     },
     "uncontrolled_resistant_hypertension": {
-        "bp.officeAverageSystolicMmHg": 150,
-        "bp.officeReadingCount": 2,
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
         "medication.regimenStableWeeks": 4,
-        "medication.agentCount": 3,
-        "medication.includesDiuretic": True,
+        "medication.currentDrugNames": "Losartan, amlodipine",
     },
 }
 

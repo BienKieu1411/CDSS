@@ -1,0 +1,141 @@
+/* Circle */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 16px;
+gap: 16px;
+
+position: relative;
+width: 128px;
+height: 72px;
+
+border: 1px dashed #7B61FF;
+border-radius: 5px;
+
+
+/* State=Normal */
+
+width: 40px;
+height: 40px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* pencil */
+
+position: absolute;
+width: 24px;
+height: 24px;
+left: calc(50% - 24px/2);
+top: calc(50% - 24px/2);
+
+
+
+/* Vector */
+
+position: absolute;
+left: 8.33%;
+right: 8.33%;
+top: 8.33%;
+bottom: 8.34%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;
+
+
+/* State=Hover */
+
+width: 40px;
+height: 40px;
+
+/* Main */
+background: #5260FF;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* pencil */
+
+position: absolute;
+width: 24px;
+height: 24px;
+left: calc(50% - 24px/2);
+top: calc(50% - 24px/2);
+
+
+
+/* Vector */
+
+position: absolute;
+left: 8.33%;
+right: 8.33%;
+top: 8.33%;
+bottom: 8.34%;
+
+/* White */
+border: 2px solid #FFFFFF;
+
+
+/* Loading */
+
+display: none;
+width: 40px;
+height: 40px;
+
+/* Purple/600 */
+background: #354ACB;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Icons / Medium / Loading */
+
+position: absolute;
+left: 20%;
+right: 20%;
+top: 20%;
+bottom: 20%;
+
+
+
+/* Disable */
+
+display: none;
+width: 40px;
+height: 40px;
+
+/* Purple/500 */
+background: #556AEB;
+opacity: 0.4;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* Icons / Medium / Edit */
+
+position: absolute;
+left: 20%;
+right: 20%;
+top: 20%;
+bottom: 20%;

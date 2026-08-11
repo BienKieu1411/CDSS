@@ -1,0 +1,26 @@
+/* Cover */
+
+position: relative;
+width: 1600px;
+height: 960px;
+
+/* Main */
+background: #5260FF;
+
+
+/* CDSS */
+
+position: absolute;
+width: 880px;
+height: 379px;
+left: calc(50% - 880px/2 - 0.97px);
+top: calc(50% - 379px/2 - 0.5px);
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 800;
+font-size: 312.941px;
+line-height: 379px;
+/* identical to box height */
+
+color: #FFFFFF;

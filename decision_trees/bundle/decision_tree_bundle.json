@@ -1,7 +1,7 @@
 {
   "formatVersion": "decision-tree-bundle.v1",
   "bundleId": "vsh-vnha-2022-image-targets",
-  "bundleVersion": "0.3.0",
+  "bundleVersion": "0.7.0",
   "locale": "vi-VN",
   "clinicalStatus": "under_review",
   "clinicalReviewRequired": true,
@@ -35,32 +35,15 @@
       "title": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
       "version": "image-reference",
       "localFile": "decision_trees/images/05_uncontrolled_resistant_hypertension.png"
+    },
+    {
+      "id": "vn_antihypertensive_medications",
+      "title": "Danh mục hoạt chất và phân loại thuốc hạ áp",
+      "version": "1.0.0",
+      "localFile": "decision_trees/contracts/antihypertensive_medication_catalog.json"
     }
   ],
   "variables": [
-    {
-      "id": "bp.measurementMethod",
-      "label": "Phương pháp đo HA xác nhận",
-      "dataType": "enum",
-      "unit": null,
-      "requiredForEvaluation": true,
-      "definition": "Phương pháp dùng sau nhánh đo phòng khám lần 1/lần 2.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Phương pháp dùng sau nhánh đo phòng khám lần 1/lần 2."
-        }
-      ],
-      "allowedValues": [
-        "office_3rd",
-        "home",
-        "abpm_24h"
-      ]
-    },
     {
       "id": "bp.office1.systolicMmHg",
       "label": "HA phòng khám lần 1 - HATT",
@@ -194,174 +177,6 @@
       }
     },
     {
-      "id": "bp.office1.targetOrganDamageOrCvd",
-      "label": "Bằng chứng tổn thương cơ quan đích/bệnh tim mạch ở lần 1",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Có bằng chứng tổn thương cơ quan đích hoặc bệnh tim mạch trong đánh giá ban đầu.",
-      "sourceSystem": "clinician_input",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Có bằng chứng tổn thương cơ quan đích hoặc bệnh tim mạch trong đánh giá ban đầu."
-        }
-      ]
-    },
-    {
-      "id": "bp.office2.targetOrganDamageOrCvd",
-      "label": "Bằng chứng tổn thương cơ quan đích/bệnh tim mạch ở lần 2",
-      "dataType": "boolean",
-      "unit": null,
-      "requiredForEvaluation": false,
-      "definition": "Có bằng chứng tổn thương cơ quan đích do tăng huyết áp hoặc bệnh tim mạch ở lần 2.",
-      "sourceSystem": "clinician_input",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Có bằng chứng tổn thương cơ quan đích do tăng huyết áp hoặc bệnh tim mạch ở lần 2."
-        }
-      ]
-    },
-    {
-      "id": "bp.home.systolicMmHg",
-      "label": "HA tại nhà - HATT",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "Giá trị HATT của phương pháp đo ngoài phòng khám.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Giá trị HATT của phương pháp đo ngoài phòng khám."
-        }
-      ],
-      "validation": {
-        "minimum": 40,
-        "maximum": 300
-      }
-    },
-    {
-      "id": "bp.home.diastolicMmHg",
-      "label": "HA tại nhà - HATTr",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "Giá trị HATTr của phương pháp đo ngoài phòng khám.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Giá trị HATTr của phương pháp đo ngoài phòng khám."
-        }
-      ],
-      "validation": {
-        "minimum": 20,
-        "maximum": 200
-      }
-    },
-    {
-      "id": "bp.abpm.daytime.systolicMmHg",
-      "label": "HALT ban ngày - HATT",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "Giá trị HATT của phương pháp đo ngoài phòng khám.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Giá trị HATT của phương pháp đo ngoài phòng khám."
-        }
-      ],
-      "validation": {
-        "minimum": 40,
-        "maximum": 300
-      }
-    },
-    {
-      "id": "bp.abpm.daytime.diastolicMmHg",
-      "label": "HALT ban ngày - HATTr",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "Giá trị HATTr của phương pháp đo ngoài phòng khám.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Giá trị HATTr của phương pháp đo ngoài phòng khám."
-        }
-      ],
-      "validation": {
-        "minimum": 20,
-        "maximum": 200
-      }
-    },
-    {
-      "id": "bp.abpm.average24h.systolicMmHg",
-      "label": "HALT trung bình 24 giờ - HATT",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "Giá trị HATT của phương pháp đo ngoài phòng khám.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Giá trị HATT của phương pháp đo ngoài phòng khám."
-        }
-      ],
-      "validation": {
-        "minimum": 40,
-        "maximum": 300
-      }
-    },
-    {
-      "id": "bp.abpm.average24h.diastolicMmHg",
-      "label": "HALT trung bình 24 giờ - HATTr",
-      "dataType": "number",
-      "unit": "mmHg",
-      "requiredForEvaluation": false,
-      "definition": "Giá trị HATTr của phương pháp đo ngoài phòng khám.",
-      "sourceSystem": "vitals",
-      "sourceRefs": [
-        {
-          "sourceId": "image_01_bp_diagnosis",
-          "page": 1,
-          "section": "Sơ đồ chẩn đoán tăng huyết áp",
-          "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Giá trị HATTr của phương pháp đo ngoài phòng khám."
-        }
-      ],
-      "validation": {
-        "minimum": 20,
-        "maximum": 200
-      }
-    },
-    {
       "id": "bp.category",
       "label": "Phân loại huyết áp",
       "dataType": "enum",
@@ -393,8 +208,7 @@
         "bp.office1.systolicMmHg",
         "bp.office1.diastolicMmHg",
         "bp.office2.systolicMmHg",
-        "bp.office2.diastolicMmHg",
-        "bp.measurementMethod"
+        "bp.office2.diastolicMmHg"
       ]
     },
     {
@@ -403,21 +217,27 @@
       "dataType": "enum",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Kết quả từ cây phân tầng nguy cơ.",
+      "definition": "Kết quả phân tầng nguy cơ do Cây 4 tạo ra; được dùng làm đầu vào cho Cây 2.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
-          "sourceId": "image_02_bp_thresholds_targets",
+          "sourceId": "image_04_risk_stratification",
           "page": 1,
-          "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-          "tableOrFigure": "02_bp_thresholds_and_targets.png",
-          "note": "Kết quả từ cây phân tầng nguy cơ."
+          "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+          "tableOrFigure": "04_hypertension_risk_stratification.png",
+          "note": "Kết quả phân tầng nguy cơ dùng cho Cây 2."
         }
       ],
       "allowedValues": [
         "low",
         "medium",
         "high"
+      ],
+      "derivedFrom": [
+        "risk.factorCount",
+        "risk.highRiskComorbidity",
+        "bp.latest.systolicMmHg",
+        "bp.latest.diastolicMmHg"
       ]
     },
     {
@@ -426,7 +246,7 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có BTMXV, đái tháo đường, bệnh thận mạn hoặc bệnh đồng mắc nguy cơ cao.",
+      "definition": "Biến dẫn xuất: có tổn thương cơ quan đích, CKD giai đoạn ≥3, đái tháo đường hoặc bệnh tim mạch/tiền sử.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
@@ -436,6 +256,12 @@
           "tableOrFigure": "02_bp_thresholds_and_targets.png",
           "note": "Có BTMXV, đái tháo đường, bệnh thận mạn hoặc bệnh đồng mắc nguy cơ cao."
         }
+      ],
+      "derivedFrom": [
+        "risk.targetOrganDamage",
+        "risk.ckdStageAtLeast3",
+        "risk.diabetes",
+        "risk.cardiovascularDisease"
       ]
     },
     {
@@ -557,8 +383,11 @@
       "dataType": "integer",
       "unit": "year",
       "requiredForEvaluation": false,
-      "definition": "Tuổi bệnh nhân; sơ đồ áp dụng cho người lớn trên 18 tuổi.",
-      "sourceSystem": "patient",
+      "definition": "Tự tính từ patient.birthDate tại ngày asOf; sơ đồ áp dụng cho người lớn trên 18 tuổi.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.birthDate"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -596,13 +425,34 @@
       }
     },
     {
+      "id": "patient.diagnosisCodes",
+      "label": "Mã bệnh của người bệnh (ICD-10/SNOMED CT)",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Nhập danh sách mã ICD-10 hoặc SNOMED CT trong hồ sơ bệnh nhân, ngăn cách bằng dấu phẩy hoặc xuống dòng. Hệ thống tự đối chiếu để cập nhật các bệnh đồng mắc và tổn thương cơ quan đích.",
+      "sourceSystem": "patient",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Thông tin bệnh nhân và bệnh đồng mắc",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Danh sách mã bệnh dùng để tự động xác định bệnh đồng mắc."
+        }
+      ],
+      "validation": {
+        "maxLength": 4000
+      }
+    },
+    {
       "id": "comorbidity.atheroscleroticCvd",
       "label": "Bệnh tim mạch do xơ vữa",
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có bệnh tim mạch do xơ vữa trong danh sách bệnh đồng mắc.",
-      "sourceSystem": "problem_list",
+      "definition": "Tự nhận diện từ ICD-10 I25.1.",
+      "sourceSystem": "derived",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -611,6 +461,9 @@
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
           "note": "Có bệnh tim mạch do xơ vữa trong danh sách bệnh đồng mắc."
         }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
       ]
     },
     {
@@ -619,8 +472,8 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có suy tim trong danh sách bệnh đồng mắc.",
-      "sourceSystem": "problem_list",
+      "definition": "Tự nhận diện từ ICD-10 nhóm I50, bao gồm I50.9 và I50.2x.",
+      "sourceSystem": "derived",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -629,16 +482,19 @@
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
           "note": "Có suy tim trong danh sách bệnh đồng mắc."
         }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
       ]
     },
     {
       "id": "comorbidity.stroke",
-      "label": "Tiền sử đột quỵ",
+      "label": "Đột quỵ",
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có tiền sử đột quỵ trong danh sách bệnh đồng mắc.",
-      "sourceSystem": "problem_list",
+      "definition": "Tự nhận diện từ ICD-10 nhóm I63, bao gồm I63.9.",
+      "sourceSystem": "derived",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -647,6 +503,9 @@
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
           "note": "Có tiền sử đột quỵ trong danh sách bệnh đồng mắc."
         }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
       ]
     },
     {
@@ -655,8 +514,8 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có bệnh thận mạn trong danh sách bệnh đồng mắc.",
-      "sourceSystem": "problem_list",
+      "definition": "Tự nhận diện từ ICD-10 nhóm N18.",
+      "sourceSystem": "derived",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -665,6 +524,9 @@
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
           "note": "Có bệnh thận mạn trong danh sách bệnh đồng mắc."
         }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
       ]
     },
     {
@@ -673,8 +535,8 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có đái tháo đường trong danh sách bệnh đồng mắc.",
-      "sourceSystem": "problem_list",
+      "definition": "Tự nhận diện từ mã ICD-10 nhóm E08–E14, bao gồm E11.9.",
+      "sourceSystem": "derived",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -683,6 +545,9 @@
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
           "note": "Có đái tháo đường trong danh sách bệnh đồng mắc."
         }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
       ]
     },
     {
@@ -691,7 +556,7 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Biến dẫn xuất từ bệnh mạch vành/xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường.",
+      "definition": "Tự cập nhật từ bệnh tim mạch do xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường trong hồ sơ bệnh nhân.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
@@ -711,13 +576,31 @@
       ]
     },
     {
+      "id": "medication.previousEncounterDrugNames",
+      "label": "Danh sách thuốc ở lần khám trước",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tên hoạt chất được kê tại encounter n-1; engine tự chuẩn hóa thành danh sách nhóm thuốc.",
+      "sourceSystem": "medication",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Danh sách thuốc và nhóm thuốc của lần khám trước."
+        }
+      ]
+    },
+    {
       "id": "medication.previousEncounterAgentCount",
       "label": "Số nhóm thuốc được kê ở lần khám trước",
       "dataType": "integer",
       "unit": "class",
       "requiredForEvaluation": false,
       "definition": "Số nhóm thuốc được kê tại encounter n-1; dùng để xác định giai đoạn 1, 2, 3 hoặc 4 thuốc khi tái khám.",
-      "sourceSystem": "medication",
+      "sourceSystem": "derived",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -737,7 +620,94 @@
       "validation": {
         "minimum": 1,
         "maximum": 4
-      }
+      },
+      "derivedFrom": [
+        "medication.previousEncounterDrugNames"
+      ]
+    },
+    {
+      "id": "medication.previousEncounterDrugClassCodes",
+      "label": "Danh sách mã nhóm thuốc ở lần khám trước",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Danh sách nhóm thuốc chuẩn hóa từ medication.previousEncounterDrugNames, mã cách nhau bằng dấu phẩy.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "medication.previousEncounterDrugNames"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Danh sách thuốc và nhóm thuốc của lần khám trước."
+        }
+      ]
+    },
+    {
+      "id": "medication.previousEncounterDrugClassList",
+      "label": "Danh sách nhóm thuốc ở lần khám trước",
+      "dataType": "array",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Danh sách mã nhóm thuốc chuẩn hóa từ encounter n-1; mỗi nhóm chỉ xuất hiện một lần và được dùng để xác định giai đoạn 1–4 nhóm thuốc.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "medication.previousEncounterDrugNames"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "vn_antihypertensive_medications",
+          "page": 1,
+          "section": "Danh mục thuốc hạ áp",
+          "tableOrFigure": "antihypertensive_medication_catalog.json",
+          "note": "Chuẩn hóa thuốc đã kê thành danh sách nhóm thuốc dùng trong Cây 3 và Cây 5."
+        }
+      ]
+    },
+    {
+      "id": "medication.previousEncounterUnmappedDrugNames",
+      "label": "Hoạt chất lần khám trước chưa có trong danh mục",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Danh sách hoạt chất của encounter n-1 không khớp danh mục thuốc đã lưu; phải rà soát trước khi xác định giai đoạn.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "medication.previousEncounterDrugNames"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+        }
+      ]
+    },
+    {
+      "id": "medication.previousEncounterHasUnmappedDrug",
+      "label": "Có hoạt chất lần khám trước chưa được nhận diện",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tự bật khi danh sách thuốc encounter n-1 có hoạt chất không khớp danh mục.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "medication.previousEncounterDrugNames"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+        }
+      ]
     },
     {
       "id": "medication.previousEncounterIncludesDiuretic",
@@ -746,7 +716,7 @@
       "unit": null,
       "requiredForEvaluation": false,
       "definition": "Lần khám n-1 có thiazide, lợi tiểu quai hoặc MRA hay không; dùng khi chuyển phân loại không kiểm soát/kháng trị.",
-      "sourceSystem": "medication",
+      "sourceSystem": "derived",
       "sourceRefs": [
         {
           "sourceId": "image_03_optimized_treatment",
@@ -762,6 +732,9 @@
           "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
           "note": "Lần khám n-1 có thiazide, lợi tiểu quai hoặc MRA hay không; dùng khi chuyển phân loại không kiểm soát/kháng trị."
         }
+      ],
+      "derivedFrom": [
+        "medication.previousEncounterDrugNames"
       ]
     },
     {
@@ -849,6 +822,7 @@
       ],
       "allowedValues": [
         "single_pill_strategy",
+        "new_patient_lifestyle_first",
         "lifestyle",
         "mandatory_indication",
         "initial_combination",
@@ -903,12 +877,15 @@
     },
     {
       "id": "risk.ageOver65",
-      "label": "Tuổi ≥65",
+      "label": "Tuổi >65",
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có tuổi ≥65 khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Tự tính từ patient.birthDate; true khi tuổi >65.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.ageYears"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -925,8 +902,11 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có giới nam khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Tự tính từ patient.sex; true khi giới là nam.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.sex"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -943,8 +923,11 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có nhịp tim >80 lần/phút khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Tự tính từ vitals.heartRate; true khi nhịp tim >80 lần/phút.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "vitals.heartRate"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -961,8 +944,11 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có thừa cân/béo phì khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Tự tính từ patient.bmi; true khi BMI ≥25.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.bmi"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -979,7 +965,7 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có rối loạn lipid máu khi phân tầng nguy cơ.",
+      "definition": "Input lâm sàng cho tình trạng tăng LDL-C/triglyceride; ngưỡng định lượng chưa được chốt trong ảnh tham chiếu.",
       "sourceSystem": "clinician_input",
       "sourceRefs": [
         {
@@ -1051,7 +1037,7 @@
       "dataType": "integer",
       "unit": "factor",
       "requiredForEvaluation": false,
-      "definition": "Số yếu tố nguy cơ được đếm theo bảng phân tầng.",
+      "definition": "Đếm 9 yếu tố nguy cơ theo Bảng phân tầng: tuổi >65, nam, nhịp tim >80, thừa cân, đái tháo đường, LDL-C/triglyceride tăng, tiền sử gia đình bệnh tim mạch sớm, hút thuốc và yếu tố xã hội/môi trường.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
@@ -1067,6 +1053,7 @@
         "risk.maleSex",
         "risk.heartRateOver80",
         "risk.overweight",
+        "risk.diabetes",
         "risk.lipidAbnormality",
         "risk.familyHistoryPrematureCvd",
         "risk.currentSmoker",
@@ -1083,8 +1070,12 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có tổn thương cơ quan đích khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Biến dẫn xuất: dày thất trái hoặc CKD giai đoạn ≥3.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "comorbidity.leftVentricularHypertrophy",
+        "risk.ckdStageAtLeast3"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -1101,8 +1092,12 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có ckd giai đoạn ≥3 khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Tự tính từ lab.eGfr; true khi eGFR <60 mL/min/1.73m². Mã N18.3–N18.9 cũng được nhận diện nếu có.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "lab.eGfr",
+        "patient.diagnosisCodes"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -1119,8 +1114,11 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có đái tháo đường khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Tự tính từ comorbidity.diabetes.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "comorbidity.diabetes"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -1137,8 +1135,16 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có bệnh tim mạch khi phân tầng nguy cơ.",
-      "sourceSystem": "clinician_input",
+      "definition": "Biến dẫn xuất từ bệnh mạch vành, suy tim, đột quỵ, bệnh mạch máu ngoại biên hoặc rung nhĩ.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "comorbidity.atheroscleroticCvd",
+        "comorbidity.coronaryArteryDisease",
+        "comorbidity.heartFailure",
+        "comorbidity.stroke",
+        "comorbidity.peripheralArteryDisease",
+        "comorbidity.atrialFibrillation"
+      ],
       "sourceRefs": [
         {
           "sourceId": "image_04_risk_stratification",
@@ -1151,11 +1157,11 @@
     },
     {
       "id": "risk.highRiskComorbidity",
-      "label": "Tổn thương cơ quan đích/bệnh đồng mắc nguy cơ cao",
+      "label": "Bệnh đồng mắc nguy cơ cao",
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Có tổn thương cơ quan đích, CKD giai đoạn từ 3, đái tháo đường hoặc bệnh tim mạch.",
+      "definition": "Biến dẫn xuất: có tổn thương cơ quan đích, CKD giai đoạn ≥3, đái tháo đường hoặc bệnh tim mạch/tiền sử.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
@@ -1223,7 +1229,7 @@
       "dataType": "number",
       "unit": "week",
       "requiredForEvaluation": false,
-      "definition": "Thời gian không thay đổi liều/nhóm thuốc gần đây.",
+      "definition": "Số tuần không thay đổi liều hoặc nhóm thuốc; Cây 5 yêu cầu ít nhất 4 tuần.",
       "sourceSystem": "medication",
       "sourceRefs": [
         {
@@ -1245,7 +1251,7 @@
       "dataType": "enum",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Phân loại dựa trên số nhóm thuốc và có lợi tiểu.",
+      "definition": "Kết quả Cây 5: chưa kiểm soát với 2 nhóm, kháng trị với từ 3 nhóm có lợi tiểu, hoặc cần thêm lợi tiểu.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
@@ -1262,43 +1268,718 @@
         "add_diuretic_and_reclassify",
         "review_required"
       ]
+    },
+    {
+      "id": "comorbidity.earlyMenopause",
+      "label": "comorbidity.earlyMenopause",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Derived from patient.diagnosisCodes.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Thông tin bệnh nhân và bệnh đồng mắc",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Derived from patient diagnosis codes."
+        }
+      ]
+    },
+    {
+      "id": "comorbidity.leftVentricularHypertrophy",
+      "label": "comorbidity.leftVentricularHypertrophy",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Derived from patient.diagnosisCodes.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Thông tin bệnh nhân và bệnh đồng mắc",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Derived from patient diagnosis codes."
+        }
+      ]
+    },
+    {
+      "id": "comorbidity.coronaryArteryDisease",
+      "label": "comorbidity.coronaryArteryDisease",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Derived from patient.diagnosisCodes.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Thông tin bệnh nhân và bệnh đồng mắc",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Derived from patient diagnosis codes."
+        }
+      ]
+    },
+    {
+      "id": "comorbidity.peripheralArteryDisease",
+      "label": "comorbidity.peripheralArteryDisease",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Derived from patient.diagnosisCodes.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Thông tin bệnh nhân và bệnh đồng mắc",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Derived from patient diagnosis codes."
+        }
+      ]
+    },
+    {
+      "id": "comorbidity.atrialFibrillation",
+      "label": "comorbidity.atrialFibrillation",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Derived from patient.diagnosisCodes.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Thông tin bệnh nhân và bệnh đồng mắc",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Derived from patient diagnosis codes."
+        }
+      ]
+    },
+    {
+      "id": "comorbidity.targetOrganDamageOrCvd",
+      "label": "comorbidity.targetOrganDamageOrCvd",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Biến dẫn xuất từ dày thất trái, CKD giai đoạn ≥3 hoặc bệnh tim mạch/tiền sử.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "risk.targetOrganDamage",
+        "risk.cardiovascularDisease"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Thông tin bệnh nhân và bệnh đồng mắc",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Derived from patient diagnosis codes."
+        }
+      ]
+    },
+    {
+      "id": "patient.birthDate",
+      "label": "Ngày sinh",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Ngày sinh dùng để tính tuổi.",
+      "sourceSystem": "patient",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ]
+    },
+    {
+      "id": "patient.sex",
+      "label": "Giới tính",
+      "dataType": "enum",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Giới tính sinh học của người bệnh.",
+      "sourceSystem": "patient",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "allowedValues": [
+        "male",
+        "female",
+        "other",
+        "unknown"
+      ]
+    },
+    {
+      "id": "vitals.heartRate",
+      "label": "Tần số tim",
+      "dataType": "number",
+      "unit": "bpm",
+      "requiredForEvaluation": false,
+      "definition": "Tần số tim; mã LOINC 8867-4.",
+      "sourceSystem": "vitals",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "validation": {
+        "minimum": 20,
+        "maximum": 300
+      }
+    },
+    {
+      "id": "patient.heightM",
+      "label": "Chiều cao",
+      "dataType": "number",
+      "unit": "m",
+      "requiredForEvaluation": false,
+      "definition": "Chiều cao tính theo mét.",
+      "sourceSystem": "patient",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "validation": {
+        "minimum": 0.5,
+        "maximum": 2.5
+      }
+    },
+    {
+      "id": "patient.weightKg",
+      "label": "Cân nặng",
+      "dataType": "number",
+      "unit": "kg",
+      "requiredForEvaluation": false,
+      "definition": "Cân nặng tính theo kilogram.",
+      "sourceSystem": "patient",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "validation": {
+        "minimum": 1,
+        "maximum": 400
+      }
+    },
+    {
+      "id": "lab.eGfr",
+      "label": "eGFR",
+      "dataType": "number",
+      "unit": "mL/min/1.73m2",
+      "requiredForEvaluation": false,
+      "definition": "Mức lọc cầu thận ước tính; mã LOINC 98979-8.",
+      "sourceSystem": "laboratory",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "validation": {
+        "minimum": 0,
+        "maximum": 250
+      }
+    },
+    {
+      "id": "lab.ldlCholesterol",
+      "label": "LDL-C",
+      "dataType": "number",
+      "unit": "mmol/L",
+      "requiredForEvaluation": false,
+      "definition": "Xét nghiệm định lượng LDL-C; mã LOINC 13457-7.",
+      "sourceSystem": "laboratory",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ]
+    },
+    {
+      "id": "lab.triglycerides",
+      "label": "Triglyceride",
+      "dataType": "number",
+      "unit": "mmol/L",
+      "requiredForEvaluation": false,
+      "definition": "Xét nghiệm định lượng triglyceride; mã LOINC 2571-8.",
+      "sourceSystem": "laboratory",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ]
+    },
+    {
+      "id": "bp.latest.systolicMmHg",
+      "label": "HA lần đo gần nhất - HATT",
+      "dataType": "number",
+      "unit": "mmHg",
+      "requiredForEvaluation": false,
+      "definition": "Tự động lấy HATT của lần đo phòng khám gần nhất: lần 3 nếu có đủ cặp lần 3, nếu không thì lần 2, nếu không thì lần 1.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "validation": {
+        "minimum": 40,
+        "maximum": 300
+      },
+      "derivedFrom": [
+        "bp.office1.systolicMmHg",
+        "bp.office1.diastolicMmHg",
+        "bp.office2.systolicMmHg",
+        "bp.office2.diastolicMmHg",
+        "bp.office3.systolicMmHg",
+        "bp.office3.diastolicMmHg"
+      ]
+    },
+    {
+      "id": "bp.latest.diastolicMmHg",
+      "label": "HA lần đo gần nhất - HATTr",
+      "dataType": "number",
+      "unit": "mmHg",
+      "requiredForEvaluation": false,
+      "definition": "Tự động lấy HATTr của lần đo phòng khám gần nhất: lần 3 nếu có đủ cặp lần 3, nếu không thì lần 2, nếu không thì lần 1.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "validation": {
+        "minimum": 20,
+        "maximum": 200
+      },
+      "derivedFrom": [
+        "bp.office1.systolicMmHg",
+        "bp.office1.diastolicMmHg",
+        "bp.office2.systolicMmHg",
+        "bp.office2.diastolicMmHg",
+        "bp.office3.systolicMmHg",
+        "bp.office3.diastolicMmHg"
+      ]
+    },
+    {
+      "id": "patient.bmi",
+      "label": "BMI",
+      "dataType": "number",
+      "unit": "kg/m2",
+      "requiredForEvaluation": false,
+      "definition": "BMI tự tính từ cân nặng và chiều cao; BMI ≥25 là thừa cân/béo phì.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "derivedFrom": [
+        "patient.weightKg",
+        "patient.heightM"
+      ]
+    },
+    {
+      "id": "comorbidity.heartFailureReducedEjectionFraction",
+      "label": "Suy tim EF giảm",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tự nhận diện từ mã ICD-10 nhóm I50.2x.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ]
+    },
+    {
+      "id": "comorbidity.type2Diabetes",
+      "label": "Đái tháo đường type 2",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tự nhận diện từ mã ICD-10 E11.9 hoặc nhóm E11.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_01_bp_diagnosis",
+          "page": 1,
+          "section": "Danh sách biến bệnh nhân",
+          "tableOrFigure": "01_bp_diagnosis.png",
+          "note": "Biến chuẩn hóa từ danh sách biến lâm sàng."
+        }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ]
+    },
+    {
+      "id": "medication.drugClass",
+      "label": "Phân loại nhóm thuốc hạ áp",
+      "dataType": "enum",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Mã nhóm thuốc theo danh mục hoạt chất: ACEI, ARB, CCB, chẹn beta, lợi tiểu, MRA hoặc thuốc khác.",
+      "sourceSystem": "medication",
+      "sourceRefs": [
+        {
+          "sourceId": "vn_antihypertensive_medications",
+          "page": 1,
+          "section": "Danh mục thuốc hạ áp",
+          "tableOrFigure": "antihypertensive_medication_catalog.json",
+          "note": "Danh mục hoạt chất và phân loại nhóm thuốc hạ áp theo bảng đã thống nhất trong dự án."
+        }
+      ],
+      "allowedValues": [
+        "acei",
+        "arb",
+        "ccb",
+        "beta_blocker",
+        "diuretic",
+        "mra",
+        "other"
+      ]
+    },
+    {
+      "id": "medication.currentDrugNames",
+      "label": "Các thuốc hạ áp đang sử dụng",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tên hoạt chất hạ áp đang dùng ở lần khám này. Có thể nhập nhiều thuốc, ngăn cách bằng dấu phẩy hoặc xuống dòng; hệ thống dùng danh mục thuốc để tự xác định nhóm.",
+      "sourceSystem": "medication",
+      "sourceRefs": [
+        {
+          "sourceId": "vn_antihypertensive_medications",
+          "page": 1,
+          "section": "Danh mục thuốc hạ áp",
+          "tableOrFigure": "antihypertensive_medication_catalog.json",
+          "note": "Danh mục hoạt chất và phân loại nhóm thuốc hạ áp theo bảng đã thống nhất trong dự án."
+        }
+      ]
+    },
+    {
+      "id": "medication.currentDrugClassCodes",
+      "label": "Danh sách mã nhóm thuốc đang sử dụng",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Danh sách nhóm thuốc chuẩn hóa từ tên hoạt chất, mã cách nhau bằng dấu phẩy; mỗi nhóm chỉ tính một lần.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "vn_antihypertensive_medications",
+          "page": 1,
+          "section": "Danh mục thuốc hạ áp",
+          "tableOrFigure": "antihypertensive_medication_catalog.json",
+          "note": "Danh mục hoạt chất và phân loại nhóm thuốc hạ áp theo bảng đã thống nhất trong dự án."
+        }
+      ],
+      "derivedFrom": [
+        "medication.currentDrugNames"
+      ]
+    },
+    {
+      "id": "medication.currentDrugClassList",
+      "label": "Danh sách nhóm thuốc đang sử dụng",
+      "dataType": "array",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Danh sách mã nhóm thuốc chuẩn hóa từ các hoạt chất đang dùng; mỗi nhóm chỉ xuất hiện một lần và được dùng trong Cây 5.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "medication.currentDrugNames"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "vn_antihypertensive_medications",
+          "page": 1,
+          "section": "Danh mục thuốc hạ áp",
+          "tableOrFigure": "antihypertensive_medication_catalog.json",
+          "note": "Chuẩn hóa thuốc đang dùng thành danh sách nhóm thuốc."
+        }
+      ]
+    },
+    {
+      "id": "medication.currentUnmappedDrugNames",
+      "label": "Hoạt chất hiện tại chưa có trong danh mục",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Danh sách hoạt chất không khớp danh mục thuốc đã lưu; phải rà soát trước khi phân loại.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "medication.currentDrugNames"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_05_uncontrolled_resistant",
+          "page": 1,
+          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+          "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+        }
+      ]
+    },
+    {
+      "id": "medication.currentHasUnmappedDrug",
+      "label": "Có hoạt chất hiện tại chưa được nhận diện",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tự bật khi danh sách thuốc hiện tại có hoạt chất không khớp danh mục.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "medication.currentDrugNames"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_05_uncontrolled_resistant",
+          "page": 1,
+          "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+          "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+          "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+        }
+      ]
+    },
+    {
+      "id": "medication.currentDrugClassCount",
+      "label": "Số nhóm thuốc hạ áp đang sử dụng",
+      "dataType": "integer",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Số nhóm thuốc khác nhau được đếm từ danh sách nhóm thuốc chuẩn hóa.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "vn_antihypertensive_medications",
+          "page": 1,
+          "section": "Danh mục thuốc hạ áp",
+          "tableOrFigure": "antihypertensive_medication_catalog.json",
+          "note": "Danh mục hoạt chất và phân loại nhóm thuốc hạ áp theo bảng đã thống nhất trong dự án."
+        }
+      ],
+      "derivedFrom": [
+        "medication.currentDrugClassCodes"
+      ]
+    },
+    {
+      "id": "medication.currentIncludesDiuretic",
+      "label": "Đang sử dụng thuốc lợi tiểu",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tự xác định từ danh sách nhóm thuốc: có thiazide, lợi tiểu quai hoặc MRA.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "vn_antihypertensive_medications",
+          "page": 1,
+          "section": "Danh mục thuốc hạ áp",
+          "tableOrFigure": "antihypertensive_medication_catalog.json",
+          "note": "Danh mục hoạt chất và phân loại nhóm thuốc hạ áp theo bảng đã thống nhất trong dự án."
+        }
+      ],
+      "derivedFrom": [
+        "medication.currentDrugClassCodes"
+      ]
+    },
+    {
+      "id": "treatment.initialRegimen",
+      "label": "Phác đồ khởi trị được chọn",
+      "dataType": "enum",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Kết quả dẫn xuất của Cây 3 cho nhánh khởi trị: thay đổi lối sống, A/B/C/D, phối hợp A+C hoặc D, hoặc chỉ định bắt buộc.",
+      "sourceSystem": "derived",
+      "allowedValues": [
+        "lifestyle_first",
+        "single_pill_abcd",
+        "combination_ac_or_d",
+        "mandatory_indication",
+        "review_required"
+      ],
+      "derivedFrom": [
+        "treatment.recommendation",
+        "risk.class",
+        "treatment.hasHighRiskComorbidity",
+        "treatment.mandatoryIndication",
+        "comorbidity.heartFailureReducedEjectionFraction",
+        "comorbidity.atheroscleroticCvd",
+        "comorbidity.stroke",
+        "comorbidity.ckd",
+        "comorbidity.type2Diabetes",
+        "bp.category"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Phân biệt phác đồ khởi trị theo Hình 4."
+        }
+      ]
+    },
+    {
+      "id": "treatment.mandatoryDisease",
+      "label": "Bệnh nền thuộc chỉ định điều trị bắt buộc",
+      "dataType": "enum",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Bệnh nền được chọn trong nhánh chỉ định bắt buộc của Cây 3; được tự nhận diện từ danh sách mã bệnh.",
+      "sourceSystem": "derived",
+      "allowedValues": [
+        "coronary_artery_disease",
+        "heart_failure_reduced_ef",
+        "stroke",
+        "chronic_kidney_disease",
+        "type2_diabetes",
+        "review_required"
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes",
+        "comorbidity.atheroscleroticCvd",
+        "comorbidity.heartFailureReducedEjectionFraction",
+        "comorbidity.stroke",
+        "comorbidity.ckd",
+        "comorbidity.type2Diabetes"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Nhánh chỉ định điều trị bắt buộc theo bệnh nền."
+        }
+      ]
+    },
+    {
+      "id": "treatment.mandatoryRegimen",
+      "label": "Định hướng điều trị theo bệnh nền",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Nội dung định hướng thuốc được hiển thị từ nhánh bệnh nền tương ứng trong guideline; không thay thế quyết định kê đơn.",
+      "sourceSystem": "derived",
+      "derivedFrom": [
+        "treatment.mandatoryDisease"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Định hướng điều trị theo bệnh nền."
+        }
+      ]
     }
   ],
   "trees": [
     {
       "id": "bp_diagnosis",
-      "name": "BP Diagnosis Tree",
-      "purpose": "Chẩn đoán tăng huyết áp bằng đo phòng khám, HATN và HALT.",
+      "name": "Cây chẩn đoán tăng huyết áp",
+      "purpose": "Phân loại chẩn đoán huyết áp theo ba lần đo huyết áp phòng khám trong bản phác thảo đã thống nhất.",
       "clinicalStatus": "under_review",
       "entryNodeId": "bp_start",
       "inputVariables": [
-        "bp.measurementMethod",
         "bp.office1.systolicMmHg",
         "bp.office1.diastolicMmHg",
-        "bp.office1.targetOrganDamageOrCvd",
         "bp.office2.systolicMmHg",
         "bp.office2.diastolicMmHg",
-        "bp.office2.targetOrganDamageOrCvd",
         "bp.office3.systolicMmHg",
         "bp.office3.diastolicMmHg",
-        "bp.home.systolicMmHg",
-        "bp.home.diastolicMmHg",
-        "bp.abpm.daytime.systolicMmHg",
-        "bp.abpm.daytime.diastolicMmHg",
-        "bp.abpm.average24h.systolicMmHg",
-        "bp.abpm.average24h.diastolicMmHg"
+        "patient.diagnosisCodes",
+        "comorbidity.targetOrganDamageOrCvd"
       ],
       "outputVariables": [
         "bp.category"
       ],
-      "linksTo": [],
+      "linksTo": [
+        "hypertension_risk_stratification"
+      ],
       "nodes": [
         {
           "id": "bp_start",
           "type": "start",
           "display": {
-            "title": "Bắt đầu chẩn đoán HA",
-            "detail": "Đo HA phòng khám lần 1 và khai thác tổn thương cơ quan đích/bệnh tim mạch."
+            "title": "Bắt đầu chẩn đoán huyết áp",
+            "detail": "Bắt đầu bằng kết quả đo huyết áp phòng khám lần 1."
           },
           "sourceRefs": [
             {
@@ -1306,15 +1987,16 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "Bắt đầu chẩn đoán HA"
+              "note": "Bắt đầu chẩn đoán huyết áp"
             }
           ]
         },
         {
-          "id": "bp_crisis_gate",
+          "id": "bp_first_screen",
           "type": "condition",
           "display": {
-            "title": "HA phòng khám lần 1 ≥180/120 và có tổn thương cơ quan đích/bệnh tim mạch?"
+            "title": "HATT ≥180 mmHg hoặc HATTr ≥120 mmHg hoặc có tổn thương cơ quan đích/bệnh tim mạch?",
+            "detail": "Nếu Có: Cơn tăng huyết áp. Nếu Không: tiếp tục kiểm tra huyết áp phòng khám lần 2."
           },
           "sourceRefs": [
             {
@@ -1322,28 +2004,24 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HA phòng khám lần 1 ≥180/120 và có tổn thương cơ quan đích/bệnh tim mạch?"
+              "note": "Huyết áp phòng khám lần 1 có mức rất cao hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
             }
           ],
           "logic": {
             "predicate": {
-              "all": [
+              "any": [
                 {
-                  "any": [
-                    {
-                      "field": "bp.office1.systolicMmHg",
-                      "op": "gte",
-                      "value": 180
-                    },
-                    {
-                      "field": "bp.office1.diastolicMmHg",
-                      "op": "gte",
-                      "value": 120
-                    }
-                  ]
+                  "field": "bp.office1.systolicMmHg",
+                  "op": "gte",
+                  "value": 180
                 },
                 {
-                  "field": "bp.office1.targetOrganDamageOrCvd",
+                  "field": "bp.office1.diastolicMmHg",
+                  "op": "gte",
+                  "value": 120
+                },
+                {
+                  "field": "comorbidity.targetOrganDamageOrCvd",
                   "op": "eq",
                   "value": true
                 }
@@ -1352,10 +2030,11 @@
           }
         },
         {
-          "id": "bp_infer_crisis",
+          "id": "bp_crisis_result",
           "type": "end",
           "display": {
-            "title": "Cơn tăng huyết áp"
+            "title": "Cơn tăng huyết áp",
+            "detail": "Chẩn đoán: cơn tăng huyết áp."
           },
           "sourceRefs": [
             {
@@ -1364,13 +2043,6 @@
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
               "note": "Cơn tăng huyết áp"
-            },
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "Cơn THA"
             }
           ],
           "data": {
@@ -1381,15 +2053,16 @@
             },
             "outcomeCode": "hypertensive_crisis_detected",
             "actions": [
-              "Đánh giá cấp cứu và tổn thương cơ quan đích ngay"
+              "Đánh giá ngay tình trạng cấp cứu và tổn thương cơ quan đích."
             ]
           }
         },
         {
-          "id": "bp_second_gate",
+          "id": "bp_second_screen",
           "type": "condition",
           "display": {
-            "title": "HA phòng khám lần 2 140-179/90-119 và có tổn thương cơ quan đích/bệnh tim mạch?"
+            "title": "HATT 140–179 mmHg hoặc HATTr 90–119 mmHg hoặc có tổn thương cơ quan đích/bệnh tim mạch?",
+            "detail": "Nếu Có: Tăng huyết áp. Nếu Không: tiếp tục phân loại bằng huyết áp phòng khám lần 3."
           },
           "sourceRefs": [
             {
@@ -1397,46 +2070,42 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HA phòng khám lần 2 140-179/90-119 và có tổn thương cơ quan đích/bệnh tim mạch?"
+              "note": "Huyết áp phòng khám lần 2 có thuộc khoảng 140–179/90–119 mmHg hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
             }
           ],
           "logic": {
             "predicate": {
-              "all": [
+              "any": [
                 {
-                  "any": [
+                  "all": [
                     {
-                      "all": [
-                        {
-                          "field": "bp.office2.systolicMmHg",
-                          "op": "gte",
-                          "value": 140
-                        },
-                        {
-                          "field": "bp.office2.systolicMmHg",
-                          "op": "lte",
-                          "value": 179
-                        }
-                      ]
+                      "field": "bp.office2.systolicMmHg",
+                      "op": "gte",
+                      "value": 140
                     },
                     {
-                      "all": [
-                        {
-                          "field": "bp.office2.diastolicMmHg",
-                          "op": "gte",
-                          "value": 90
-                        },
-                        {
-                          "field": "bp.office2.diastolicMmHg",
-                          "op": "lte",
-                          "value": 119
-                        }
-                      ]
+                      "field": "bp.office2.systolicMmHg",
+                      "op": "lte",
+                      "value": 179
                     }
                   ]
                 },
                 {
-                  "field": "bp.office2.targetOrganDamageOrCvd",
+                  "all": [
+                    {
+                      "field": "bp.office2.diastolicMmHg",
+                      "op": "gte",
+                      "value": 90
+                    },
+                    {
+                      "field": "bp.office2.diastolicMmHg",
+                      "op": "lte",
+                      "value": 119
+                    }
+                  ]
+                },
+                {
+                  "field": "comorbidity.targetOrganDamageOrCvd",
                   "op": "eq",
                   "value": true
                 }
@@ -1445,10 +2114,11 @@
           }
         },
         {
-          "id": "bp_infer_hypertension",
-          "type": "end",
+          "id": "bp_second_htn_result",
+          "type": "inference",
           "display": {
-            "title": "Tăng huyết áp"
+            "title": "Tăng huyết áp",
+            "detail": "Chẩn đoán: tăng huyết áp."
           },
           "sourceRefs": [
             {
@@ -1457,13 +2127,6 @@
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
               "note": "Tăng huyết áp"
-            },
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "THA"
             }
           ],
           "data": {
@@ -1472,17 +2135,15 @@
             "sets": {
               "bp.category": "hypertension"
             },
-            "outcomeCode": "hypertension_detected",
-            "actions": [
-              "Đánh giá nguy cơ và chỉ định điều trị"
-            ]
+            "outcomeCode": "hypertension_detected"
           }
         },
         {
-          "id": "bp_method_office",
+          "id": "bp_third_normal_screen",
           "type": "condition",
           "display": {
-            "title": "Dùng kết quả khám phòng khám lần 3?"
+            "title": "HATT <130 mmHg và HATTr <85 mmHg?",
+            "detail": "Nếu Có: Huyết áp bình thường. Nếu Không: kiểm tra mức bình thường-cao hoặc tăng huyết áp."
           },
           "sourceRefs": [
             {
@@ -1490,30 +2151,7 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "Dùng kết quả khám phòng khám lần 3?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "field": "bp.measurementMethod",
-              "op": "eq",
-              "value": "office_3rd"
-            }
-          }
-        },
-        {
-          "id": "bp_office3_normal",
-          "type": "condition",
-          "display": {
-            "title": "HATT <130 và HATTr <85?"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HATT <130 và HATTr <85?"
+              "note": "Huyết áp phòng khám lần 3 có dưới 130/85 mmHg?"
             }
           ],
           "logic": {
@@ -1534,10 +2172,11 @@
           }
         },
         {
-          "id": "bp_infer_normal",
-          "type": "end",
+          "id": "bp_normal_result",
+          "type": "inference",
           "display": {
-            "title": "HA bình thường"
+            "title": "Huyết áp bình thường",
+            "detail": "Chẩn đoán: huyết áp bình thường."
           },
           "sourceRefs": [
             {
@@ -1545,7 +2184,7 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HA bình thường"
+              "note": "Huyết áp bình thường"
             }
           ],
           "data": {
@@ -1558,10 +2197,11 @@
           }
         },
         {
-          "id": "bp_office3_high_normal",
+          "id": "bp_third_high_normal_screen",
           "type": "condition",
           "display": {
-            "title": "HATT 130-139 hoặc HATTr 85-89?"
+            "title": "HATT 130–139 mmHg hoặc HATTr 85–89 mmHg?",
+            "detail": "Chỉ xếp bình thường-cao khi chưa có HATT ≥140 mmHg và chưa có HATTr ≥90 mmHg."
           },
           "sourceRefs": [
             {
@@ -1569,49 +2209,64 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HATT 130-139 hoặc HATTr 85-89?"
+              "note": "Huyết áp phòng khám lần 3 thuộc mức bình thường-cao?"
             }
           ],
           "logic": {
             "predicate": {
-              "any": [
+              "all": [
                 {
-                  "all": [
+                  "any": [
                     {
-                      "field": "bp.office3.systolicMmHg",
-                      "op": "gte",
-                      "value": 130
+                      "all": [
+                        {
+                          "field": "bp.office3.systolicMmHg",
+                          "op": "gte",
+                          "value": 130
+                        },
+                        {
+                          "field": "bp.office3.systolicMmHg",
+                          "op": "lt",
+                          "value": 140
+                        }
+                      ]
                     },
                     {
-                      "field": "bp.office3.systolicMmHg",
-                      "op": "lt",
-                      "value": 140
+                      "all": [
+                        {
+                          "field": "bp.office3.diastolicMmHg",
+                          "op": "gte",
+                          "value": 85
+                        },
+                        {
+                          "field": "bp.office3.diastolicMmHg",
+                          "op": "lt",
+                          "value": 90
+                        }
+                      ]
                     }
                   ]
                 },
                 {
-                  "all": [
-                    {
-                      "field": "bp.office3.diastolicMmHg",
-                      "op": "gte",
-                      "value": 85
-                    },
-                    {
-                      "field": "bp.office3.diastolicMmHg",
-                      "op": "lt",
-                      "value": 90
-                    }
-                  ]
+                  "field": "bp.office3.systolicMmHg",
+                  "op": "lt",
+                  "value": 140
+                },
+                {
+                  "field": "bp.office3.diastolicMmHg",
+                  "op": "lt",
+                  "value": 90
                 }
               ]
             }
           }
         },
         {
-          "id": "bp_infer_high_normal",
-          "type": "end",
+          "id": "bp_high_normal_result",
+          "type": "inference",
           "display": {
-            "title": "HA bình thường-cao"
+            "title": "Huyết áp bình thường-cao",
+            "detail": "Chẩn đoán: huyết áp bình thường-cao."
           },
           "sourceRefs": [
             {
@@ -1619,7 +2274,7 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HA bình thường-cao"
+              "note": "Huyết áp bình thường-cao"
             }
           ],
           "data": {
@@ -1632,10 +2287,11 @@
           }
         },
         {
-          "id": "bp_infer_office3_htn",
-          "type": "end",
+          "id": "bp_third_htn_result",
+          "type": "inference",
           "display": {
-            "title": "Tăng huyết áp"
+            "title": "Tăng huyết áp",
+            "detail": "HATT ≥140 mmHg hoặc HATTr ≥90 mmHg."
           },
           "sourceRefs": [
             {
@@ -1644,13 +2300,6 @@
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
               "note": "Tăng huyết áp"
-            },
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "THA"
             }
           ],
           "data": {
@@ -1663,10 +2312,11 @@
           }
         },
         {
-          "id": "bp_method_home",
-          "type": "condition",
+          "id": "bp_link_risk_second_htn",
+          "type": "link",
           "display": {
-            "title": "Dùng kết quả HA tại nhà?"
+            "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
+            "detail": "Tiếp tục với kết quả tăng huyết áp từ Cây 1."
           },
           "sourceRefs": [
             {
@@ -1674,78 +2324,23 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "Dùng kết quả HA tại nhà?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "field": "bp.measurementMethod",
-              "op": "eq",
-              "value": "home"
-            }
-          }
-        },
-        {
-          "id": "bp_home_gate",
-          "type": "condition",
-          "display": {
-            "title": "HATT <135 và HATTr <85?"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HATT <135 và HATTr <85?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "all": [
-                {
-                  "field": "bp.home.systolicMmHg",
-                  "op": "lt",
-                  "value": 135
-                },
-                {
-                  "field": "bp.home.diastolicMmHg",
-                  "op": "lt",
-                  "value": 85
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "bp_infer_white_coat_home",
-          "type": "end",
-          "display": {
-            "title": "THA áo choàng trắng/HABT"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "THA áo choàng trắng/HABT"
+              "note": "Liên kết sang Cây 4 sau chẩn đoán tăng huyết áp."
             }
           ],
           "data": {
-            "resultCode": "white_coat_hypertension",
-            "severity": "medium",
-            "sets": {
-              "bp.category": "white_coat_hypertension"
-            },
-            "outcomeCode": "white_coat_hypertension"
+            "targetTreeId": "hypertension_risk_stratification",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
           }
         },
         {
-          "id": "bp_infer_masked_home",
-          "type": "end",
+          "id": "bp_link_risk_normal",
+          "type": "link",
           "display": {
-            "title": "THA/THA ẩn"
+            "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
+            "detail": "Tiếp tục với kết quả huyết áp bình thường từ Cây 1."
           },
           "sourceRefs": [
             {
@@ -1753,23 +2348,23 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "THA/THA ẩn"
+              "note": "Liên kết sang Cây 4 sau phân loại huyết áp bình thường."
             }
           ],
           "data": {
-            "resultCode": "masked_hypertension",
-            "severity": "high",
-            "sets": {
-              "bp.category": "masked_hypertension"
-            },
-            "outcomeCode": "masked_hypertension"
+            "targetTreeId": "hypertension_risk_stratification",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
           }
         },
         {
-          "id": "bp_method_abpm",
-          "type": "condition",
+          "id": "bp_link_risk_high_normal",
+          "type": "link",
           "display": {
-            "title": "Dùng HALT 24 giờ?"
+            "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
+            "detail": "Tiếp tục với kết quả huyết áp bình thường-cao từ Cây 1."
           },
           "sourceRefs": [
             {
@@ -1777,96 +2372,23 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "Dùng HALT 24 giờ?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "field": "bp.measurementMethod",
-              "op": "eq",
-              "value": "abpm_24h"
-            }
-          }
-        },
-        {
-          "id": "bp_abpm_gate",
-          "type": "condition",
-          "display": {
-            "title": "HA ban ngày <135/85 và/hoặc HA 24h <130/80?"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "HA ban ngày <135/85 và/hoặc HA 24h <130/80?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "any": [
-                {
-                  "all": [
-                    {
-                      "field": "bp.abpm.daytime.systolicMmHg",
-                      "op": "lt",
-                      "value": 135
-                    },
-                    {
-                      "field": "bp.abpm.daytime.diastolicMmHg",
-                      "op": "lt",
-                      "value": 85
-                    }
-                  ]
-                },
-                {
-                  "all": [
-                    {
-                      "field": "bp.abpm.average24h.systolicMmHg",
-                      "op": "lt",
-                      "value": 130
-                    },
-                    {
-                      "field": "bp.abpm.average24h.diastolicMmHg",
-                      "op": "lt",
-                      "value": 80
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        },
-        {
-          "id": "bp_infer_white_coat_abpm",
-          "type": "end",
-          "display": {
-            "title": "THA áo choàng trắng/HABT"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "THA áo choàng trắng/HABT"
+              "note": "Liên kết sang Cây 4 sau phân loại huyết áp bình thường-cao."
             }
           ],
           "data": {
-            "resultCode": "white_coat_hypertension",
-            "severity": "medium",
-            "sets": {
-              "bp.category": "white_coat_hypertension"
-            },
-            "outcomeCode": "white_coat_hypertension"
+            "targetTreeId": "hypertension_risk_stratification",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
           }
         },
         {
-          "id": "bp_infer_masked_abpm",
-          "type": "end",
+          "id": "bp_link_risk_third_htn",
+          "type": "link",
           "display": {
-            "title": "THA/THA ẩn"
+            "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
+            "detail": "Tiếp tục với kết quả tăng huyết áp từ Cây 1."
           },
           "sourceRefs": [
             {
@@ -1874,152 +2396,91 @@
               "page": 1,
               "section": "Sơ đồ chẩn đoán tăng huyết áp",
               "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "THA/THA ẩn"
+              "note": "Liên kết sang Cây 4 sau chẩn đoán tăng huyết áp."
             }
           ],
           "data": {
-            "resultCode": "masked_hypertension",
-            "severity": "high",
-            "sets": {
-              "bp.category": "masked_hypertension"
-            },
-            "outcomeCode": "masked_hypertension"
-          }
-        },
-        {
-          "id": "bp_end_review",
-          "type": "end",
-          "display": {
-            "title": "Cần rà soát dữ liệu đo"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_01_bp_diagnosis",
-              "page": 1,
-              "section": "Sơ đồ chẩn đoán tăng huyết áp",
-              "tableOrFigure": "01_bp_diagnosis.png",
-              "note": "Cần rà soát dữ liệu đo"
-            }
-          ],
-          "data": {
-            "resultCode": "bp_diagnosis_review_required",
-            "outcomeCode": "bp_diagnosis_review_required"
+            "targetTreeId": "hypertension_risk_stratification",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
           }
         }
       ],
       "edges": [
         {
           "from": "bp_start",
-          "to": "bp_crisis_gate",
+          "to": "bp_first_screen",
           "when": "default"
         },
         {
-          "from": "bp_crisis_gate",
-          "to": "bp_infer_crisis",
+          "from": "bp_first_screen",
+          "to": "bp_crisis_result",
           "when": "true",
           "label": "Có"
         },
         {
-          "from": "bp_crisis_gate",
-          "to": "bp_second_gate",
+          "from": "bp_first_screen",
+          "to": "bp_second_screen",
           "when": "false",
           "label": "Không"
         },
         {
-          "from": "bp_second_gate",
-          "to": "bp_infer_hypertension",
+          "from": "bp_second_screen",
+          "to": "bp_second_htn_result",
           "when": "true",
           "label": "Có"
         },
         {
-          "from": "bp_second_gate",
-          "to": "bp_method_office",
+          "from": "bp_second_htn_result",
+          "to": "bp_link_risk_second_htn",
+          "when": "default"
+        },
+        {
+          "from": "bp_second_screen",
+          "to": "bp_third_normal_screen",
           "when": "false",
           "label": "Không"
         },
         {
-          "from": "bp_method_office",
-          "to": "bp_office3_normal",
+          "from": "bp_third_normal_screen",
+          "to": "bp_normal_result",
           "when": "true",
-          "label": "HAPK lần 3"
+          "label": "<130/85 mmHg"
         },
         {
-          "from": "bp_method_office",
-          "to": "bp_method_home",
+          "from": "bp_normal_result",
+          "to": "bp_link_risk_normal",
+          "when": "default"
+        },
+        {
+          "from": "bp_third_normal_screen",
+          "to": "bp_third_high_normal_screen",
           "when": "false",
-          "label": "Không"
+          "label": "≥130/85 mmHg"
         },
         {
-          "from": "bp_office3_normal",
-          "to": "bp_infer_normal",
+          "from": "bp_third_high_normal_screen",
+          "to": "bp_high_normal_result",
           "when": "true",
-          "label": "<130/85"
+          "label": "HATT 130–139 hoặc HATTr 85–89 mmHg"
         },
         {
-          "from": "bp_office3_normal",
-          "to": "bp_office3_high_normal",
+          "from": "bp_high_normal_result",
+          "to": "bp_link_risk_high_normal",
+          "when": "default"
+        },
+        {
+          "from": "bp_third_high_normal_screen",
+          "to": "bp_third_htn_result",
           "when": "false",
-          "label": "Không"
+          "label": "HATT ≥140 hoặc HATTr ≥90 mmHg"
         },
         {
-          "from": "bp_office3_high_normal",
-          "to": "bp_infer_high_normal",
-          "when": "true",
-          "label": "130-139/85-89"
-        },
-        {
-          "from": "bp_office3_high_normal",
-          "to": "bp_infer_office3_htn",
-          "when": "false",
-          "label": "≥140/90"
-        },
-        {
-          "from": "bp_method_home",
-          "to": "bp_home_gate",
-          "when": "true",
-          "label": "HATN"
-        },
-        {
-          "from": "bp_method_home",
-          "to": "bp_method_abpm",
-          "when": "false",
-          "label": "Không"
-        },
-        {
-          "from": "bp_home_gate",
-          "to": "bp_infer_white_coat_home",
-          "when": "true",
-          "label": "<135/85"
-        },
-        {
-          "from": "bp_home_gate",
-          "to": "bp_infer_masked_home",
-          "when": "false",
-          "label": "≥135/85"
-        },
-        {
-          "from": "bp_method_abpm",
-          "to": "bp_abpm_gate",
-          "when": "true",
-          "label": "HALT 24h"
-        },
-        {
-          "from": "bp_method_abpm",
-          "to": "bp_end_review",
-          "when": "false",
-          "label": "Chưa chọn phương pháp"
-        },
-        {
-          "from": "bp_abpm_gate",
-          "to": "bp_infer_white_coat_abpm",
-          "when": "true",
-          "label": "Đạt ngưỡng thấp"
-        },
-        {
-          "from": "bp_abpm_gate",
-          "to": "bp_infer_masked_abpm",
-          "when": "false",
-          "label": "Không đạt"
+          "from": "bp_third_htn_result",
+          "to": "bp_link_risk_third_htn",
+          "when": "default"
         }
       ],
       "sourceRefs": [
@@ -2028,23 +2489,27 @@
           "page": 1,
           "section": "Sơ đồ chẩn đoán tăng huyết áp",
           "tableOrFigure": "01_bp_diagnosis.png",
-          "note": "Chẩn đoán tăng huyết áp bằng đo phòng khám, HATN và HALT."
+          "note": "Cây 1 chỉ giữ các nhánh đo huyết áp phòng khám lần 1, lần 2 và lần 3 theo bản phác thảo."
         }
       ],
       "notes": [
-        "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+        "Các điều kiện và nhãn nhánh được viết trực tiếp bằng ngưỡng huyết áp để khớp bản phác thảo.",
+        "Mã biến chỉ nằm trong logic JSON; nội dung hiển thị dành cho người dùng.",
+        "Cần clinical review trước khi phê duyệt."
       ]
     },
     {
       "id": "bp_thresholds_targets",
-      "name": "BP Thresholds and Targets Tree",
-      "purpose": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng.",
+      "name": "Cây ngưỡng huyết áp và đích điều trị",
+      "purpose": "Xác định thay đổi lối sống ở lần khám đầu tiên và đích điều trị sau tái khám theo chẩn đoán từ Cây 1, nguy cơ và bệnh đồng mắc.",
       "clinicalStatus": "under_review",
       "entryNodeId": "threshold_start",
       "inputVariables": [
         "bp.category",
         "risk.class",
-        "treatment.hasHighRiskComorbidity"
+        "treatment.hasHighRiskComorbidity",
+        "encounter.number",
+        "patient.diagnosisCodes"
       ],
       "outputVariables": [
         "treatment.recommendation",
@@ -2053,14 +2518,16 @@
         "treatment.targetProfile",
         "treatment.controlWindowMonths"
       ],
-      "linksTo": [],
+      "linksTo": [
+        "optimized_hypertension_treatment"
+      ],
       "nodes": [
         {
           "id": "threshold_start",
           "type": "start",
           "display": {
-            "title": "Ngưỡng HA và đích điều trị",
-            "detail": "Phân biệt HA bình thường-cao và THA ở người lớn."
+            "title": "Bắt đầu xác định ngưỡng và đích điều trị",
+            "detail": "Nhận kết quả phân loại huyết áp từ Cây 1."
           },
           "sourceRefs": [
             {
@@ -2068,7 +2535,7 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Ngưỡng HA và đích điều trị"
+              "note": "Bắt đầu xác định ngưỡng và đích điều trị"
             }
           ]
         },
@@ -2076,7 +2543,8 @@
           "id": "threshold_high_normal",
           "type": "condition",
           "display": {
-            "title": "HA bình thường-cao 130-139/85-89?"
+            "title": "Người bệnh có huyết áp bình thường-cao?",
+            "detail": "Huyết áp bình thường-cao: HATT 130–139 mmHg hoặc HATTr 85–89 mmHg."
           },
           "sourceRefs": [
             {
@@ -2084,7 +2552,7 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "HA bình thường-cao 130-139/85-89?"
+              "note": "Người bệnh có huyết áp bình thường-cao?"
             }
           ],
           "logic": {
@@ -2096,10 +2564,11 @@
           }
         },
         {
-          "id": "threshold_high_normal_risk",
+          "id": "threshold_high_normal_encounter",
           "type": "condition",
           "display": {
-            "title": "Nguy cơ cao?"
+            "title": "Đây có phải lần khám đầu tiên không?",
+            "detail": "Encounter = 1: thay đổi lối sống và hẹn khám lại. Encounter >1: đánh giá đích điều trị."
           },
           "sourceRefs": [
             {
@@ -2107,22 +2576,23 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Nguy cơ cao?"
+              "note": "Đây có phải lần khám đầu tiên không?"
             }
           ],
           "logic": {
             "predicate": {
-              "field": "risk.class",
+              "field": "encounter.number",
               "op": "eq",
-              "value": "high"
+              "value": 1
             }
           }
         },
         {
-          "id": "threshold_high_normal_comorbidity",
-          "type": "condition",
+          "id": "threshold_high_normal_lifestyle",
+          "type": "inference",
           "display": {
-            "title": "Có bệnh đồng mắc?"
+            "title": "Thay đổi lối sống và hẹn khám lại",
+            "detail": "Lần khám đầu tiên với huyết áp bình thường-cao; chưa xác định đích điều trị."
           },
           "sourceRefs": [
             {
@@ -2130,42 +2600,38 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Có bệnh đồng mắc?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "field": "treatment.hasHighRiskComorbidity",
-              "op": "eq",
-              "value": true
-            }
-          }
-        },
-        {
-          "id": "threshold_infer_high_risk",
-          "type": "end",
-          "display": {
-            "title": "Đích HA ở bệnh nhân nguy cơ cao",
-            "detail": "Đích HATT/HATTr <130/80 mmHg."
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Đích HA ở bệnh nhân nguy cơ cao"
-            },
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị nguy cơ cao"
+              "note": "Thay đổi lối sống và hẹn khám lại"
             }
           ],
           "data": {
-            "resultCode": "high_normal_high_risk_treatment",
+            "resultCode": "high_normal_lifestyle_recheck",
+            "outcomeCode": "high_normal_lifestyle_recheck",
+            "severity": "low",
+            "sets": {
+              "treatment.recommendation": "lifestyle_first",
+              "treatment.controlWindowMonths": "3-6"
+            }
+          }
+        },
+        {
+          "id": "threshold_high_normal_target",
+          "type": "inference",
+          "display": {
+            "title": "Đích điều trị sau tái khám: <130/80 mmHg",
+            "detail": "Huyết áp bình thường-cao vẫn còn ở lần khám lại; xác định đích HATT <130 mmHg và HATTr <80 mmHg."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Đích điều trị sau tái khám: <130/80 mmHg"
+            }
+          ],
+          "data": {
+            "resultCode": "high_normal_followup_target",
+            "outcomeCode": "high_normal_followup_target",
             "severity": "high",
             "sets": {
               "treatment.recommendation": "medication_now_high_risk",
@@ -2173,87 +2639,15 @@
               "treatment.targetDiastolicMmHg": 80,
               "treatment.targetProfile": "high_risk",
               "treatment.controlWindowMonths": "3-6"
-            },
-            "outcomeCode": "high_normal_high_risk_treatment_started"
-          }
-        },
-        {
-          "id": "threshold_infer_comorbidity",
-          "type": "end",
-          "display": {
-            "title": "Đích HA ở bệnh nhân có bệnh đồng mắc",
-            "detail": "Đích HATT/HATTr <130/80 mmHg."
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Đích HA ở bệnh nhân có bệnh đồng mắc"
-            },
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị khi có bệnh đồng mắc"
             }
-          ],
-          "data": {
-            "resultCode": "high_normal_comorbidity",
-            "severity": "high",
-            "sets": {
-              "treatment.recommendation": "medication_now_high_risk",
-              "treatment.targetSystolicMmHg": 130,
-              "treatment.targetDiastolicMmHg": 80,
-              "treatment.targetProfile": "comorbidity",
-              "treatment.controlWindowMonths": "3-6"
-            },
-            "outcomeCode": "high_normal_comorbidity_treatment_started"
-          }
-        },
-        {
-          "id": "threshold_infer_lifestyle",
-          "type": "end",
-          "display": {
-            "title": "Đích HA khi không có bệnh đồng mắc",
-            "detail": "Đích HATT/HATTr <140/80 mmHg."
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Đích HA khi không có bệnh đồng mắc"
-            },
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Theo dõi sau thay đổi lối sống"
-            }
-          ],
-          "data": {
-            "resultCode": "high_normal_lifestyle",
-            "severity": "low",
-            "sets": {
-              "treatment.recommendation": "lifestyle_first",
-              "treatment.targetSystolicMmHg": 140,
-              "treatment.targetDiastolicMmHg": 80,
-              "treatment.targetProfile": "no_comorbidity",
-              "treatment.controlWindowMonths": "3-6"
-            },
-            "outcomeCode": "high_normal_lifestyle_followup"
           }
         },
         {
           "id": "threshold_hypertension",
           "type": "condition",
           "display": {
-            "title": "THA HATT ≥140 và/hoặc HATTr ≥90?"
+            "title": "Người bệnh có tăng huyết áp?",
+            "detail": "Tăng huyết áp: HATT ≥140 mmHg hoặc HATTr ≥90 mmHg theo kết quả Cây 1."
           },
           "sourceRefs": [
             {
@@ -2261,7 +2655,7 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "THA HATT ≥140 và/hoặc HATTr ≥90?"
+              "note": "Người bệnh có tăng huyết áp?"
             }
           ],
           "logic": {
@@ -2277,10 +2671,11 @@
           }
         },
         {
-          "id": "threshold_htn_risk",
+          "id": "threshold_hypertension_encounter",
           "type": "condition",
           "display": {
-            "title": "Nguy cơ cao?"
+            "title": "Đây có phải lần khám đầu tiên không?",
+            "detail": "Encounter = 1: thay đổi lối sống và hẹn khám lại. Encounter >1: kiểm tra nguy cơ và bệnh đồng mắc để xác định đích."
           },
           "sourceRefs": [
             {
@@ -2288,7 +2683,56 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Nguy cơ cao?"
+              "note": "Đây có phải lần khám đầu tiên không?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "encounter.number",
+              "op": "eq",
+              "value": 1
+            }
+          }
+        },
+        {
+          "id": "threshold_hypertension_lifestyle",
+          "type": "inference",
+          "display": {
+            "title": "Thay đổi lối sống và hẹn khám lại",
+            "detail": "Lần khám đầu tiên với tăng huyết áp theo phác thảo."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Thay đổi lối sống và hẹn khám lại"
+            }
+          ],
+          "data": {
+            "resultCode": "hypertension_lifestyle_recheck",
+            "outcomeCode": "hypertension_lifestyle_recheck",
+            "severity": "low",
+            "sets": {
+              "treatment.recommendation": "lifestyle_first"
+            }
+          }
+        },
+        {
+          "id": "threshold_high_risk",
+          "type": "condition",
+          "display": {
+            "title": "Người bệnh có nguy cơ cao?",
+            "detail": "Kết quả phân tầng nguy cơ từ Cây 4 là nguy cơ cao."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Người bệnh có nguy cơ cao?"
             }
           ],
           "logic": {
@@ -2300,10 +2744,11 @@
           }
         },
         {
-          "id": "threshold_htn_comorbidity",
+          "id": "threshold_comorbidity",
           "type": "condition",
           "display": {
-            "title": "Có bệnh đồng mắc?"
+            "title": "Người bệnh có bệnh đồng mắc?",
+            "detail": "Bệnh đồng mắc gồm bệnh tim mạch do xơ vữa, đái tháo đường, bệnh thận mạn hoặc bệnh đồng mắc nguy cơ cao."
           },
           "sourceRefs": [
             {
@@ -2311,7 +2756,7 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Có bệnh đồng mắc?"
+              "note": "Người bệnh có bệnh đồng mắc?"
             }
           ],
           "logic": {
@@ -2323,11 +2768,11 @@
           }
         },
         {
-          "id": "threshold_infer_htn_high",
-          "type": "end",
+          "id": "threshold_high_risk_target",
+          "type": "inference",
           "display": {
-            "title": "Đích HA ở bệnh nhân nguy cơ cao",
-            "detail": "Đích HATT/HATTr <130/80 mmHg."
+            "title": "Đích điều trị ở người bệnh nguy cơ cao: <130/80 mmHg",
+            "detail": "Điều trị thuốc và kiểm soát HATT <130 mmHg, HATTr <80 mmHg."
           },
           "sourceRefs": [
             {
@@ -2335,18 +2780,12 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Đích HA ở bệnh nhân nguy cơ cao"
-            },
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị THA nguy cơ cao"
+              "note": "Đích điều trị ở người bệnh nguy cơ cao: <130/80 mmHg"
             }
           ],
           "data": {
             "resultCode": "hypertension_high_risk_medication",
+            "outcomeCode": "hypertension_high_risk_treatment_started",
             "severity": "high",
             "sets": {
               "treatment.recommendation": "medication_now_high_risk",
@@ -2354,16 +2793,15 @@
               "treatment.targetDiastolicMmHg": 80,
               "treatment.targetProfile": "high_risk",
               "treatment.controlWindowMonths": "1-3"
-            },
-            "outcomeCode": "hypertension_high_risk_treatment_started"
+            }
           }
         },
         {
-          "id": "threshold_infer_htn_comorbidity",
-          "type": "end",
+          "id": "threshold_comorbidity_target",
+          "type": "inference",
           "display": {
-            "title": "Đích HA ở bệnh nhân có bệnh đồng mắc",
-            "detail": "Đích HATT/HATTr <130/80 mmHg."
+            "title": "Đích điều trị khi có bệnh đồng mắc: <130/80 mmHg",
+            "detail": "Điều trị thuốc và kiểm soát HATT <130 mmHg, HATTr <80 mmHg."
           },
           "sourceRefs": [
             {
@@ -2371,18 +2809,12 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Đích HA ở bệnh nhân có bệnh đồng mắc"
-            },
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị THA khi có bệnh đồng mắc"
+              "note": "Đích điều trị khi có bệnh đồng mắc: <130/80 mmHg"
             }
           ],
           "data": {
             "resultCode": "hypertension_comorbidity_medication",
+            "outcomeCode": "hypertension_comorbidity_treatment_started",
             "severity": "high",
             "sets": {
               "treatment.recommendation": "medication_now_high_risk",
@@ -2390,16 +2822,15 @@
               "treatment.targetDiastolicMmHg": 80,
               "treatment.targetProfile": "comorbidity",
               "treatment.controlWindowMonths": "1-3"
-            },
-            "outcomeCode": "hypertension_comorbidity_treatment_started"
+            }
           }
         },
         {
-          "id": "threshold_infer_htn_standard",
-          "type": "end",
+          "id": "threshold_standard_target",
+          "type": "inference",
           "display": {
-            "title": "Đích HA khi không có bệnh đồng mắc",
-            "detail": "Đích HATT/HATTr <140/80 mmHg."
+            "title": "Đích điều trị khi không có bệnh đồng mắc: <140/80 mmHg",
+            "detail": "Điều trị thuốc và kiểm soát HATT <140 mmHg, HATTr <80 mmHg."
           },
           "sourceRefs": [
             {
@@ -2407,18 +2838,12 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Đích HA khi không có bệnh đồng mắc"
-            },
-            {
-              "sourceId": "image_02_bp_thresholds_targets",
-              "page": 1,
-              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-              "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Điều trị THA"
+              "note": "Đích điều trị khi không có bệnh đồng mắc: <140/80 mmHg"
             }
           ],
           "data": {
             "resultCode": "hypertension_medication_start",
+            "outcomeCode": "hypertension_treatment_started",
             "severity": "high",
             "sets": {
               "treatment.recommendation": "medication_now",
@@ -2426,15 +2851,15 @@
               "treatment.targetDiastolicMmHg": 80,
               "treatment.targetProfile": "no_comorbidity",
               "treatment.controlWindowMonths": "3-6"
-            },
-            "outcomeCode": "hypertension_treatment_started"
+            }
           }
         },
         {
-          "id": "threshold_end_review",
-          "type": "end",
+          "id": "threshold_link_treatment_high_normal_lifestyle",
+          "type": "link",
           "display": {
-            "title": "Cần rà soát phân loại HA"
+            "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
+            "detail": "Tiếp tục với khuyến nghị thay đổi lối sống và hẹn khám lại."
           },
           "sourceRefs": [
             {
@@ -2442,12 +2867,159 @@
               "page": 1,
               "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
               "tableOrFigure": "02_bp_thresholds_and_targets.png",
-              "note": "Cần rà soát phân loại HA"
+              "note": "Liên kết sang Cây 3 sau khi xác định khuyến nghị."
+            }
+          ],
+          "data": {
+            "targetTreeId": "optimized_hypertension_treatment",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "threshold_link_treatment_high_normal_target",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
+            "detail": "Tiếp tục với đích điều trị <130/80 mmHg."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Liên kết sang Cây 3 sau khi xác định đích điều trị."
+            }
+          ],
+          "data": {
+            "targetTreeId": "optimized_hypertension_treatment",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "threshold_link_treatment_hypertension_lifestyle",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
+            "detail": "Tiếp tục với khuyến nghị thay đổi lối sống và hẹn khám lại."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Liên kết sang Cây 3 sau khi xác định khuyến nghị."
+            }
+          ],
+          "data": {
+            "targetTreeId": "optimized_hypertension_treatment",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "threshold_link_treatment_high_risk",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
+            "detail": "Tiếp tục với đích điều trị <130/80 mmHg ở người bệnh nguy cơ cao."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Liên kết sang Cây 3 sau khi xác định đích điều trị."
+            }
+          ],
+          "data": {
+            "targetTreeId": "optimized_hypertension_treatment",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "threshold_link_treatment_comorbidity",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
+            "detail": "Tiếp tục với đích điều trị <130/80 mmHg khi có bệnh đồng mắc."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Liên kết sang Cây 3 sau khi xác định đích điều trị."
+            }
+          ],
+          "data": {
+            "targetTreeId": "optimized_hypertension_treatment",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "threshold_link_treatment_standard",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
+            "detail": "Tiếp tục với đích điều trị <140/80 mmHg khi không có bệnh đồng mắc."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Liên kết sang Cây 3 sau khi xác định đích điều trị."
+            }
+          ],
+          "data": {
+            "targetTreeId": "optimized_hypertension_treatment",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "threshold_review",
+          "type": "end",
+          "display": {
+            "title": "Chưa đủ dữ liệu xác định ngưỡng điều trị",
+            "detail": "Cần có kết quả Cây 1 thuộc nhóm huyết áp bình thường-cao hoặc tăng huyết áp."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_02_bp_thresholds_targets",
+              "page": 1,
+              "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+              "tableOrFigure": "02_bp_thresholds_and_targets.png",
+              "note": "Chưa đủ dữ liệu xác định ngưỡng điều trị"
             }
           ],
           "data": {
             "resultCode": "threshold_review_required",
-            "outcomeCode": "threshold_review_required"
+            "outcomeCode": "threshold_review_required",
+            "sets": {
+              "treatment.recommendation": "review_required"
+            }
           }
         }
       ],
@@ -2459,75 +3031,105 @@
         },
         {
           "from": "threshold_high_normal",
-          "to": "threshold_high_normal_risk",
+          "to": "threshold_high_normal_encounter",
           "when": "true",
-          "label": "Có"
+          "label": "Huyết áp bình thường-cao"
         },
         {
           "from": "threshold_high_normal",
           "to": "threshold_hypertension",
           "when": "false",
-          "label": "Không"
+          "label": "Không phải bình thường-cao"
         },
         {
-          "from": "threshold_high_normal_risk",
-          "to": "threshold_infer_high_risk",
+          "from": "threshold_high_normal_encounter",
+          "to": "threshold_high_normal_lifestyle",
           "when": "true",
-          "label": "Có"
+          "label": "Lần khám 1"
         },
         {
-          "from": "threshold_high_normal_risk",
-          "to": "threshold_high_normal_comorbidity",
+          "from": "threshold_high_normal_lifestyle",
+          "to": "threshold_link_treatment_high_normal_lifestyle",
+          "when": "default"
+        },
+        {
+          "from": "threshold_high_normal_encounter",
+          "to": "threshold_high_normal_target",
           "when": "false",
-          "label": "Không"
+          "label": "Tái khám >1"
         },
         {
-          "from": "threshold_high_normal_comorbidity",
-          "to": "threshold_infer_comorbidity",
-          "when": "true",
-          "label": "Có"
-        },
-        {
-          "from": "threshold_high_normal_comorbidity",
-          "to": "threshold_infer_lifestyle",
-          "when": "false",
-          "label": "Không"
+          "from": "threshold_high_normal_target",
+          "to": "threshold_link_treatment_high_normal_target",
+          "when": "default"
         },
         {
           "from": "threshold_hypertension",
-          "to": "threshold_htn_risk",
+          "to": "threshold_hypertension_encounter",
           "when": "true",
-          "label": "Có"
+          "label": "Tăng huyết áp"
         },
         {
           "from": "threshold_hypertension",
-          "to": "threshold_end_review",
+          "to": "threshold_review",
           "when": "false",
-          "label": "Không"
+          "label": "Không thuộc nhóm áp dụng"
         },
         {
-          "from": "threshold_htn_risk",
-          "to": "threshold_infer_htn_high",
+          "from": "threshold_hypertension_encounter",
+          "to": "threshold_hypertension_lifestyle",
           "when": "true",
-          "label": "Có"
+          "label": "Lần khám 1"
         },
         {
-          "from": "threshold_htn_risk",
-          "to": "threshold_htn_comorbidity",
+          "from": "threshold_hypertension_lifestyle",
+          "to": "threshold_link_treatment_hypertension_lifestyle",
+          "when": "default"
+        },
+        {
+          "from": "threshold_hypertension_encounter",
+          "to": "threshold_high_risk",
           "when": "false",
-          "label": "Không"
+          "label": "Tái khám >1"
         },
         {
-          "from": "threshold_htn_comorbidity",
-          "to": "threshold_infer_htn_comorbidity",
+          "from": "threshold_high_risk",
+          "to": "threshold_high_risk_target",
           "when": "true",
-          "label": "Có"
+          "label": "Nguy cơ cao"
         },
         {
-          "from": "threshold_htn_comorbidity",
-          "to": "threshold_infer_htn_standard",
+          "from": "threshold_high_risk_target",
+          "to": "threshold_link_treatment_high_risk",
+          "when": "default"
+        },
+        {
+          "from": "threshold_high_risk",
+          "to": "threshold_comorbidity",
           "when": "false",
-          "label": "Không"
+          "label": "Không nguy cơ cao"
+        },
+        {
+          "from": "threshold_comorbidity",
+          "to": "threshold_comorbidity_target",
+          "when": "true",
+          "label": "Có bệnh đồng mắc"
+        },
+        {
+          "from": "threshold_comorbidity_target",
+          "to": "threshold_link_treatment_comorbidity",
+          "when": "default"
+        },
+        {
+          "from": "threshold_comorbidity",
+          "to": "threshold_standard_target",
+          "when": "false",
+          "label": "Không có bệnh đồng mắc"
+        },
+        {
+          "from": "threshold_standard_target",
+          "to": "threshold_link_treatment_standard",
+          "when": "default"
         }
       ],
       "sourceRefs": [
@@ -2536,35 +3138,74 @@
           "page": 1,
           "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
           "tableOrFigure": "02_bp_thresholds_and_targets.png",
-          "note": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng."
+          "note": "Cây 2 liên kết chẩn đoán từ Cây 1 với encounter, nguy cơ và bệnh đồng mắc để chọn thay đổi lối sống hoặc đích điều trị."
         }
       ],
       "notes": [
-        "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+        "Encounter = 1: thay đổi lối sống và hẹn khám lại.",
+        "Encounter >1: nếu vẫn còn huyết áp bình thường-cao thì xác định đích <130/80 mmHg.",
+        "Với tăng huyết áp tái khám: nguy cơ cao hoặc bệnh đồng mắc dùng đích <130/80 mmHg; không có bệnh đồng mắc dùng đích <140/80 mmHg.",
+        "Cần clinical review trước khi phê duyệt."
       ]
     },
     {
       "id": "optimized_hypertension_treatment",
-      "name": "Optimized Hypertension Treatment Tree",
-      "purpose": "Điều trị tăng huyết áp theo lần khám, số nhóm thuốc được kê ở encounter n-1 và tình trạng kiểm soát HA theo đích từ Cây 2.",
+      "name": "Cây điều trị tăng huyết áp tối ưu",
+      "purpose": "Chọn nhánh thay đổi lối sống, khởi trị, phối hợp thuốc hoặc chuyển Cây 5 theo bệnh nhân mới/tái khám, bệnh nền, số nhóm thuốc và kiểm soát HA so với đích Cây 2.",
       "clinicalStatus": "under_review",
       "entryNodeId": "optimized_start",
+      "entryPreconditions": {
+        "all": [
+          {
+            "field": "patient.ageYears",
+            "op": "gt",
+            "value": 18
+          },
+          {
+            "field": "bp.category",
+            "op": "in",
+            "value": [
+              "high_normal",
+              "hypertension",
+              "grade1",
+              "grade2",
+              "masked_hypertension"
+            ]
+          }
+        ]
+      },
       "inputVariables": [
         "patient.ageYears",
-        "encounter.number",
         "bp.category",
+        "treatment.recommendation",
+        "risk.class",
+        "treatment.hasHighRiskComorbidity",
         "treatment.mandatoryIndication",
+        "comorbidity.heartFailureReducedEjectionFraction",
+        "comorbidity.atheroscleroticCvd",
+        "comorbidity.stroke",
+        "comorbidity.ckd",
+        "comorbidity.type2Diabetes",
+        "encounter.number",
+        "bp.latest.systolicMmHg",
+        "bp.latest.diastolicMmHg",
         "treatment.targetSystolicMmHg",
         "treatment.targetDiastolicMmHg",
-        "treatment.targetProfile",
+        "medication.previousEncounterDrugNames",
+        "medication.previousEncounterDrugClassList",
+        "medication.previousEncounterDrugClassCodes",
         "medication.previousEncounterAgentCount",
         "medication.previousEncounterIncludesDiuretic",
         "bp.controlledAfterTwoDrugs",
         "bp.controlledAfterThreeDrugs",
-        "bp.controlledAfterFourDrugs"
+        "bp.controlledAfterFourDrugs",
+        "medication.previousEncounterHasUnmappedDrug"
       ],
       "outputVariables": [
-        "treatment.path"
+        "treatment.path",
+        "treatment.initialRegimen",
+        "treatment.mandatoryDisease",
+        "treatment.mandatoryRegimen"
       ],
       "linksTo": [
         "uncontrolled_resistant_hypertension"
@@ -2588,49 +3229,11 @@
           ]
         },
         {
-          "id": "optimized_entry_gate",
-          "type": "condition",
-          "display": {
-            "title": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
-          },
-          "sourceRefs": [
-            {
-              "sourceId": "image_03_optimized_treatment",
-              "page": 1,
-              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-              "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
-            }
-          ],
-          "logic": {
-            "predicate": {
-              "all": [
-                {
-                  "field": "patient.ageYears",
-                  "op": "gt",
-                  "value": 18
-                },
-                {
-                  "field": "bp.category",
-                  "op": "in",
-                  "value": [
-                    "high_normal",
-                    "hypertension",
-                    "grade1",
-                    "grade2",
-                    "masked_hypertension"
-                  ]
-                }
-              ]
-            }
-          }
-        },
-        {
           "id": "optimized_encounter_type",
           "type": "condition",
           "display": {
-            "title": "Đây là bệnh nhân mới (lần khám số 1)?",
-            "detail": "Lần khám = 1: không kiểm tra lại số lượng thuốc."
+            "title": "Đây có phải buổi tái khám theo dõi thuốc không?",
+            "detail": "Lần khám >1: kiểm tra phác đồ ở encounter trước; lần khám 1: chọn phương pháp điều trị ban đầu."
           },
           "sourceRefs": [
             {
@@ -2638,13 +3241,13 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Đây là bệnh nhân mới (lần khám số 1)?"
+              "note": "Phân biệt buổi tái khám theo dõi thuốc với cuộc gặp ban đầu."
             }
           ],
           "logic": {
             "predicate": {
               "field": "encounter.number",
-              "op": "eq",
+              "op": "gt",
               "value": 1
             }
           }
@@ -2673,10 +3276,11 @@
           }
         },
         {
-          "id": "optimized_infer_new_mandatory",
-          "type": "end",
+          "id": "optimized_mandatory_branch",
+          "type": "branch",
           "display": {
-            "title": "Bệnh nhân mới — điều trị theo bệnh đồng mắc"
+            "title": "Bệnh nền thuộc chỉ định điều trị bắt buộc",
+            "detail": "Năm nhánh bệnh nền độc lập; chọn đúng nhánh phù hợp từ hồ sơ bệnh nhân."
           },
           "sourceRefs": [
             {
@@ -2684,31 +3288,205 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Bệnh nhân mới — điều trị theo bệnh đồng mắc"
-            },
+              "note": "Nhánh chỉ định bắt buộc tách thành 5 bệnh nền."
+            }
+          ],
+          "logic": {
+            "cases": [
+              {
+                "id": "coronary_artery_disease",
+                "label": "Bệnh mạch vành/xơ vữa",
+                "predicate": {
+                  "field": "comorbidity.atheroscleroticCvd",
+                  "op": "eq",
+                  "value": true
+                }
+              },
+              {
+                "id": "heart_failure_reduced_ef",
+                "label": "Suy tim EF giảm",
+                "predicate": {
+                  "field": "comorbidity.heartFailureReducedEjectionFraction",
+                  "op": "eq",
+                  "value": true
+                }
+              },
+              {
+                "id": "stroke",
+                "label": "Tiền sử đột quỵ",
+                "predicate": {
+                  "field": "comorbidity.stroke",
+                  "op": "eq",
+                  "value": true
+                }
+              },
+              {
+                "id": "chronic_kidney_disease",
+                "label": "Bệnh thận mạn",
+                "predicate": {
+                  "field": "comorbidity.ckd",
+                  "op": "eq",
+                  "value": true
+                }
+              },
+              {
+                "id": "type2_diabetes",
+                "label": "Đái tháo đường type 2",
+                "predicate": {
+                  "field": "comorbidity.type2Diabetes",
+                  "op": "eq",
+                  "value": true
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "optimized_mandatory_cvd_result",
+          "type": "end",
+          "display": {
+            "title": "Chỉ định bắt buộc — bệnh mạch vành/xơ vữa",
+            "detail": "Định hướng: A+B hoặc C; lựa chọn thực tế theo bệnh cảnh tim mạch và chống chỉ định."
+          },
+          "sourceRefs": [
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Khởi trị theo chỉ định bắt buộc"
+              "note": "Bệnh mạch vành: A+B hoặc C."
             }
           ],
           "data": {
-            "resultCode": "new_patient_mandatory_indication",
+            "resultCode": "mandatory_coronary_artery_disease",
             "severity": "high",
             "sets": {
-              "treatment.path": "new_patient_mandatory_indication"
+              "treatment.path": "mandatory_coronary_artery_disease",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "coronary_artery_disease",
+              "treatment.mandatoryRegimen": "Định hướng A+B hoặc C; cá thể hóa theo bệnh mạch vành/xơ vữa."
             },
-            "outcomeCode": "new_patient_mandatory_indication_started"
+            "outcomeCode": "mandatory_coronary_artery_disease"
+          }
+        },
+        {
+          "id": "optimized_mandatory_hf_result",
+          "type": "end",
+          "display": {
+            "title": "Chỉ định bắt buộc — suy tim EF giảm",
+            "detail": "Định hướng: A+B+SGLT2i+MRA và lợi tiểu quai khi có chỉ định; phối hợp theo phác đồ suy tim."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Suy tim EF giảm."
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_heart_failure_reduced_ef",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "mandatory_heart_failure_reduced_ef",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "heart_failure_reduced_ef",
+              "treatment.mandatoryRegimen": "Định hướng A+B+SGLT2i+MRA và lợi tiểu quai khi có chỉ định."
+            },
+            "outcomeCode": "mandatory_heart_failure_reduced_ef"
+          }
+        },
+        {
+          "id": "optimized_mandatory_stroke_result",
+          "type": "end",
+          "display": {
+            "title": "Chỉ định bắt buộc — tiền sử đột quỵ",
+            "detail": "Định hướng: A+D; cần cá thể hóa theo thời điểm đột quỵ và nguy cơ người bệnh."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Đột quỵ: A+D."
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_stroke",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "mandatory_stroke",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "stroke",
+              "treatment.mandatoryRegimen": "Định hướng A+D; cá thể hóa theo bệnh cảnh đột quỵ."
+            },
+            "outcomeCode": "mandatory_stroke"
+          }
+        },
+        {
+          "id": "optimized_mandatory_ckd_result",
+          "type": "end",
+          "display": {
+            "title": "Chỉ định bắt buộc — bệnh thận mạn",
+            "detail": "Định hướng: A+C; cần theo dõi eGFR, kali máu và điều chỉnh theo chức năng thận."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Bệnh thận mạn: A+C."
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_chronic_kidney_disease",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "mandatory_chronic_kidney_disease",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "chronic_kidney_disease",
+              "treatment.mandatoryRegimen": "Định hướng A+C; theo dõi eGFR và kali máu."
+            },
+            "outcomeCode": "mandatory_chronic_kidney_disease"
+          }
+        },
+        {
+          "id": "optimized_mandatory_diabetes_result",
+          "type": "end",
+          "display": {
+            "title": "Chỉ định bắt buộc — đái tháo đường type 2",
+            "detail": "Định hướng: A+C hoặc D; cân nhắc SGLT2i hoặc GLP-1 RA theo nguy cơ và chỉ định chuyên khoa."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Đái tháo đường type 2 nguy cơ cao."
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_type2_diabetes",
+            "severity": "high",
+            "sets": {
+              "treatment.path": "mandatory_type2_diabetes",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "type2_diabetes",
+              "treatment.mandatoryRegimen": "Định hướng A+C hoặc D; cân nhắc SGLT2i hoặc GLP-1 RA theo chỉ định."
+            },
+            "outcomeCode": "mandatory_type2_diabetes"
           }
         },
         {
           "id": "optimized_infer_new",
           "type": "end",
           "display": {
-            "title": "Bệnh nhân mới — khởi trị phác đồ ban đầu",
-            "detail": "Không dùng số lượng thuốc hiện tại để phân nhánh."
+            "title": "Khởi trị phác đồ A/B/C/D",
+            "detail": "Phác đồ khởi trị thông thường theo Hình 4."
           },
           "sourceRefs": [
             {
@@ -2730,7 +3508,8 @@
             "resultCode": "new_patient_initial_treatment",
             "severity": "high",
             "sets": {
-              "treatment.path": "new_patient_initial_treatment"
+              "treatment.path": "new_patient_initial_treatment",
+              "treatment.initialRegimen": "single_pill_abcd"
             },
             "outcomeCode": "new_patient_initial_treatment_started"
           }
@@ -2739,8 +3518,8 @@
           "id": "optimized_followup_count_valid",
           "type": "condition",
           "display": {
-            "title": "Lần khám trước có 1–4 nhóm thuốc được kê?",
-            "detail": "Tái khám dùng encounter n-1 để xác định giai đoạn."
+            "title": "Lần khám trước có từ 1 đến 4 nhóm thuốc?",
+            "detail": "Số nhóm được tự tính từ danh sách thuốc encounter n-1."
           },
           "sourceRefs": [
             {
@@ -2768,7 +3547,8 @@
           "id": "optimized_previous_count_one",
           "type": "condition",
           "display": {
-            "title": "Lần khám trước kê 1 nhóm thuốc?"
+            "title": "Lần khám trước dùng 1 nhóm thuốc?",
+            "detail": "Phối hợp lên 2 nhóm thuốc nếu cần."
           },
           "sourceRefs": [
             {
@@ -2822,7 +3602,8 @@
           "id": "optimized_previous_count_two",
           "type": "condition",
           "display": {
-            "title": "Lần khám trước kê 2 nhóm thuốc?"
+            "title": "Lần khám trước dùng 2 nhóm thuốc?",
+            "detail": "Kiểm tra HA sau 2 nhóm thuốc so với đích Cây 2."
           },
           "sourceRefs": [
             {
@@ -2931,7 +3712,8 @@
           "id": "optimized_previous_count_three",
           "type": "condition",
           "display": {
-            "title": "Lần khám trước kê 3 nhóm thuốc?"
+            "title": "Lần khám trước dùng 3 nhóm thuốc?",
+            "detail": "Kiểm tra HA sau 3 nhóm thuốc so với đích Cây 2."
           },
           "sourceRefs": [
             {
@@ -3040,7 +3822,8 @@
           "id": "optimized_previous_count_four",
           "type": "condition",
           "display": {
-            "title": "Lần khám trước kê 4 nhóm thuốc?"
+            "title": "Lần khám trước dùng 4 nhóm thuốc?",
+            "detail": "Kiểm tra HA sau 4 nhóm thuốc so với đích Cây 2."
           },
           "sourceRefs": [
             {
@@ -3196,47 +3979,200 @@
               "treatment.path": "review_required"
             }
           }
+        },
+        {
+          "id": "optimized_followup_mandatory",
+          "type": "condition",
+          "display": {
+            "title": "Có chỉ định điều trị bắt buộc ở lần tái khám?",
+            "detail": "Bệnh tim mạch, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị tăng huyết áp tối ưu"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "treatment.mandatoryIndication",
+              "op": "eq",
+              "value": true
+            }
+          }
+        },
+        {
+          "id": "optimized_new_recommendation",
+          "type": "condition",
+          "display": {
+            "title": "Có thể ưu tiên thay đổi lối sống trước?",
+            "detail": "Dựa trên khuyến nghị từ Cây 2."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị tăng huyết áp tối ưu"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "treatment.recommendation",
+              "op": "eq",
+              "value": "lifestyle_first"
+            }
+          }
+        },
+        {
+          "id": "optimized_end_new_lifestyle",
+          "type": "end",
+          "display": {
+            "title": "Thay đổi lối sống và hẹn đánh giá lại",
+            "detail": "Chưa kiểm tra số lượng thuốc ở bệnh nhân mới."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị tăng huyết áp tối ưu"
+            }
+          ],
+          "data": {
+            "resultCode": "new_patient_lifestyle_first",
+            "outcomeCode": "new_patient_lifestyle_first",
+            "sets": {
+              "treatment.path": "new_patient_lifestyle_first",
+              "treatment.initialRegimen": "lifestyle_first"
+            }
+          }
+        },
+        {
+          "id": "optimized_previous_drug_mapping",
+          "type": "condition",
+          "display": {
+            "title": "Tất cả thuốc lần khám trước đã được nhận diện?",
+            "detail": "Đối chiếu danh sách encounter n-1 với danh mục hoạt chất đã lưu."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "medication.previousEncounterHasUnmappedDrug",
+              "op": "eq",
+              "value": false
+            }
+          }
+        },
+        {
+          "id": "optimized_initial_risk",
+          "type": "condition",
+          "display": {
+            "title": "Có nguy cơ cao, bệnh đồng mắc hoặc HA từ 140/90 mmHg?",
+            "detail": "Chọn viên phối hợp A+C hoặc D theo Hình 4."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị tăng huyết áp tối ưu"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "any": [
+                {
+                  "field": "bp.category",
+                  "op": "in",
+                  "value": [
+                    "hypertension",
+                    "grade1",
+                    "grade2",
+                    "masked_hypertension"
+                  ]
+                },
+                {
+                  "field": "risk.class",
+                  "op": "eq",
+                  "value": "high"
+                },
+                {
+                  "field": "treatment.hasHighRiskComorbidity",
+                  "op": "eq",
+                  "value": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "optimized_end_initial_combination",
+          "type": "end",
+          "display": {
+            "title": "Khởi trị viên phối hợp A+C hoặc D",
+            "detail": "Liều thấp, tăng dần đến liều thông thường theo đáp ứng và đích Cây 2."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị tăng huyết áp tối ưu"
+            }
+          ],
+          "data": {
+            "resultCode": "new_patient_combination_start",
+            "outcomeCode": "new_patient_combination_start",
+            "sets": {
+              "treatment.path": "new_patient_initial_treatment",
+              "treatment.initialRegimen": "combination_ac_or_d"
+            }
+          }
         }
       ],
       "edges": [
         {
           "from": "optimized_start",
-          "to": "optimized_entry_gate",
+          "to": "optimized_encounter_type",
           "when": "default"
         },
         {
-          "from": "optimized_entry_gate",
-          "to": "optimized_encounter_type",
+          "from": "optimized_encounter_type",
+          "to": "optimized_followup_mandatory",
           "when": "true",
-          "label": "Đủ điều kiện"
-        },
-        {
-          "from": "optimized_entry_gate",
-          "to": "optimized_end_review",
-          "when": "false",
-          "label": "Không"
+          "label": "Có"
         },
         {
           "from": "optimized_encounter_type",
           "to": "optimized_new_mandatory",
-          "when": "true",
-          "label": "Bệnh nhân mới — lần 1"
-        },
-        {
-          "from": "optimized_encounter_type",
-          "to": "optimized_followup_count_valid",
           "when": "false",
-          "label": "Tái khám — lần >1"
+          "label": "Không"
         },
         {
           "from": "optimized_new_mandatory",
-          "to": "optimized_infer_new_mandatory",
+          "to": "optimized_mandatory_branch",
           "when": "true",
           "label": "Có"
         },
         {
           "from": "optimized_new_mandatory",
-          "to": "optimized_infer_new",
+          "to": "optimized_new_recommendation",
           "when": "false",
           "label": "Không"
         },
@@ -3244,102 +4180,180 @@
           "from": "optimized_followup_count_valid",
           "to": "optimized_previous_count_one",
           "when": "true",
-          "label": "1–4 thuốc"
+          "label": "Có"
         },
         {
           "from": "optimized_followup_count_valid",
           "to": "optimized_end_review",
           "when": "false",
-          "label": "Không hợp lệ"
+          "label": "Không"
         },
         {
           "from": "optimized_previous_count_one",
           "to": "optimized_infer_stage_one",
           "when": "true",
-          "label": "1 thuốc"
+          "label": "1 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_one",
           "to": "optimized_previous_count_two",
           "when": "false",
-          "label": "Không phải 1"
+          "label": "Khác 1 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_two",
           "to": "optimized_control_after_two",
           "when": "true",
-          "label": "2 thuốc"
+          "label": "2 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_two",
           "to": "optimized_previous_count_three",
           "when": "false",
-          "label": "Không phải 2"
+          "label": "Khác 2 nhóm thuốc"
         },
         {
           "from": "optimized_control_after_two",
           "to": "optimized_infer_two_controlled",
           "when": "true",
-          "label": "Đã kiểm soát"
+          "label": "Đạt đích Cây 2"
         },
         {
           "from": "optimized_control_after_two",
           "to": "optimized_infer_escalate_three",
           "when": "false",
-          "label": "Chưa kiểm soát"
+          "label": "Chưa đạt đích Cây 2"
         },
         {
           "from": "optimized_previous_count_three",
           "to": "optimized_control_after_three",
           "when": "true",
-          "label": "3 thuốc"
+          "label": "3 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_three",
           "to": "optimized_previous_count_four",
           "when": "false",
-          "label": "Không phải 3"
+          "label": "Khác 3 nhóm thuốc"
         },
         {
           "from": "optimized_control_after_three",
           "to": "optimized_infer_three_controlled",
           "when": "true",
-          "label": "Đã kiểm soát"
+          "label": "Đạt đích Cây 2"
         },
         {
           "from": "optimized_control_after_three",
           "to": "optimized_infer_escalate_four",
           "when": "false",
-          "label": "Chưa kiểm soát"
+          "label": "Chưa đạt đích Cây 2"
         },
         {
           "from": "optimized_previous_count_four",
           "to": "optimized_control_after_four",
           "when": "true",
-          "label": "4 thuốc"
+          "label": "4 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_four",
           "to": "optimized_end_review",
           "when": "false",
-          "label": "Không hợp lệ"
+          "label": "Khác 4 nhóm thuốc"
         },
         {
           "from": "optimized_control_after_four",
           "to": "optimized_infer_four_controlled",
           "when": "true",
-          "label": "Đã kiểm soát"
+          "label": "Đạt đích Cây 2"
         },
         {
           "from": "optimized_control_after_four",
           "to": "optimized_infer_resistant",
           "when": "false",
-          "label": "Chưa kiểm soát"
+          "label": "Chưa đạt đích Cây 2"
         },
         {
           "from": "optimized_infer_resistant",
           "to": "optimized_link_resistant",
           "when": "default"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_mandatory_cvd_result",
+          "when": "coronary_artery_disease",
+          "label": "Bệnh mạch vành/xơ vữa"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_mandatory_hf_result",
+          "when": "heart_failure_reduced_ef",
+          "label": "Suy tim EF giảm"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_mandatory_stroke_result",
+          "when": "stroke",
+          "label": "Tiền sử đột quỵ"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_mandatory_ckd_result",
+          "when": "chronic_kidney_disease",
+          "label": "Bệnh thận mạn"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_mandatory_diabetes_result",
+          "when": "type2_diabetes",
+          "label": "Đái tháo đường type 2"
+        },
+        {
+          "from": "optimized_new_recommendation",
+          "to": "optimized_end_new_lifestyle",
+          "when": "true",
+          "label": "Có"
+        },
+        {
+          "from": "optimized_new_recommendation",
+          "to": "optimized_initial_risk",
+          "when": "false",
+          "label": "Không"
+        },
+        {
+          "from": "optimized_followup_mandatory",
+          "to": "optimized_mandatory_branch",
+          "when": "true",
+          "label": "Có"
+        },
+        {
+          "from": "optimized_followup_mandatory",
+          "to": "optimized_previous_drug_mapping",
+          "when": "false",
+          "label": "Không"
+        },
+        {
+          "from": "optimized_previous_drug_mapping",
+          "to": "optimized_followup_count_valid",
+          "when": "true",
+          "label": "Có"
+        },
+        {
+          "from": "optimized_previous_drug_mapping",
+          "to": "optimized_end_review",
+          "when": "false",
+          "label": "Không"
+        },
+        {
+          "from": "optimized_initial_risk",
+          "to": "optimized_end_initial_combination",
+          "when": "true",
+          "label": "Có"
+        },
+        {
+          "from": "optimized_initial_risk",
+          "to": "optimized_infer_new",
+          "when": "false",
+          "label": "Không"
         }
       ],
       "sourceRefs": [
@@ -3348,28 +4362,34 @@
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Điều trị tăng huyết áp theo encounter và giai đoạn số nhóm thuốc."
+          "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
         }
       ],
       "notes": [
-        "Bệnh nhân mới (encounter = 1) không kiểm tra số nhóm thuốc; bệnh nhân tái khám (encounter > 1) dùng số nhóm thuốc được kê ở encounter n-1 và cờ kiểm soát sau 2, 3 hoặc 4 thuốc."
+        "Áp dụng cho người lớn trên 18 tuổi có phân loại huyết áp cần theo dõi/điều trị.",
+        "Bệnh nhân mới (encounter = 1) không dùng số lượng thuốc hiện tại để phân nhánh; chọn thay đổi lối sống, khởi trị hoặc điều trị theo chỉ định bắt buộc.",
+        "Bệnh nhân tái khám (encounter > 1) dùng danh sách thuốc của encounter n-1; engine tự quy đổi hoạt chất thành nhóm thuốc và đếm nhóm khác nhau.",
+        "Sau 2, 3 hoặc 4 nhóm thuốc, clinical flow cung cấp cờ kiểm soát bằng cách so sánh HA lần đánh giá với đích HATT/HATTr do Cây 2 xuất ra.",
+        "Nếu đã dùng 4 nhóm thuốc mà chưa kiểm soát, chuyển sang Cây 5 để phân loại chưa kiểm soát/kháng trị.",
+        "Nếu danh sách thuốc encounter n-1 có hoạt chất chưa khớp danh mục, dừng để rà soát trước khi xác định giai đoạn.",
+        "Nhánh khởi trị ghi treatment.initialRegimen để phân biệt TĐLS, A/B/C/D, phối hợp A+C hoặc D và chỉ định bắt buộc."
       ]
     },
     {
       "id": "hypertension_risk_stratification",
-      "name": "Hypertension Risk Stratification Tree",
-      "purpose": "Phân tầng nguy cơ theo bảng nguy cơ trong năm nhóm phân loại.",
+      "name": "Cây phân tầng nguy cơ tăng huyết áp",
+      "purpose": "Phân tầng nguy cơ thấp, trung bình hoặc cao theo huyết áp lần đo gần nhất, số yếu tố nguy cơ và bệnh đồng mắc/tổn thương cơ quan đích.",
       "clinicalStatus": "under_review",
       "entryNodeId": "risk_start",
       "inputVariables": [
-        "bp.category",
-        "bp.systolicMmHg",
-        "bp.diastolicMmHg",
+        "bp.latest.systolicMmHg",
+        "bp.latest.diastolicMmHg",
         "risk.factorCount",
         "risk.ageOver65",
         "risk.maleSex",
         "risk.heartRateOver80",
         "risk.overweight",
+        "risk.diabetes",
         "risk.lipidAbnormality",
         "risk.familyHistoryPrematureCvd",
         "risk.currentSmoker",
@@ -3377,20 +4397,21 @@
         "risk.highRiskComorbidity",
         "risk.targetOrganDamage",
         "risk.ckdStageAtLeast3",
-        "risk.diabetes",
         "risk.cardiovascularDisease"
       ],
       "outputVariables": [
         "risk.class"
       ],
-      "linksTo": [],
+      "linksTo": [
+        "bp_thresholds_targets"
+      ],
       "nodes": [
         {
           "id": "risk_start",
           "type": "start",
           "display": {
             "title": "Phân tầng nguy cơ tim mạch",
-            "detail": "Tra bảng theo phân loại HA, số yếu tố nguy cơ và bệnh đồng mắc/tổn thương cơ quan đích."
+            "detail": "Đánh giá theo bệnh đồng mắc/tổn thương cơ quan đích, huyết áp gần nhất và số yếu tố nguy cơ."
           },
           "sourceRefs": [
             {
@@ -3406,7 +4427,8 @@
           "id": "risk_high_comorbidity",
           "type": "condition",
           "display": {
-            "title": "Có TOD/CKD ≥3/ĐTĐ/bệnh tim mạch?"
+            "title": "Có bệnh đồng mắc hoặc tổn thương cơ quan đích nguy cơ cao?",
+            "detail": "Gồm tổn thương cơ quan đích, bệnh thận mạn từ giai đoạn 3, đái tháo đường hoặc bệnh tim mạch."
           },
           "sourceRefs": [
             {
@@ -3427,7 +4449,7 @@
         },
         {
           "id": "risk_infer_high_comorbidity",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ cao"
           },
@@ -3453,7 +4475,7 @@
           "id": "risk_grade2",
           "type": "condition",
           "display": {
-            "title": "HA độ 2?"
+            "title": "Huyết áp độ 2: HATT ≥160 hoặc HATTr ≥100 mmHg?"
           },
           "sourceRefs": [
             {
@@ -3466,9 +4488,18 @@
           ],
           "logic": {
             "predicate": {
-              "field": "bp.category",
-              "op": "eq",
-              "value": "grade2"
+              "any": [
+                {
+                  "field": "bp.latest.systolicMmHg",
+                  "op": "gte",
+                  "value": 160
+                },
+                {
+                  "field": "bp.latest.diastolicMmHg",
+                  "op": "gte",
+                  "value": 100
+                }
+              ]
             }
           }
         },
@@ -3476,7 +4507,8 @@
           "id": "risk_grade2_high_band",
           "type": "condition",
           "display": {
-            "title": "Độ 2 mức HATT ≥180 hoặc HATTr ≥110?"
+            "title": "HATT ≥180 hoặc HATTr ≥110 mmHg?",
+            "detail": "Nếu có, phân loại nguy cơ cao."
           },
           "sourceRefs": [
             {
@@ -3491,12 +4523,12 @@
             "predicate": {
               "any": [
                 {
-                  "field": "bp.systolicMmHg",
+                  "field": "bp.latest.systolicMmHg",
                   "op": "gte",
                   "value": 180
                 },
                 {
-                  "field": "bp.diastolicMmHg",
+                  "field": "bp.latest.diastolicMmHg",
                   "op": "gte",
                   "value": 110
                 }
@@ -3508,7 +4540,8 @@
           "id": "risk_grade2_factors",
           "type": "condition",
           "display": {
-            "title": "Có ít nhất 1 yếu tố nguy cơ?"
+            "title": "Có ít nhất 1 yếu tố nguy cơ?",
+            "detail": "Đánh giá các yếu tố nguy cơ đã được nhập hoặc tự tính."
           },
           "sourceRefs": [
             {
@@ -3529,7 +4562,7 @@
         },
         {
           "id": "risk_infer_high_grade2",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ cao"
           },
@@ -3553,7 +4586,7 @@
         },
         {
           "id": "risk_infer_medium_grade2",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ trung bình"
           },
@@ -3579,7 +4612,7 @@
           "id": "risk_grade1",
           "type": "condition",
           "display": {
-            "title": "HA độ 1?"
+            "title": "Huyết áp độ 1: HATT 140–159 hoặc HATTr 90–99 mmHg?"
           },
           "sourceRefs": [
             {
@@ -3592,9 +4625,36 @@
           ],
           "logic": {
             "predicate": {
-              "field": "bp.category",
-              "op": "eq",
-              "value": "grade1"
+              "any": [
+                {
+                  "all": [
+                    {
+                      "field": "bp.latest.systolicMmHg",
+                      "op": "gte",
+                      "value": 140
+                    },
+                    {
+                      "field": "bp.latest.systolicMmHg",
+                      "op": "lt",
+                      "value": 160
+                    }
+                  ]
+                },
+                {
+                  "all": [
+                    {
+                      "field": "bp.latest.diastolicMmHg",
+                      "op": "gte",
+                      "value": 90
+                    },
+                    {
+                      "field": "bp.latest.diastolicMmHg",
+                      "op": "lt",
+                      "value": 100
+                    }
+                  ]
+                }
+              ]
             }
           }
         },
@@ -3602,7 +4662,7 @@
           "id": "risk_grade1_three",
           "type": "condition",
           "display": {
-            "title": "Có ≥3 yếu tố nguy cơ?"
+            "title": "Có từ 3 yếu tố nguy cơ trở lên?"
           },
           "sourceRefs": [
             {
@@ -3623,7 +4683,7 @@
         },
         {
           "id": "risk_infer_high_grade1",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ cao"
           },
@@ -3670,7 +4730,7 @@
         },
         {
           "id": "risk_infer_medium_grade1",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ trung bình"
           },
@@ -3694,7 +4754,7 @@
         },
         {
           "id": "risk_infer_low_grade1",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ thấp"
           },
@@ -3720,7 +4780,7 @@
           "id": "risk_high_normal",
           "type": "condition",
           "display": {
-            "title": "HA bình thường-cao?"
+            "title": "Huyết áp bình thường cao: HATT 130–139 hoặc HATTr 85–89 mmHg?"
           },
           "sourceRefs": [
             {
@@ -3733,9 +4793,36 @@
           ],
           "logic": {
             "predicate": {
-              "field": "bp.category",
-              "op": "eq",
-              "value": "high_normal"
+              "any": [
+                {
+                  "all": [
+                    {
+                      "field": "bp.latest.systolicMmHg",
+                      "op": "gte",
+                      "value": 130
+                    },
+                    {
+                      "field": "bp.latest.systolicMmHg",
+                      "op": "lt",
+                      "value": 140
+                    }
+                  ]
+                },
+                {
+                  "all": [
+                    {
+                      "field": "bp.latest.diastolicMmHg",
+                      "op": "gte",
+                      "value": 85
+                    },
+                    {
+                      "field": "bp.latest.diastolicMmHg",
+                      "op": "lt",
+                      "value": 90
+                    }
+                  ]
+                }
+              ]
             }
           }
         },
@@ -3743,7 +4830,7 @@
           "id": "risk_high_normal_three",
           "type": "condition",
           "display": {
-            "title": "Có ≥3 yếu tố nguy cơ?"
+            "title": "Có từ 3 yếu tố nguy cơ trở lên?"
           },
           "sourceRefs": [
             {
@@ -3764,7 +4851,7 @@
         },
         {
           "id": "risk_infer_medium_high_normal",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ trung bình"
           },
@@ -3788,7 +4875,7 @@
         },
         {
           "id": "risk_infer_low_high_normal",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ thấp"
           },
@@ -3814,7 +4901,7 @@
           "id": "risk_normal",
           "type": "condition",
           "display": {
-            "title": "HA bình thường?"
+            "title": "HATT <130 và HATTr <85 mmHg?"
           },
           "sourceRefs": [
             {
@@ -3827,15 +4914,24 @@
           ],
           "logic": {
             "predicate": {
-              "field": "bp.category",
-              "op": "eq",
-              "value": "normal"
+              "all": [
+                {
+                  "field": "bp.latest.systolicMmHg",
+                  "op": "lt",
+                  "value": 130
+                },
+                {
+                  "field": "bp.latest.diastolicMmHg",
+                  "op": "lt",
+                  "value": 85
+                }
+              ]
             }
           }
         },
         {
           "id": "risk_infer_low_normal",
-          "type": "end",
+          "type": "inference",
           "display": {
             "title": "Nguy cơ thấp"
           },
@@ -3855,6 +4951,222 @@
               "risk.class": "low"
             },
             "outcomeCode": "risk_low"
+          }
+        },
+        {
+          "id": "risk_link_thresholds_high_comorbidity",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ cao."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_high_grade2",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ cao."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_medium_grade2",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ trung bình."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_high_grade1",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ cao."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_medium_grade1",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ trung bình."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_low_grade1",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ thấp."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_medium_high_normal",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ trung bình."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_low_high_normal",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ thấp."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
+          }
+        },
+        {
+          "id": "risk_link_thresholds_low_normal",
+          "type": "link",
+          "display": {
+            "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+            "detail": "Tiếp tục với phân loại nguy cơ thấp."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_04_risk_stratification",
+              "page": 1,
+              "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+              "tableOrFigure": "04_hypertension_risk_stratification.png",
+              "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+            }
+          ],
+          "data": {
+            "targetTreeId": "bp_thresholds_targets",
+            "callMode": "navigate_only",
+            "passContext": true,
+            "returnPolicy": "merge_context",
+            "sets": {}
           }
         },
         {
@@ -3891,6 +5203,11 @@
           "label": "Có"
         },
         {
+          "from": "risk_infer_high_comorbidity",
+          "to": "risk_link_thresholds_high_comorbidity",
+          "when": "default"
+        },
+        {
           "from": "risk_high_comorbidity",
           "to": "risk_grade2",
           "when": "false",
@@ -3912,25 +5229,35 @@
           "from": "risk_grade2_high_band",
           "to": "risk_infer_high_grade2",
           "when": "true",
-          "label": "≥180/110"
+          "label": "Có"
+        },
+        {
+          "from": "risk_infer_high_grade2",
+          "to": "risk_link_thresholds_high_grade2",
+          "when": "default"
         },
         {
           "from": "risk_grade2_high_band",
           "to": "risk_grade2_factors",
           "when": "false",
-          "label": "160-179/100-109"
+          "label": "Không"
         },
         {
           "from": "risk_grade2_factors",
           "to": "risk_infer_high_grade2",
           "when": "true",
-          "label": "Có YTNC"
+          "label": "Có"
         },
         {
           "from": "risk_grade2_factors",
           "to": "risk_infer_medium_grade2",
           "when": "false",
-          "label": "Không YTNC"
+          "label": "Không"
+        },
+        {
+          "from": "risk_infer_medium_grade2",
+          "to": "risk_link_thresholds_medium_grade2",
+          "when": "default"
         },
         {
           "from": "risk_grade1",
@@ -3951,6 +5278,11 @@
           "label": "≥3"
         },
         {
+          "from": "risk_infer_high_grade1",
+          "to": "risk_link_thresholds_high_grade1",
+          "when": "default"
+        },
+        {
           "from": "risk_grade1_three",
           "to": "risk_grade1_one",
           "when": "false",
@@ -3960,13 +5292,23 @@
           "from": "risk_grade1_one",
           "to": "risk_infer_medium_grade1",
           "when": "true",
-          "label": "1-2"
+          "label": "1–2"
+        },
+        {
+          "from": "risk_infer_medium_grade1",
+          "to": "risk_link_thresholds_medium_grade1",
+          "when": "default"
         },
         {
           "from": "risk_grade1_one",
           "to": "risk_infer_low_grade1",
           "when": "false",
           "label": "0"
+        },
+        {
+          "from": "risk_infer_low_grade1",
+          "to": "risk_link_thresholds_low_grade1",
+          "when": "default"
         },
         {
           "from": "risk_high_normal",
@@ -3987,16 +5329,31 @@
           "label": "≥3"
         },
         {
+          "from": "risk_infer_medium_high_normal",
+          "to": "risk_link_thresholds_medium_high_normal",
+          "when": "default"
+        },
+        {
           "from": "risk_high_normal_three",
           "to": "risk_infer_low_high_normal",
           "when": "false",
           "label": "<3"
         },
         {
+          "from": "risk_infer_low_high_normal",
+          "to": "risk_link_thresholds_low_high_normal",
+          "when": "default"
+        },
+        {
           "from": "risk_normal",
           "to": "risk_infer_low_normal",
           "when": "true",
           "label": "Có"
+        },
+        {
+          "from": "risk_infer_low_normal",
+          "to": "risk_link_thresholds_low_normal",
+          "when": "default"
         },
         {
           "from": "risk_normal",
@@ -4015,21 +5372,27 @@
         }
       ],
       "notes": [
-        "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+        "Bước 1: nếu có tổn thương cơ quan đích, bệnh thận mạn từ giai đoạn 3, đái tháo đường hoặc bệnh tim mạch thì phân loại nguy cơ cao.",
+        "Bước 2: nếu không thuộc nhóm trên, phân tầng theo HATT/HATTr lần đo gần nhất và số yếu tố nguy cơ.",
+        "Độ 1: 0 yếu tố nguy cơ = thấp; 1–2 = trung bình; từ 3 = cao.",
+        "Độ 2: HATT ≥180 hoặc HATTr ≥110 = cao; nếu 160–179 và 100–109 thì không có yếu tố nguy cơ = trung bình, có ít nhất 1 = cao.",
+        "Bình thường cao: dưới 3 yếu tố nguy cơ = thấp; từ 3 yếu tố nguy cơ = trung bình. Kết quả là risk.class để dùng cho Cây 2."
       ]
     },
     {
       "id": "uncontrolled_resistant_hypertension",
-      "name": "Hypertension General — Phân loại THA",
-      "purpose": "Phân loại nhánh không kiểm soát hoặc kháng trị dựa trên huyết áp, phác đồ ổn định và thuốc được kê ở encounter n-1.",
+      "name": "Cây phân loại tăng huyết áp chưa kiểm soát/kháng trị",
+      "purpose": "Phân loại người bệnh tăng huyết áp chưa kiểm soát hoặc kháng trị dựa trên HA lần gần nhất, độ ổn định của phác đồ, số nhóm thuốc và lợi tiểu.",
       "clinicalStatus": "under_review",
       "entryNodeId": "resistant_start",
       "inputVariables": [
-        "bp.officeAverageSystolicMmHg",
-        "bp.officeReadingCount",
+        "bp.latest.systolicMmHg",
+        "bp.latest.diastolicMmHg",
         "medication.regimenStableWeeks",
-        "medication.previousEncounterAgentCount",
-        "medication.previousEncounterIncludesDiuretic"
+        "medication.currentDrugClassCount",
+        "medication.currentDrugClassList",
+        "medication.currentIncludesDiuretic",
+        "medication.currentHasUnmappedDrug"
       ],
       "outputVariables": [
         "resistant.classification"
@@ -4040,7 +5403,7 @@
           "id": "resistant_start",
           "type": "start",
           "display": {
-            "title": "Hypertension General — Phân loại THA"
+            "title": "Phân loại THA chưa kiểm soát/kháng trị"
           },
           "sourceRefs": [
             {
@@ -4056,8 +5419,8 @@
           "id": "resistant_range",
           "type": "condition",
           "display": {
-            "title": "HATT tư thế ngồi 140–169 mmHg?",
-            "detail": "Trung bình phòng khám, 2–3 lần đo"
+            "title": "HATT lần gần nhất 140–169 mmHg?",
+            "detail": "HATTr của cùng lần đo phải có dữ liệu."
           },
           "sourceRefs": [
             {
@@ -4072,22 +5435,18 @@
             "predicate": {
               "all": [
                 {
-                  "field": "bp.officeAverageSystolicMmHg",
+                  "field": "bp.latest.systolicMmHg",
                   "op": "gte",
                   "value": 140
                 },
                 {
-                  "field": "bp.officeAverageSystolicMmHg",
+                  "field": "bp.latest.systolicMmHg",
                   "op": "lte",
                   "value": 169
                 },
                 {
-                  "field": "bp.officeReadingCount",
-                  "op": "in",
-                  "value": [
-                    2,
-                    3
-                  ]
+                  "field": "bp.latest.diastolicMmHg",
+                  "op": "present"
                 }
               ]
             }
@@ -4097,8 +5456,8 @@
           "id": "resistant_end_out_of_range",
           "type": "end",
           "display": {
-            "title": "Ngoài khoảng — Cần đánh giá thêm",
-            "detail": "Ưu tiên xử trí nguyên nhân trước"
+            "title": "Ngoài khoảng đánh giá",
+            "detail": "Đánh giá lại trước khi phân loại không kiểm soát/kháng trị."
           },
           "sourceRefs": [
             {
@@ -4118,8 +5477,8 @@
           "id": "resistant_stable",
           "type": "condition",
           "display": {
-            "title": "Phác đồ ổn định ≥ 4 tuần?",
-            "detail": "Không thay đổi liều trong tháng qua"
+            "title": "Phác đồ ổn định ít nhất 4 tuần?",
+            "detail": "Không thay đổi liều hoặc nhóm thuốc trong 4 tuần gần nhất."
           },
           "sourceRefs": [
             {
@@ -4142,8 +5501,8 @@
           "id": "resistant_end_defer",
           "type": "end",
           "display": {
-            "title": "Tạm hoãn — Đánh giá lại sau",
-            "detail": "Đánh giá lại sau"
+            "title": "Tạm hoãn — đánh giá lại sau",
+            "detail": "Phác đồ chưa ổn định đủ 4 tuần."
           },
           "sourceRefs": [
             {
@@ -4163,8 +5522,8 @@
           "id": "resistant_agent_count",
           "type": "condition",
           "display": {
-            "title": "Số nhóm thuốc được kê ở lần khám trước?",
-            "detail": "Đọc từ encounter n-1 để phân loại phác đồ 2 nhóm thuốc."
+            "title": "Đang sử dụng đúng 2 nhóm thuốc?",
+            "detail": "Số nhóm được tự tính từ danh sách thuốc."
           },
           "sourceRefs": [
             {
@@ -4177,7 +5536,7 @@
           ],
           "logic": {
             "predicate": {
-              "field": "medication.previousEncounterAgentCount",
+              "field": "medication.currentDrugClassCount",
               "op": "eq",
               "value": 2
             }
@@ -4187,8 +5546,8 @@
           "id": "resistant_agent_count_ge3",
           "type": "condition",
           "display": {
-            "title": "Lần khám trước kê từ 3 nhóm thuốc trở lên?",
-            "detail": "Đọc từ encounter n-1."
+            "title": "Đang sử dụng từ 3 nhóm thuốc trở lên?",
+            "detail": "Số nhóm được tự tính từ danh sách thuốc."
           },
           "sourceRefs": [
             {
@@ -4201,7 +5560,7 @@
           ],
           "logic": {
             "predicate": {
-              "field": "medication.previousEncounterAgentCount",
+              "field": "medication.currentDrugClassCount",
               "op": "gte",
               "value": 3
             }
@@ -4212,7 +5571,7 @@
           "type": "end",
           "display": {
             "title": "Cần rà soát số nhóm thuốc",
-            "detail": "Giá trị phải là đúng 2 hoặc ≥3."
+            "detail": "Số nhóm thuốc phải là đúng 2 hoặc từ 3 nhóm trở lên."
           },
           "sourceRefs": [
             {
@@ -4235,8 +5594,8 @@
           "id": "resistant_infer_uncontrolled",
           "type": "end",
           "display": {
-            "title": "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc",
-            "detail": "Phác đồ 2 nhóm thuốc"
+            "title": "Tăng huyết áp chưa kiểm soát",
+            "detail": "Đang dùng đúng 2 nhóm thuốc."
           },
           "sourceRefs": [
             {
@@ -4260,8 +5619,8 @@
           "id": "resistant_diuretic",
           "type": "condition",
           "display": {
-            "title": "Lần khám trước có thuốc lợi tiểu?",
-            "detail": "Thiazide, lợi tiểu quai hoặc MRA trong encounter n-1."
+            "title": "Phác đồ có thuốc lợi tiểu?",
+            "detail": "Thiazide, lợi tiểu quai hoặc MRA."
           },
           "sourceRefs": [
             {
@@ -4274,7 +5633,7 @@
           ],
           "logic": {
             "predicate": {
-              "field": "medication.previousEncounterIncludesDiuretic",
+              "field": "medication.currentIncludesDiuretic",
               "op": "eq",
               "value": true
             }
@@ -4284,8 +5643,8 @@
           "id": "resistant_infer_resistant",
           "type": "end",
           "display": {
-            "title": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu",
-            "detail": "≥3 nhóm thuốc + lợi tiểu"
+            "title": "Tăng huyết áp kháng trị",
+            "detail": "Từ 3 nhóm thuốc trở lên và có lợi tiểu."
           },
           "sourceRefs": [
             {
@@ -4309,8 +5668,8 @@
           "id": "resistant_end_add_diuretic",
           "type": "end",
           "display": {
-            "title": "Thêm lợi tiểu — Phân loại lại sau",
-            "detail": "Re-classify later"
+            "title": "Cần thêm thuốc lợi tiểu",
+            "detail": "Đánh giá và phân loại lại sau khi bổ sung lợi tiểu."
           },
           "sourceRefs": [
             {
@@ -4328,6 +5687,54 @@
               "resistant.classification": "add_diuretic_and_reclassify"
             }
           }
+        },
+        {
+          "id": "resistant_drug_mapping",
+          "type": "condition",
+          "display": {
+            "title": "Tất cả hoạt chất đã được nhận diện?",
+            "detail": "Đối chiếu danh sách thuốc với danh mục hoạt chất đã lưu."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_05_uncontrolled_resistant",
+              "page": 1,
+              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+              "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "medication.currentHasUnmappedDrug",
+              "op": "eq",
+              "value": false
+            }
+          }
+        },
+        {
+          "id": "resistant_end_unknown_drug",
+          "type": "end",
+          "display": {
+            "title": "Cần rà soát danh sách thuốc",
+            "detail": "Có hoạt chất chưa có trong danh mục; chưa thể phân loại an toàn."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_05_uncontrolled_resistant",
+              "page": 1,
+              "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+              "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+              "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+            }
+          ],
+          "data": {
+            "resultCode": "resistant_drug_review_required",
+            "outcomeCode": "resistant_drug_review_required",
+            "sets": {
+              "resistant.classification": "review_required"
+            }
+          }
         }
       ],
       "edges": [
@@ -4340,43 +5747,43 @@
           "from": "resistant_range",
           "to": "resistant_end_out_of_range",
           "when": "false",
-          "label": "No — ngoài khoảng"
+          "label": "Ngoài khoảng"
         },
         {
           "from": "resistant_range",
           "to": "resistant_stable",
           "when": "true",
-          "label": "Yes — SBP 140–169 mmHg"
+          "label": "Trong khoảng 140–169"
         },
         {
           "from": "resistant_stable",
           "to": "resistant_end_defer",
           "when": "false",
-          "label": "No — phác đồ chưa ổn định"
+          "label": "Không"
         },
         {
           "from": "resistant_stable",
-          "to": "resistant_agent_count",
+          "to": "resistant_drug_mapping",
           "when": "true",
-          "label": "Yes — phác đồ ổn định"
+          "label": "Có"
         },
         {
           "from": "resistant_agent_count",
           "to": "resistant_infer_uncontrolled",
           "when": "true",
-          "label": "Exactly 2"
+          "label": "Đúng 2 nhóm"
         },
         {
           "from": "resistant_agent_count",
           "to": "resistant_agent_count_ge3",
           "when": "false",
-          "label": "≥ 3"
+          "label": "Không phải 2"
         },
         {
           "from": "resistant_agent_count_ge3",
           "to": "resistant_diuretic",
           "when": "true",
-          "label": "≥ 3"
+          "label": "≥3 nhóm"
         },
         {
           "from": "resistant_agent_count_ge3",
@@ -4388,13 +5795,25 @@
           "from": "resistant_diuretic",
           "to": "resistant_infer_resistant",
           "when": "true",
-          "label": "Yes"
+          "label": "Có"
         },
         {
           "from": "resistant_diuretic",
           "to": "resistant_end_add_diuretic",
           "when": "false",
-          "label": "No"
+          "label": "Không"
+        },
+        {
+          "from": "resistant_drug_mapping",
+          "to": "resistant_agent_count",
+          "when": "true",
+          "label": "Có"
+        },
+        {
+          "from": "resistant_drug_mapping",
+          "to": "resistant_end_unknown_drug",
+          "when": "false",
+          "label": "Không"
         }
       ],
       "sourceRefs": [
@@ -4407,7 +5826,12 @@
         }
       ],
       "notes": [
-        "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+        "Chỉ phân loại nhánh tăng huyết áp chưa kiểm soát/kháng trị theo ảnh cây 5; không bao gồm safety screen hoặc exclusion screen.",
+        "Khoảng đánh giá: HATT lần gần nhất 140–169 mmHg; HATTr của cùng lần đo phải có dữ liệu.",
+        "Phác đồ phải ổn định ít nhất 4 tuần trước khi phân loại.",
+        "Đúng 2 nhóm thuốc: tăng huyết áp chưa kiểm soát — phác đồ 2 nhóm thuốc.",
+        "Từ 3 nhóm thuốc: có lợi tiểu thì tăng huyết áp kháng trị; không có lợi tiểu thì thêm lợi tiểu và đánh giá lại.",
+        "Nếu có hoạt chất chưa khớp danh mục thuốc đã lưu, dừng để rà soát; không tự ý đếm thiếu nhóm thuốc."
       ]
     }
   ]

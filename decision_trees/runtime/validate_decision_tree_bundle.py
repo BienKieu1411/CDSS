@@ -17,9 +17,9 @@ from decision_trees.config.paths import BUNDLE_PATH
 
 
 OPS = {"eq", "neq", "gt", "gte", "lt", "lte", "in", "notIn", "present"}
-NODE_TYPES = {"start", "condition", "inference", "link", "end"}
+NODE_TYPES = {"start", "condition", "branch", "inference", "link", "end"}
 EDGE_WHEN = {"true", "false", "default"}
-DATA_TYPES = {"boolean", "integer", "number", "string", "enum"}
+DATA_TYPES = {"boolean", "integer", "number", "string", "enum", "array"}
 
 
 def fail(message: str) -> None:
@@ -252,6 +252,23 @@ def validate_bundle(path: Path) -> dict[str, int]:
                     fail(f"{tree_id}/{node_id}: condition is missing logic.predicate")
                 used_fields.update(walk_predicate(predicate, variable_map, f"{tree_id}/{node_id}"))
 
+            if node_type == "branch":
+                logic = node.get("logic")
+                cases = logic.get("cases") if isinstance(logic, dict) else None
+                if not isinstance(cases, list) or not cases:
+                    fail(f"{tree_id}/{node_id}: branch requires a non-empty logic.cases list")
+                case_ids: set[str] = set()
+                for case_index, case in enumerate(cases):
+                    case_where = f"{tree_id}/{node_id}.logic.cases[{case_index}]"
+                    if not isinstance(case, dict) or not isinstance(case.get("id"), str) or not case["id"]:
+                        fail(f"{case_where}: case requires a non-empty id")
+                    if case["id"] in case_ids:
+                        fail(f"{case_where}: duplicate case id {case['id']}")
+                    case_ids.add(case["id"])
+                    if not isinstance(case.get("label"), str) or not case["label"]:
+                        fail(f"{case_where}: case requires a label")
+                    used_fields.update(walk_predicate(case.get("predicate"), variable_map, f"{case_where}.predicate"))
+
             if node_type in {"link", "inference", "end"}:
                 node_data = node.get("data")
                 if not isinstance(node_data, dict):
@@ -297,7 +314,7 @@ def validate_bundle(path: Path) -> dict[str, int]:
                 fail(f"{tree_id}: edge references unknown node")
             if edge_from == edge_to:
                 fail(f"{tree_id}: self-loop at {edge_from}")
-            if edge_when not in EDGE_WHEN:
+            if not isinstance(edge_when, str) or not edge_when:
                 fail(f"{tree_id}: invalid edge.when {edge_when}")
             edge_key = (edge_from, edge_to, edge_when)
             if edge_key in edge_keys:
@@ -313,6 +330,12 @@ def validate_bundle(path: Path) -> dict[str, int]:
             if node["type"] == "condition":
                 if when_counts != Counter({"true": 1, "false": 1}):
                     fail(f"{tree_id}/{node_id}: condition must have one true and one false edge")
+            elif node["type"] == "branch":
+                expected = Counter(case["id"] for case in node["logic"]["cases"])
+                if "default" in when_counts:
+                    expected["default"] = 1
+                if when_counts != expected:
+                    fail(f"{tree_id}/{node_id}: branch edges must match case IDs, with an optional default edge")
             elif node["type"] in {"start", "inference"}:
                 if when_counts != Counter({"default": 1}):
                     fail(f"{tree_id}/{node_id}: {node['type']} must have one default edge")

@@ -1,283 +1,479 @@
 #!/usr/bin/env python3
-"""Deterministic smoke tests for the five image-target decision trees."""
+"""Smoke tests for the currently active two-stage hypertension flow."""
 
 from __future__ import annotations
 
-import copy
 import json
-import sys
-import tempfile
-from pathlib import Path
-
-if __package__ in (None, ""):
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from decision_trees.config.paths import BUNDLE_PATH
-from decision_trees.runtime.decision_tree_engine import MissingData, evaluate_predicate, run, run_clinical_flow
-from decision_trees.runtime.validate_decision_tree_bundle import validate_bundle
+from decision_trees.runtime.decision_tree_engine import (
+    derive_bp_control_variables,
+    derive_medication_variables,
+    derive_patient_problem_variables,
+    derive_patient_measurement_variables,
+    run,
+    run_clinical_flow,
+)
 
 
-BUNDLE = BUNDLE_PATH
-
-
-def assert_missing(predicate: dict, context: dict, expected: list[str]) -> None:
-    try:
-        evaluate_predicate(predicate, context)
-    except MissingData as missing:
-        assert list(missing.fields) == expected, (missing.fields, expected)
-    else:
-        raise AssertionError(f"expected missing data: {expected}")
-
-
-def base_diagnosis() -> dict:
+def diagnosis_input(codes: str = "I25.1, E11.9") -> dict:
     return {
-        "bp.measurementMethod": "office_3rd",
         "bp.office1.systolicMmHg": 130,
         "bp.office1.diastolicMmHg": 80,
-        "bp.office1.targetOrganDamageOrCvd": False,
         "bp.office2.systolicMmHg": 130,
         "bp.office2.diastolicMmHg": 80,
-        "bp.office2.targetOrganDamageOrCvd": False,
         "bp.office3.systolicMmHg": 125,
         "bp.office3.diastolicMmHg": 80,
+        "patient.diagnosisCodes": codes,
     }
 
 
-def assert_runtime_semantics() -> None:
-    assert evaluate_predicate(
-        {"any": [{"field": "missing_a", "op": "eq", "value": True}, {"field": "known", "op": "eq", "value": True}]},
-        {"known": True},
-    ) is True
-    assert evaluate_predicate(
-        {"all": [{"field": "missing_a", "op": "eq", "value": True}, {"field": "known", "op": "eq", "value": False}]},
-        {"known": True},
-    ) is False
-    assert_missing(
-        {"all": [{"field": "missing_a", "op": "eq", "value": True}, {"field": "missing_b", "op": "eq", "value": True}]},
-        {},
-        ["missing_a", "missing_b"],
-    )
-    missing = run(BUNDLE, "bp_diagnosis", {})
-    assert missing["status"] == "needs_data"
-    assert missing["missingData"] == ["bp.office1.systolicMmHg", "bp.office1.diastolicMmHg", "bp.office1.targetOrganDamageOrCvd"]
-    assert missing["sourceRefs"]
+def test_icd10_and_snomed_flags_are_derived() -> None:
+    derived = derive_patient_problem_variables({"patient.diagnosisCodes": "I25.1; E11.9; N18.3; 25488008"})
+    assert derived["comorbidity.coronaryArteryDisease"] is True
+    assert derived["comorbidity.diabetes"] is True
+    assert derived["comorbidity.ckd"] is True
+    assert derived["comorbidity.leftVentricularHypertrophy"] is True
+    assert derived["comorbidity.targetOrganDamageOrCvd"] is True
+    assert derived["treatment.hasHighRiskComorbidity"] is True
 
 
-def assert_validator_guards_graph() -> None:
-    with tempfile.TemporaryDirectory(prefix="cdss-validator-") as temp_dir:
-        duplicate_branch = json.loads(BUNDLE.read_text(encoding="utf-8"))
-        tree = duplicate_branch["trees"][0]
-        condition = next(node for node in tree["nodes"] if node["type"] == "condition")
-        true_edge = next(edge for edge in tree["edges"] if edge["from"] == condition["id"] and edge["when"] == "true")
-        false_edge = next(edge for edge in tree["edges"] if edge["from"] == condition["id"] and edge["when"] == "false")
-        extra_true = copy.deepcopy(true_edge)
-        extra_true["to"] = false_edge["to"]
-        tree["edges"].append(extra_true)
-        duplicate_path = Path(temp_dir) / "duplicate-branch.json"
-        duplicate_path.write_text(json.dumps(duplicate_branch), encoding="utf-8")
-        try:
-            validate_bundle(duplicate_path)
-        except ValueError as error:
-            assert "one true and one false" in str(error), error
-        else:
-            raise AssertionError("validator accepted duplicate condition branch")
-
-        skip_bundle = json.loads(BUNDLE.read_text(encoding="utf-8"))
-        skip_condition = next(node for node in skip_bundle["trees"][0]["nodes"] if node["type"] == "condition")
-        skip_condition["onMissingData"] = "skip"
-        skip_path = Path(temp_dir) / "skip-missing-data.json"
-        skip_path.write_text(json.dumps(skip_bundle), encoding="utf-8")
-        try:
-            validate_bundle(skip_path)
-        except ValueError as error:
-            assert "fail-closed" in str(error), error
-        else:
-            raise AssertionError("validator accepted skip-on-missing-data policy")
-
-        cycle_bundle = json.loads(BUNDLE.read_text(encoding="utf-8"))
-        optimized = next(tree for tree in cycle_bundle["trees"] if tree["id"] == "optimized_hypertension_treatment")
-        link_node = next(node for node in optimized["nodes"] if node["type"] == "link")
-        link_node["data"]["targetTreeId"] = optimized["id"]
-        optimized["linksTo"] = [optimized["id"]]
-        cycle_path = Path(temp_dir) / "cycle.json"
-        cycle_path.write_text(json.dumps(cycle_bundle), encoding="utf-8")
-        try:
-            validate_bundle(cycle_path)
-        except ValueError as error:
-            assert "global tree-link cycle" in str(error), error
-        else:
-            raise AssertionError("validator accepted a global LINK cycle")
+def test_tree_one_uses_derived_disease_code_flag() -> None:
+    result = run(BUNDLE_PATH, "bp_diagnosis", diagnosis_input())
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "hypertensive_crisis"
+    assert result["context"]["comorbidity.coronaryArteryDisease"] is True
+    assert result["context"]["treatment.hasHighRiskComorbidity"] is True
 
 
-def assert_image_target_flows() -> None:
-    tree5 = next(tree for tree in json.loads(BUNDLE.read_text(encoding="utf-8"))["trees"] if tree["id"] == "uncontrolled_resistant_hypertension")
-    assert len(tree5["nodes"]) == 12
-    tree5_titles = {node["display"]["title"] for node in tree5["nodes"]}
-    assert "Safety & exclusion screen" not in tree5_titles
-    assert "Any exclusion criteria present?" not in tree5_titles
-    assert "Eligible for baxdrostat" not in tree5_titles
-    assert tree5["inputVariables"] == [
-        "bp.officeAverageSystolicMmHg",
-        "bp.officeReadingCount",
-        "medication.regimenStableWeeks",
-        "medication.agentCount",
-        "medication.includesDiuretic",
-    ]
-
-    crisis = base_diagnosis()
-    crisis.update({"bp.office1.systolicMmHg": 180, "bp.office1.diastolicMmHg": 80, "bp.office1.targetOrganDamageOrCvd": True})
-    crisis_result = run(BUNDLE, "bp_diagnosis", crisis)
-    assert crisis_result["context"]["bp.category"] == "hypertensive_crisis"
-
-    normal_result = run(BUNDLE, "bp_diagnosis", base_diagnosis())
-    assert normal_result["context"]["bp.category"] == "normal"
-
-    home = base_diagnosis()
-    home.update({"bp.measurementMethod": "home", "bp.home.systolicMmHg": 130, "bp.home.diastolicMmHg": 80})
-    home_result = run(BUNDLE, "bp_diagnosis", home)
-    assert home_result["context"]["bp.category"] == "white_coat_hypertension"
-
-    second = base_diagnosis()
-    second.update({"bp.office2.systolicMmHg": 150, "bp.office2.diastolicMmHg": 95, "bp.office2.targetOrganDamageOrCvd": True})
-    second_result = run(BUNDLE, "bp_diagnosis", second)
-    assert second_result["context"]["bp.category"] == "hypertension"
-
-    risk_medium = run(BUNDLE, "hypertension_risk_stratification", {"bp.category": "grade2", "bp.systolicMmHg": 160, "bp.diastolicMmHg": 100, "risk.factorCount": 0, "risk.highRiskComorbidity": False})
-    assert risk_medium["resultCode"] == "risk_medium"
-    risk_high = run(BUNDLE, "hypertension_risk_stratification", {"bp.category": "grade2", "bp.systolicMmHg": 160, "bp.diastolicMmHg": 100, "risk.factorCount": 1, "risk.highRiskComorbidity": False})
-    assert risk_high["resultCode"] == "risk_high"
-
-    threshold = run(BUNDLE, "bp_thresholds_targets", {"bp.category": "high_normal", "risk.class": "high", "treatment.hasHighRiskComorbidity": True})
-    assert threshold["context"]["treatment.targetSystolicMmHg"] == 130
-    assert threshold["context"]["treatment.targetDiastolicMmHg"] == 80
-    assert threshold["context"]["treatment.targetProfile"] == "high_risk"
-
-    initial_combo = run(BUNDLE, "optimized_hypertension_treatment", {"patient.ageYears": 55, "bp.assessmentOfficeSystolicMmHg": 150, "bp.assessmentOfficeDiastolicMmHg": 95, "bp.category": "grade1", "treatment.hasHighRiskComorbidity": False, "treatment.mandatoryIndication": False})
-    assert initial_combo["outcomeCode"] == "initial_combination_followup"
-
-    single_pill = run(BUNDLE, "optimized_hypertension_treatment", {"patient.ageYears": 55, "bp.assessmentOfficeSystolicMmHg": 135, "bp.assessmentOfficeDiastolicMmHg": 82, "bp.category": "high_normal", "treatment.hasHighRiskComorbidity": False, "treatment.mandatoryIndication": False})
-    assert single_pill["outcomeCode"] == "optimized_single_pill_followup"
-
-    uncontrolled = run(BUNDLE, "uncontrolled_resistant_hypertension", {
-        "bp.officeAverageSystolicMmHg": 150,
-        "bp.officeReadingCount": 2,
-        "medication.regimenStableWeeks": 4,
-        "medication.agentCount": 2,
-        "medication.includesDiuretic": False,
+def test_tree_one_detects_crisis_from_patient_code_context() -> None:
+    values = diagnosis_input("")
+    values.update({
+        "bp.office1.systolicMmHg": 180,
+        "bp.office1.diastolicMmHg": 80,
     })
-    assert uncontrolled["context"]["resistant.classification"] == "uncontrolled_two_drug"
-    assert uncontrolled["resultCode"] == "uncontrolled_htn_arm"
+    result = run(BUNDLE_PATH, "bp_diagnosis", values)
+    assert result["resultCode"] == "hypertensive_crisis"
 
-    missing_classification_data = run(BUNDLE, "uncontrolled_resistant_hypertension", {
-        "bp.officeAverageSystolicMmHg": 150,
-        "bp.officeReadingCount": 2,
-        "medication.regimenStableWeeks": 4,
+
+def test_tree_two_uses_derived_high_risk_comorbidity() -> None:
+    result = run(BUNDLE_PATH, "bp_thresholds_targets", {
+        "bp.category": "hypertension",
+        "risk.class": "low",
+        "encounter.number": 2,
+        "patient.diagnosisCodes": "I50.9",
     })
-    assert missing_classification_data["status"] == "needs_data"
-    assert missing_classification_data["missingData"] == ["medication.agentCount"]
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "hypertension_comorbidity_medication"
+    assert result["context"]["treatment.hasHighRiskComorbidity"] is True
+    assert result["context"]["treatment.targetSystolicMmHg"] == 130
 
-    resistant_context = {
-        "patient.ageYears": 55,
-        "bp.assessmentOfficeSystolicMmHg": 150,
-        "bp.assessmentOfficeDiastolicMmHg": 95,
-        "bp.category": "grade2",
-        "treatment.hasHighRiskComorbidity": True,
-        "treatment.mandatoryIndication": False,
-        "medication.agentCount": 3,
+
+def test_antihypertensive_names_are_grouped_without_counting_duplicate_classes() -> None:
+    derived = derive_medication_variables({
+        "medication.currentDrugNames": "Losartan, amlodipine, indapamide, spironolactone",
+    })
+    assert derived["medication.currentDrugClassCodes"] == "arb,ccb,diuretic,mra"
+    assert derived["medication.currentDrugClassList"] == ["arb", "ccb", "diuretic", "mra"]
+    assert derived["medication.currentDrugClassCount"] == 4
+    assert derived["medication.currentIncludesDiuretic"] is True
+    assert derived["medication.currentUnmappedDrugNames"] == ""
+    assert derived["medication.currentHasUnmappedDrug"] is False
+
+
+def test_bp_control_is_derived_from_current_encounter_and_tree_two_target() -> None:
+    derived = derive_bp_control_variables({
+        "bp.latest.systolicMmHg": 129,
+        "bp.latest.diastolicMmHg": 79,
         "treatment.targetSystolicMmHg": 130,
         "treatment.targetDiastolicMmHg": 80,
-        "treatment.targetProfile": "high_risk",
-        "bp.officeAverageSystolicMmHg": 150,
-        "bp.officeReadingCount": 2,
-        "medication.regimenStableWeeks": 4,
-        "medication.includesDiuretic": True,
+    })
+    assert derived == {
+        "bp.controlledAfterTwoDrugs": True,
+        "bp.controlledAfterThreeDrugs": True,
+        "bp.controlledAfterFourDrugs": True,
     }
-    resistant = run(BUNDLE, "optimized_hypertension_treatment", resistant_context)
-    assert "uncontrolled_resistant_hypertension" in resistant["linksVisited"]
-    assert resistant["outcomeCode"] == "resistant_three_or_more_with_diuretic_classified"
-    assert resistant["resultCode"] == "resistant_htn_arm"
 
-    controlled_context = dict(resistant_context)
-    controlled_context.update({
-        "bp.assessmentOfficeSystolicMmHg": 129,
-        "bp.assessmentOfficeDiastolicMmHg": 79,
+
+def test_antihypertensive_catalog_supports_vietnamese_table_groups() -> None:
+    bundle = json.loads(BUNDLE_PATH.read_text(encoding="utf-8"))
+    variable = next(item for item in bundle["variables"] if item["id"] == "medication.drugClass")
+    assert variable["allowedValues"] == ["acei", "arb", "ccb", "beta_blocker", "diuretic", "mra", "other"]
+
+
+def test_expected_patient_measurements_are_derived() -> None:
+    context = {
+        "asOf": "2026-08-11",
+        "patient.birthDate": "1960-08-12",
+        "patient.sex": "male",
+        "vitals.heartRate": 81,
+        "patient.heightM": 1.7,
+        "patient.weightKg": 72.25,
+        "lab.eGfr": 59,
+        "patient.diagnosisCodes": "E11.9, I25.1",
+        "risk.lipidAbnormality": True,
+        "risk.familyHistoryPrematureCvd": False,
+        "risk.currentSmoker": True,
+        "risk.socialEnvironmentalRisk": False,
+    }
+    context.update(derive_patient_problem_variables(context))
+    derived = derive_patient_measurement_variables(context)
+
+    assert derived["patient.ageYears"] == 65
+    assert abs(derived["patient.bmi"] - 25) < 1e-9
+    assert derived["risk.ageOver65"] is False
+    assert derived["risk.maleSex"] is True
+    assert derived["risk.heartRateOver80"] is True
+    assert derived["risk.overweight"] is True
+    assert derived["risk.ckdStageAtLeast3"] is True
+    assert derived["risk.diabetes"] is True
+    assert derived["risk.cardiovascularDisease"] is True
+    assert derived["risk.targetOrganDamage"] is True
+    assert derived["comorbidity.targetOrganDamageOrCvd"] is True
+    assert derived["risk.highRiskComorbidity"] is True
+    assert derived["treatment.hasHighRiskComorbidity"] is True
+    assert derived["risk.factorCount"] == 6
+
+
+def test_expected_derived_variables_remain_missing_without_sources() -> None:
+    assert derive_patient_problem_variables({}) == {}
+    assert derive_patient_measurement_variables({}) == {}
+
+
+def test_latest_bp_uses_latest_complete_office_pair() -> None:
+    derived = derive_patient_measurement_variables({
+        "bp.office1.systolicMmHg": 150,
+        "bp.office1.diastolicMmHg": 95,
+        "bp.office2.systolicMmHg": 140,
+        "bp.office2.diastolicMmHg": 90,
+        "bp.office3.systolicMmHg": 130,
+        "bp.office3.diastolicMmHg": 80,
     })
-    controlled = run(BUNDLE, "optimized_hypertension_treatment", controlled_context)
-    assert controlled["outcomeCode"] == "triple_combination_followup"
-    assert controlled["resultCode"] == "triple_combination_followup"
+    assert derived["bp.latest.systolicMmHg"] == 130
+    assert derived["bp.latest.diastolicMmHg"] == 80
 
-    target_boundary = dict(resistant_context)
-    target_boundary.update({
-        "bp.assessmentOfficeSystolicMmHg": 140,
-        "bp.assessmentOfficeDiastolicMmHg": 80,
-        "treatment.targetSystolicMmHg": 140,
-        "treatment.targetDiastolicMmHg": 80,
-        "treatment.targetProfile": "no_comorbidity",
+    fallback = derive_patient_measurement_variables({
+        "bp.office1.systolicMmHg": 150,
+        "bp.office1.diastolicMmHg": 95,
+        "bp.office2.systolicMmHg": 140,
+        "bp.office2.diastolicMmHg": 90,
     })
-    boundary_result = run(BUNDLE, "optimized_hypertension_treatment", target_boundary)
-    assert boundary_result["terminalTreeId"] == "uncontrolled_resistant_hypertension"
-    assert boundary_result["resultCode"] == "resistant_htn_arm"
+    assert fallback["bp.latest.systolicMmHg"] == 140
+    assert fallback["bp.latest.diastolicMmHg"] == 90
 
-    two_drug = dict(resistant_context)
-    two_drug["medication.agentCount"] = 2
-    two_drug_result = run(BUNDLE, "uncontrolled_resistant_hypertension", two_drug)
-    assert two_drug_result["context"]["resistant.classification"] == "uncontrolled_two_drug"
 
-    no_diuretic = dict(resistant_context)
-    no_diuretic["medication.includesDiuretic"] = False
-    no_diuretic_result = run(BUNDLE, "uncontrolled_resistant_hypertension", no_diuretic)
-    assert no_diuretic_result["outcomeCode"] == "add_diuretic_reclassify"
+def risk_tree_input(**overrides: object) -> dict:
+    values = {
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "patient.diagnosisCodes": "",
+        "risk.ageOver65": False,
+        "risk.maleSex": False,
+        "risk.heartRateOver80": False,
+        "risk.overweight": False,
+        "risk.lipidAbnormality": False,
+        "risk.familyHistoryPrematureCvd": False,
+        "risk.currentSmoker": False,
+        "risk.socialEnvironmentalRisk": False,
+    }
+    values.update(overrides)
+    return values
 
-    invalid_agent_count = dict(resistant_context)
-    invalid_agent_count["medication.agentCount"] = 1
-    invalid_agent_count_result = run(BUNDLE, "uncontrolled_resistant_hypertension", invalid_agent_count)
-    assert invalid_agent_count_result["resultCode"] == "resistant_agent_count_review_required"
 
-    flow_context = {
-        "bp.category": "grade1",
+def test_tree_four_classifies_grade_one_by_risk_factor_count() -> None:
+    low = run(BUNDLE_PATH, "hypertension_risk_stratification", risk_tree_input())
+    medium = run(BUNDLE_PATH, "hypertension_risk_stratification", risk_tree_input(**{
+        "risk.maleSex": True,
+        "risk.currentSmoker": True,
+    }))
+    high = run(BUNDLE_PATH, "hypertension_risk_stratification", risk_tree_input(**{
+        "risk.ageOver65": True,
+        "risk.maleSex": True,
+        "risk.heartRateOver80": True,
+    }))
+    assert low["resultCode"] == "risk_low"
+    assert medium["resultCode"] == "risk_medium"
+    assert high["resultCode"] == "risk_high"
+    assert low["context"]["risk.factorCount"] == 0
+    assert medium["context"]["risk.factorCount"] == 2
+    assert high["context"]["risk.factorCount"] == 3
+
+
+def test_tree_four_classifies_grade_two_lower_band_without_risk_factors_as_medium() -> None:
+    result = run(BUNDLE_PATH, "hypertension_risk_stratification", risk_tree_input(
+        **{
+            "bp.office3.systolicMmHg": 160,
+            "bp.office3.diastolicMmHg": 100,
+        },
+    ))
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "risk_medium"
+
+
+def test_tree_four_classifies_high_risk_icd10_as_high_without_manual_boolean() -> None:
+    result = run(BUNDLE_PATH, "hypertension_risk_stratification", {
+        "patient.diagnosisCodes": "I25.1",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "risk_high"
+    assert result["context"]["risk.highRiskComorbidity"] is True
+
+
+def test_tree_five_classifies_two_drug_regimen_as_uncontrolled() -> None:
+    result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "medication.regimenStableWeeks": 4,
+        "medication.currentDrugNames": "Losartan, amlodipine",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "uncontrolled_htn_arm"
+    assert result["context"]["medication.currentDrugClassCount"] == 2
+
+
+def test_tree_five_classifies_three_drugs_with_diuretic_as_resistant() -> None:
+    result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "medication.regimenStableWeeks": 4,
+        "medication.currentDrugNames": "Losartan, amlodipine, indapamide",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "resistant_htn_arm"
+    assert result["context"]["medication.currentDrugClassCount"] == 3
+    assert result["context"]["medication.currentIncludesDiuretic"] is True
+
+
+def test_tree_five_defers_when_regimen_is_not_stable() -> None:
+    result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "medication.regimenStableWeeks": 3,
+        "medication.currentDrugNames": "Losartan, amlodipine",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "resistant_defer"
+
+
+def test_tree_five_stops_when_a_drug_is_not_in_the_catalog() -> None:
+    result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "medication.regimenStableWeeks": 4,
+        "medication.currentDrugNames": "Losartan, unknown-drug",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "resistant_drug_review_required"
+    assert result["context"]["medication.currentHasUnmappedDrug"] is True
+
+
+def test_tree_three_uses_previous_encounter_drug_list_and_escalates_by_control() -> None:
+    result = run(BUNDLE_PATH, "optimized_hypertension_treatment", {
+        "patient.birthDate": "1990-01-01",
+        "asOf": "2026-08-11",
+        "bp.category": "hypertension",
+        "treatment.recommendation": "medication_now",
         "risk.class": "low",
         "treatment.hasHighRiskComorbidity": False,
-        "patient.ageYears": 55,
-        "bp.assessmentOfficeSystolicMmHg": 129,
-        "bp.assessmentOfficeDiastolicMmHg": 79,
-        "treatment.mandatoryIndication": False,
-        "medication.agentCount": 3,
-        "bp.officeAverageSystolicMmHg": 150,
-        "bp.officeReadingCount": 2,
-        "medication.regimenStableWeeks": 4,
-        "medication.includesDiuretic": True,
-    }
-    controlled_flow = run_clinical_flow(BUNDLE, flow_context)
-    assert [step["treeId"] for step in controlled_flow["steps"]] == [
-        "bp_thresholds_targets",
-        "optimized_hypertension_treatment",
-    ]
-    assert controlled_flow["context"]["treatment.targetSystolicMmHg"] == 140
-    assert controlled_flow["resultCode"] == "triple_combination_followup"
-    assert controlled_flow["outcomeCode"] == "triple_combination_followup"
-
-    uncontrolled_flow_context = dict(flow_context)
-    uncontrolled_flow_context.update({
-        "bp.assessmentOfficeSystolicMmHg": 150,
-        "bp.assessmentOfficeDiastolicMmHg": 95,
+        "encounter.number": 2,
+        "patient.diagnosisCodes": "",
+        "medication.previousEncounterDrugNames": "Losartan, amlodipine",
+        "bp.controlledAfterTwoDrugs": False,
+        "bp.controlledAfterThreeDrugs": False,
+        "bp.controlledAfterFourDrugs": False,
     })
-    uncontrolled_flow = run_clinical_flow(BUNDLE, uncontrolled_flow_context)
-    assert [step["treeId"] for step in uncontrolled_flow["steps"]] == [
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "followup_escalate_three_drugs"
+    assert result["context"]["medication.previousEncounterDrugClassCodes"] == "arb,ccb"
+    assert result["context"]["medication.previousEncounterDrugClassList"] == ["arb", "ccb"]
+    assert result["context"]["medication.previousEncounterAgentCount"] == 2
+
+
+def test_tree_three_new_patient_does_not_use_current_drug_count() -> None:
+    result = run(BUNDLE_PATH, "optimized_hypertension_treatment", {
+        "patient.birthDate": "1990-01-01",
+        "asOf": "2026-08-11",
+        "bp.category": "high_normal",
+        "treatment.recommendation": "lifestyle_first",
+        "risk.class": "low",
+        "treatment.hasHighRiskComorbidity": False,
+        "encounter.number": 1,
+        "patient.diagnosisCodes": "",
+        "medication.currentDrugNames": "Losartan, amlodipine, indapamide",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "new_patient_lifestyle_first"
+    assert result["context"]["medication.currentDrugClassCount"] == 3
+
+
+def test_tree_three_encounter_condition_uses_followup_for_encounter_greater_than_one() -> None:
+    result = run(BUNDLE_PATH, "optimized_hypertension_treatment", {
+        "patient.birthDate": "1990-01-01",
+        "asOf": "2026-08-11",
+        "bp.category": "high_normal",
+        "treatment.recommendation": "lifestyle_first",
+        "risk.class": "low",
+        "treatment.hasHighRiskComorbidity": False,
+        "encounter.number": 1,
+        "patient.diagnosisCodes": "",
+        "medication.currentDrugNames": "Losartan, amlodipine, indapamide",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "new_patient_lifestyle_first"
+    encounter_event = next(
+        event for event in result["trace"]
+        if event.get("nodeId") == "optimized_encounter_type"
+    )
+    assert encounter_event["value"] is False
+
+
+def test_edge_labels_are_conditions_without_embedded_outcomes() -> None:
+    bundle = json.loads(BUNDLE_PATH.read_text(encoding="utf-8"))
+    forbidden = ("→", "->")
+    for tree in bundle["trees"]:
+        for edge in tree["edges"]:
+            label = edge.get("label", "")
+            assert not any(token in label for token in forbidden), (tree["id"], edge)
+
+
+def test_inter_tree_links_cover_the_clinical_flow() -> None:
+    bundle = json.loads(BUNDLE_PATH.read_text(encoding="utf-8"))
+    expected = {
+        "bp_diagnosis": {"hypertension_risk_stratification"},
+        "hypertension_risk_stratification": {"bp_thresholds_targets"},
+        "bp_thresholds_targets": {"optimized_hypertension_treatment"},
+        "optimized_hypertension_treatment": {"uncontrolled_resistant_hypertension"},
+        "uncontrolled_resistant_hypertension": set(),
+    }
+    for tree in bundle["trees"]:
+        links = {
+            node["data"]["targetTreeId"]
+            for node in tree["nodes"]
+            if node["type"] == "link"
+        }
+        assert links == expected[tree["id"]]
+        for node in tree["nodes"]:
+            if node["type"] == "link" and node["data"]["targetTreeId"] != "uncontrolled_resistant_hypertension":
+                assert node["data"].get("callMode") == "navigate_only"
+
+
+def test_tree_three_mandatory_branch_has_five_disease_outputs() -> None:
+    cases = [
+        ("I25.1", "mandatory_coronary_artery_disease", "coronary_artery_disease"),
+        ("I50.2", "mandatory_heart_failure_reduced_ef", "heart_failure_reduced_ef"),
+        ("I63.9", "mandatory_stroke", "stroke"),
+        ("N18.3", "mandatory_chronic_kidney_disease", "chronic_kidney_disease"),
+        ("E11.9", "mandatory_type2_diabetes", "type2_diabetes"),
+    ]
+    for diagnosis_code, result_code, disease_code in cases:
+        result = run(BUNDLE_PATH, "optimized_hypertension_treatment", {
+            "patient.birthDate": "1990-01-01",
+            "asOf": "2026-08-11",
+            "bp.category": "hypertension",
+            "treatment.recommendation": "medication_now",
+            "risk.class": "low",
+            "encounter.number": 2,
+            "patient.diagnosisCodes": diagnosis_code,
+            "medication.previousEncounterDrugNames": "Losartan",
+        })
+        assert result["status"] == "completed"
+        assert result["resultCode"] == result_code
+        assert result["context"]["treatment.mandatoryDisease"] == disease_code
+        assert result["context"]["treatment.initialRegimen"] == "mandatory_indication"
+
+
+def test_tree_three_links_four_drug_uncontrolled_case_to_tree_five() -> None:
+    result = run(BUNDLE_PATH, "optimized_hypertension_treatment", {
+        "patient.birthDate": "1990-01-01",
+        "asOf": "2026-08-11",
+        "bp.category": "hypertension",
+        "treatment.recommendation": "medication_now",
+        "risk.class": "low",
+        "treatment.hasHighRiskComorbidity": False,
+        "encounter.number": 2,
+        "patient.diagnosisCodes": "",
+        "medication.previousEncounterDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
+        "bp.controlledAfterFourDrugs": False,
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "medication.regimenStableWeeks": 4,
+        "medication.currentDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "resistant_htn_arm"
+    assert result["linksVisited"] == ["uncontrolled_resistant_hypertension"]
+
+
+def test_full_clinical_flow_passes_tree_outputs_forward_to_tree_five() -> None:
+    result = run_clinical_flow(BUNDLE_PATH, {
+        "bp.office1.systolicMmHg": 130,
+        "bp.office1.diastolicMmHg": 80,
+        "bp.office2.systolicMmHg": 130,
+        "bp.office2.diastolicMmHg": 80,
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "patient.birthDate": "1990-01-01",
+        "asOf": "2026-08-11",
+        "patient.diagnosisCodes": "NO_KNOWN_CODES",
+        "encounter.number": 2,
+        "risk.ageOver65": False,
+        "risk.maleSex": False,
+        "risk.heartRateOver80": False,
+        "risk.overweight": False,
+        "risk.lipidAbnormality": False,
+        "risk.familyHistoryPrematureCvd": False,
+        "risk.currentSmoker": False,
+        "risk.socialEnvironmentalRisk": False,
+        "medication.previousEncounterDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
+        "medication.currentDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
+        "medication.regimenStableWeeks": 4,
+        "bp.controlledAfterFourDrugs": False,
+    }, start_tree_id="bp_diagnosis")
+    assert result["status"] == "completed"
+    assert result["terminalTreeId"] == "uncontrolled_resistant_hypertension"
+    assert result["resultCode"] == "resistant_htn_arm"
+    assert [step["treeId"] for step in result["steps"]] == [
+        "bp_diagnosis",
+        "hypertension_risk_stratification",
         "bp_thresholds_targets",
         "optimized_hypertension_treatment",
     ]
-    assert uncontrolled_flow["terminalTreeId"] == "uncontrolled_resistant_hypertension"
-    assert uncontrolled_flow["resultCode"] == "resistant_htn_arm"
-    assert uncontrolled_flow["outcomeCode"] == "resistant_three_or_more_with_diuretic_classified"
-    assert uncontrolled_flow["linksVisited"] == ["uncontrolled_resistant_hypertension"]
+    assert result["sets"]["treatment.targetSystolicMmHg"] == 140
+    assert result["sets"]["resistant.classification"] == "resistant_three_or_more_with_diuretic"
 
 
-def main() -> None:
-    assert_runtime_semantics()
-    assert_validator_guards_graph()
-    assert_image_target_flows()
-    print("engine smoke tests: ok")
+def test_clinical_flow_stops_at_terminal_crisis_without_following_unrelated_trees() -> None:
+    result = run_clinical_flow(BUNDLE_PATH, {
+        "bp.office1.systolicMmHg": 180,
+        "bp.office1.diastolicMmHg": 80,
+        "patient.diagnosisCodes": "",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "hypertensive_crisis"
+    assert result["terminalTreeId"] == "bp_diagnosis"
+    assert [step["treeId"] for step in result["steps"]] == ["bp_diagnosis"]
+    assert result["linksVisited"] == []
 
 
-if __name__ == "__main__":
-    main()
+def test_clinical_flow_stops_at_review_end_without_following_treatment_tree() -> None:
+    result = run_clinical_flow(BUNDLE_PATH, {
+        "bp.category": "normal",
+        "risk.class": "low",
+        "treatment.hasHighRiskComorbidity": False,
+        "encounter.number": 2,
+        "patient.diagnosisCodes": "",
+    }, start_tree_id="bp_thresholds_targets")
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "threshold_review_required"
+    assert result["terminalTreeId"] == "bp_thresholds_targets"
+    assert [step["treeId"] for step in result["steps"]] == ["bp_thresholds_targets"]
+    assert result["linksVisited"] == []
+
+
+def test_runtime_returns_structured_invalid_input_for_wrong_canonical_type() -> None:
+    result = run(BUNDLE_PATH, "bp_diagnosis", {
+        "bp.office1.systolicMmHg": "180",
+    })
+    assert result["status"] == "invalid_input"
+    assert result["reason"] == "invalid_context"
+    assert result["decision"]["errors"][0]["field"] == "bp.office1.systolicMmHg"

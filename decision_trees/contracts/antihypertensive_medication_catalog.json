@@ -1,0 +1,145 @@
+{
+  "catalogVersion": "1.0.0",
+  "locale": "vi-VN",
+  "status": "under_review",
+  "purpose": "Danh mục hoạt chất hạ áp và phân loại nhóm thuốc dùng thống nhất trong CDSS.",
+  "source": {
+    "type": "user_provided_table",
+    "description": "Bảng phân loại thuốc hạ áp do người dùng cung cấp trong phạm vi dự án.",
+    "clinicalReviewRequired": true
+  },
+  "inputContract": {
+    "acceptedInput": "generic_active_ingredient",
+    "separators": [",", ";", "newline"],
+    "caseInsensitive": true,
+    "deduplicateBy": "code",
+    "unknownDrugPolicy": "require_review_before_classification",
+    "derivedFields": [
+      "medication.currentDrugClassList",
+      "medication.currentDrugClassCount",
+      "medication.currentIncludesDiuretic",
+      "medication.currentUnmappedDrugNames",
+      "medication.previousEncounterDrugClassList",
+      "medication.previousEncounterAgentCount",
+      "medication.previousEncounterIncludesDiuretic",
+      "medication.previousEncounterUnmappedDrugNames"
+    ]
+  },
+  "classes": [
+    {
+      "code": "acei",
+      "label": "Ức chế men chuyển (ACEI — nhóm A)",
+      "shortLabel": "ACEI (A)",
+      "guidelineGroupCode": "A",
+      "drugs": [
+        "benazepril",
+        "captopril",
+        "enalapril",
+        "lisinopril",
+        "quinapril",
+        "perindopril",
+        "zofenopril"
+      ]
+    },
+    {
+      "code": "arb",
+      "label": "Ức chế thụ thể angiotensin (ARB — nhóm A)",
+      "shortLabel": "ARB (A)",
+      "guidelineGroupCode": "A",
+      "drugs": [
+        "candesartan",
+        "irbesartan",
+        "losartan",
+        "olmesartan",
+        "telmisartan",
+        "valsartan"
+      ]
+    },
+    {
+      "code": "ccb",
+      "label": "Chẹn kênh canxi (CCB — nhóm C)",
+      "shortLabel": "CCB (C)",
+      "guidelineGroupCode": "C",
+      "drugs": [
+        "amlodipine",
+        "cilnidipine",
+        "diltiazem",
+        "felodipine",
+        "lacidipine",
+        "lercanidipine",
+        "nicardipine",
+        "nifedipine",
+        "verapamil"
+      ]
+    },
+    {
+      "code": "beta_blocker",
+      "label": "Chẹn beta (BB — nhóm B)",
+      "shortLabel": "BB (B)",
+      "guidelineGroupCode": "B",
+      "drugs": [
+        "atenolol",
+        "bisoprolol",
+        "carvedilol",
+        "metoprolol",
+        "nebivolol",
+        "propranolol"
+      ]
+    },
+    {
+      "code": "diuretic",
+      "label": "Lợi tiểu (nhóm D)",
+      "shortLabel": "Lợi tiểu (D)",
+      "guidelineGroupCode": "D",
+      "drugs": [
+        {
+          "name": "furosemide",
+          "subclass": "loop",
+          "label": "Furosemide (lợi tiểu quai)"
+        },
+        {
+          "name": "hydrochlorothiazide",
+          "subclass": "thiazide",
+          "label": "Hydrochlorothiazide (thiazide)"
+        },
+        {
+          "name": "indapamide",
+          "subclass": "thiazide_like",
+          "label": "Indapamide (giống thiazide)"
+        },
+        {
+          "name": "torasemide",
+          "subclass": "loop",
+          "label": "Torasemide (lợi tiểu quai)"
+        }
+      ]
+    },
+    {
+      "code": "mra",
+      "label": "Đối kháng thụ thể mineralocorticoid (MRA)",
+      "shortLabel": "MRA",
+      "guidelineGroupCode": "MRA",
+      "drugs": [
+        "spironolactone"
+      ]
+    },
+    {
+      "code": "other",
+      "label": "Thuốc hạ áp khác",
+      "shortLabel": "Khác",
+      "guidelineGroupCode": "OTHER",
+      "drugs": [
+        "clonidine",
+        "doxazosin",
+        "hydralazine",
+        "methyldopa"
+      ]
+    }
+  ],
+  "classificationRules": [
+    "Đếm số nhóm thuốc theo code nhóm, không đếm số viên hoặc số hoạt chất trong cùng một nhóm.",
+    "Furosemide và torasemide được xếp vào lợi tiểu quai; hydrochlorothiazide thuộc thiazide; indapamide thuộc nhóm giống thiazide.",
+    "ACEI và ARB cùng mang ký hiệu nhóm A trong bảng nguồn nhưng vẫn giữ hai code dược lý riêng để tránh gộp sai hoạt chất.",
+    "Danh mục này không thay thế quyết định kê đơn hoặc kiểm tra danh mục thuốc lưu hành tại cơ sở."
+  ]
+}

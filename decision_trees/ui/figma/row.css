@@ -1,0 +1,1129 @@
+/* Row  */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+position: relative;
+width: 256px;
+height: 856px;
+
+/* White */
+background: #FFFFFF;
+
+
+/* Input / Medium  */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 16px;
+gap: 16px;
+
+width: 256px;
+height: 856px;
+
+border: 1px dashed #7B61FF;
+border-radius: 5px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* State=Default, Icon Left=No, Icon Right=No, Input=Basic */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+/* Neutral/400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 192px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* State=Dashed, Icon Left=Yes, Icon Right=No, Input=Basic */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px 10px 8px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+/* Neutral/400 */
+border: 1px dashed #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 200px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Icons / Medium / Search */
+
+display: none;
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 200px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+opacity: 0.56;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* Icons / Medium / Eye */
+
+display: none;
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* State=Default, Icon Left=Yes, Icon Right=No,  Input=Basic */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px 10px 8px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 200px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* search */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Group */
+
+position: absolute;
+left: 12.5%;
+right: 12.5%;
+top: 12.5%;
+bottom: 12.5%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 69.42%;
+right: 12.5%;
+top: 69.42%;
+bottom: 12.5%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;
+
+
+/* Vector */
+
+position: absolute;
+left: 12.5%;
+right: 20.83%;
+top: 12.5%;
+bottom: 20.83%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;
+
+
+/* Text */
+
+width: 172px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* State=Default, Icon Left=No, Icon Right=Yes,  Input=Basic */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 12px 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 196px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Text */
+
+width: 168px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Icons / Medium / Eye */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+width: 4px;
+height: 4px;
+left: 10px;
+top: 10px;
+
+/* Neutral / 900 */
+border: 1.5px solid #212529;
+
+
+/* Vector */
+
+position: absolute;
+width: 18px;
+height: 10px;
+left: 3px;
+top: 7px;
+
+/* Neutral / 900 */
+border: 1.5px solid #212529;
+
+
+/* State=Disable, Icon Left=No, Icon Right=No,  Input=Basic */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* Neutral/100 */
+background: #F8F9FA;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 192px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* State=Disable, Icon Left=Yes, Icon Right=No,  Input=Basic */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px 10px 8px;
+
+width: 224px;
+height: 44px;
+
+/* Neutral/100 */
+background: #F8F9FA;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 5;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 200px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Icons / Medium / Search */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+width: 12px;
+height: 12px;
+left: 5px;
+top: 5px;
+
+/* Neutral / 900 */
+border: 1.5px solid #212529;
+
+
+/* Vector */
+
+position: absolute;
+width: 3.5px;
+height: 3.5px;
+left: 15.5px;
+top: 15.5px;
+
+/* Neutral / 900 */
+border: 1.5px solid #212529;
+
+
+/* Text */
+
+width: 172px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* State=Disable, Icon Left=No, Icon Right=Yes, Input=Basic */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 12px 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* Neutral/100 */
+background: #F8F9FA;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 6;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 196px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Text */
+
+width: 168px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Icons / Medium / Eye */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+width: 4px;
+height: 4px;
+left: 10px;
+top: 10px;
+
+/* Neutral / 900 */
+border: 1.5px solid #212529;
+
+
+/* Vector */
+
+position: absolute;
+width: 18px;
+height: 10px;
+left: 3px;
+top: 7px;
+
+/* Neutral / 900 */
+border: 1.5px solid #212529;
+
+
+/* State=Default, Icon Left=No, Icon Right=No, Input=Placeholder */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 7;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 192px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+opacity: 0.56;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* State=Disable, Icon Left=No, Icon Right=No, Input=Placeholder */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* Neutral/100 */
+background: #F8F9FA;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 8;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 192px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+opacity: 0.56;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* State=Focus, Icon Left=No, Icon Right=No, Input=Focus */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+/* Main */
+border: 2px solid #5260FF;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 9;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+
+width: 192px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Cursor */
+
+width: 1px;
+height: 24px;
+
+/* Neutral/Black */
+background: #000000;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 191px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+opacity: 0.56;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* State=Typing, Icon Left=No, Icon Right=No, Input=Typing */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+/* Main */
+border: 2px solid #5260FF;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 10;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+
+width: 52px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 51px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Cursor */
+
+width: 1px;
+height: 24px;
+
+/* Neutral/Black */
+background: #000000;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* State=Default, Icon Left=No, Icon Right=No, Input=Error */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+border: 2px solid #FF383C;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 11;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 192px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* State=Focus, Icon Left=No, Icon Right=No, Input=Error */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+border: 2px solid #FF383C;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 12;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+
+width: 192px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Cursor */
+
+width: 1px;
+height: 24px;
+
+/* Neutral/Black */
+background: #000000;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 191px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+opacity: 0.56;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* State=Typing, Icon Left=No, Icon Right=No, Input=Error */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 10px 16px;
+
+width: 224px;
+height: 44px;
+
+/* White */
+background: #FFFFFF;
+border: 2px solid #FF383C;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 13;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Auto Layout */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+
+width: 52px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Text */
+
+width: 51px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Cursor */
+
+width: 1px;
+height: 24px;
+
+/* Neutral/Black */
+background: #000000;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;

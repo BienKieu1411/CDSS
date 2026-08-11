@@ -60,7 +60,7 @@
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*(\\.[a-zA-Z0-9_]+)*$" },
         "label": { "type": "string" },
-        "dataType": { "enum": ["boolean", "integer", "number", "string", "enum"] },
+        "dataType": { "enum": ["boolean", "integer", "number", "string", "enum", "array"] },
         "unit": { "type": ["string", "null"] },
         "requiredForEvaluation": { "type": "boolean" },
         "allowedValues": { "type": "array", "items": {} },
@@ -126,7 +126,7 @@
       "required": ["id", "type", "display"],
       "properties": {
         "id": { "type": "string" },
-        "type": { "enum": ["start", "condition", "inference", "link", "end"] },
+        "type": { "enum": ["start", "condition", "branch", "inference", "link", "end"] },
         "display": { "$ref": "#/$defs/display" },
         "logic": {
           "type": "object",
@@ -141,6 +141,10 @@
         {
           "if": { "properties": { "type": { "const": "condition" } } },
           "then": { "required": ["logic"], "properties": { "logic": { "required": ["predicate"] } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "branch" } } },
+          "then": { "required": ["logic"], "properties": { "logic": { "required": ["cases"] } } }
         },
         {
           "if": { "properties": { "type": { "const": "link" } } },
@@ -163,7 +167,7 @@
       "properties": {
         "from": { "type": "string" },
         "to": { "type": "string" },
-        "when": { "enum": ["true", "false", "default"] },
+        "when": { "type": "string", "minLength": 1 },
         "label": { "type": "string" }
       },
       "additionalProperties": false

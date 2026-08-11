@@ -3,17 +3,228 @@
 const state = {
   bundle: null,
   treeId: null,
+  inputMode: "form",
+  context: {},
+  missingInputIds: new Set(),
+  currentView: "tester",
   previewTimer: null,
   previewSequence: 0,
-  treeJobs: Object.create(null),
-  runtimeBundles: Object.create(null),
-  editedTrees: Object.create(null),
-  nodeWorkingTree: null,
-  nodeId: null,
+  builderDrafts: {},
+  builderSelectedNodeId: null,
+  explorerSelectedNodeId: null,
+  builderSearch: "",
+  explorerSearch: "",
+  locale: "vi",
+  patientTab: "specs",
+  medicationCatalog: { classes: [] },
 };
+
 const $ = (id) => document.getElementById(id);
 const pretty = (value) => JSON.stringify(value, null, 2);
-const colors = { start: "#d7f7e8", condition: "#ffe5a6", inference: "#b9d6ff", link: "#f7bddb", end: "#dec5f6" };
+
+const NODE_COLORS = {
+  start: "#e8fffc",
+  condition: "#fffaf6",
+  branch: "#fffaf6",
+  inference: "#f3fffe",
+  link: "#f9f2ff",
+  end: "#f9f2ff",
+};
+
+const NODE_BORDERS = {
+  start: "#00c8b3",
+  condition: "#ff8d28",
+  branch: "#ff8d28",
+  inference: "#00c8b3",
+  link: "#cb30e0",
+  end: "#cb30e0",
+};
+
+const VIEW_LABELS = {
+  en: { tester: "Tree Tester", explorer: "Tree Explorer", builder: "Tree Builder" },
+  vi: { tester: "Chạy thử cây", explorer: "Khám phá cây", builder: "Xây dựng cây" },
+};
+
+const UI_LABELS = {
+  en: {
+    decisionTree: "Decision Tree",
+    dynamicForm: "Dynamic form",
+    patientInfo: "Patient Simulator",
+    run: "Manual Traverse",
+    startTraversal: "Start Traversal",
+    reset: "Reset",
+    simulatorSubtitle: "Fill in fields to simulate traversal.",
+    currentTree: "Tree being viewed",
+    localRecord: "Local patient record",
+    open: "Open",
+    preset: "Preset patient",
+    patientSpecs: "Patient information",
+    clinicalHistory: "Clinical history",
+    inputData: "Enter data",
+    sharedDataHint: "The same patient record is used across the five linked trees.",
+    currentRun: "Current run",
+    tree: "Decision tree:",
+    nodeInfo: "Node Information",
+    navigate: "Navigate tree",
+    options: "Options",
+    selectedNode: "Selected node",
+    description: "Description",
+    metadata: "Metadata",
+    treeLibrary: "Tree Library",
+    view: "View",
+    guideline: "Guideline",
+    setBased: "Set-based",
+    newTree: "＋ New tree (reset)",
+    importJson: "↓ Import JSON",
+    exportJson: "↑ Export JSON",
+    nodeProperties: "Node properties",
+    selected: "Selected:",
+    properties: "Properties",
+    live: "Live visualization",
+    ready: "System Ready",
+    language: "Switch language",
+  },
+  vi: {
+    decisionTree: "Cây quyết định",
+    dynamicForm: "Biểu mẫu động",
+    patientInfo: "Mô phỏng người bệnh",
+    run: "Chạy cây đang xem",
+    startTraversal: "Chạy toàn bộ quy trình",
+    reset: "Xóa dữ liệu",
+    simulatorSubtitle: "Điền dữ liệu để mô phỏng đường đi qua phác đồ.",
+    currentTree: "Cây đang xem",
+    localRecord: "Hồ sơ bệnh nhân cục bộ",
+    open: "Mở",
+    preset: "Bệnh nhân mẫu",
+    patientSpecs: "Thông tin bệnh nhân",
+    clinicalHistory: "Lịch sử lâm sàng",
+    inputData: "Nhập dữ liệu",
+    sharedDataHint: "Một hồ sơ bệnh nhân được dùng xuyên suốt năm cây liên kết.",
+    currentRun: "Lần chạy hiện tại",
+    tree: "Cây quyết định:",
+    nodeInfo: "Thông tin node",
+    navigate: "Điều hướng cây",
+    options: "Các nhánh",
+    selectedNode: "Node đang chọn",
+    description: "Mô tả",
+    metadata: "Thông tin bổ sung",
+    treeLibrary: "Thư viện cây",
+    view: "Chế độ xem",
+    guideline: "Guideline",
+    setBased: "Theo tập dữ liệu",
+    newTree: "＋ Tạo cây mới",
+    importJson: "↓ Nhập JSON",
+    exportJson: "↑ Xuất JSON",
+    nodeProperties: "Thuộc tính node",
+    selected: "Đang chọn:",
+    properties: "Thuộc tính",
+    live: "Hiển thị trực quan",
+    ready: "Hệ thống sẵn sàng",
+    language: "Chuyển ngôn ngữ",
+  },
+};
+
+const VARIABLE_TRANSLATIONS = {
+  en: {
+    "bp.office1.systolicMmHg": "Clinic visit 1 — systolic BP",
+    "bp.office1.diastolicMmHg": "Clinic visit 1 — diastolic BP",
+    "bp.office2.systolicMmHg": "Clinic visit 2 — systolic BP",
+    "bp.office2.diastolicMmHg": "Clinic visit 2 — diastolic BP",
+    "bp.office3.systolicMmHg": "Clinic visit 3 — systolic BP",
+    "bp.office3.diastolicMmHg": "Clinic visit 3 — diastolic BP",
+    "patient.diagnosisCodes": "Patient diagnosis codes (ICD-10/SNOMED CT)",
+    "patient.birthDate": "Date of birth",
+    "patient.sex": "Sex",
+    "encounter.number": "Encounter number",
+    "vitals.heartRate": "Heart rate",
+    "patient.heightM": "Height",
+    "patient.weightKg": "Weight",
+    "lab.eGfr": "eGFR",
+    "lab.ldlCholesterol": "LDL-C",
+    "lab.triglycerides": "Triglycerides",
+    "risk.lipidAbnormality": "Abnormal lipids",
+    "risk.familyHistoryPrematureCvd": "Family history of premature cardiovascular disease",
+    "risk.currentSmoker": "Current smoker",
+    "risk.socialEnvironmentalRisk": "Adverse social or environmental factors",
+    "bp.latest.systolicMmHg": "Latest BP — systolic",
+    "bp.latest.diastolicMmHg": "Latest BP — diastolic",
+    "medication.currentDrugNames": "Current antihypertensive medicines",
+    "medication.previousEncounterDrugNames": "Medicines prescribed at the previous encounter",
+    "medication.regimenStableWeeks": "Weeks on a stable regimen",
+    "medication.drugClass": "Antihypertensive drug class",
+  },
+  vi: {
+    "comorbidity.targetOrganDamageOrCvd": "Bằng chứng tổn thương cơ quan đích hoặc bệnh tim mạch",
+    "comorbidity.heartFailureReducedEjectionFraction": "Suy tim phân suất tống máu giảm",
+    "comorbidity.atheroscleroticCvd": "Bệnh tim mạch do xơ vữa",
+    "comorbidity.type2Diabetes": "Đái tháo đường type 2",
+    "treatment.targetSystolicMmHg": "Đích huyết áp tâm thu",
+    "treatment.targetDiastolicMmHg": "Đích huyết áp tâm trương",
+    "risk.class": "Phân tầng nguy cơ tim mạch",
+    "bp.category": "Phân loại huyết áp",
+    "medication.previousEncounterDrugClassList": "Nhóm thuốc ở lần khám trước",
+    "medication.currentDrugClassList": "Nhóm thuốc đang sử dụng",
+  },
+};
+
+const FORM_GROUPS = {
+  bloodPressure: {
+    ids: ["bp.office1.systolicMmHg", "bp.office1.diastolicMmHg", "bp.office2.systolicMmHg", "bp.office2.diastolicMmHg", "bp.office3.systolicMmHg", "bp.office3.diastolicMmHg"],
+    vi: "Huyết áp",
+    en: "Blood pressure",
+    tab: "specs",
+  },
+  demographics: {
+    ids: ["patient.birthDate", "patient.sex", "encounter.number", "vitals.heartRate", "patient.heightM", "patient.weightKg", "lab.eGfr", "lab.ldlCholesterol", "lab.triglycerides"],
+    vi: "Thông tin người bệnh và nguy cơ",
+    en: "Demographics and risk",
+    tab: "specs",
+  },
+  comorbidities: {
+    ids: ["patient.diagnosisCodes", "risk.lipidAbnormality", "risk.familyHistoryPrematureCvd", "risk.currentSmoker", "risk.socialEnvironmentalRisk"],
+    vi: "Bệnh đồng mắc và yếu tố lâm sàng",
+    en: "Comorbidities and clinical flags",
+    tab: "specs",
+  },
+  treatment: {
+    ids: ["medication.currentDrugNames", "medication.previousEncounterDrugNames", "medication.regimenStableWeeks"],
+    vi: "Điều trị và tái khám",
+    en: "Treatment and follow-up",
+    tab: "history",
+  },
+};
+
+const PATIENT_PRESETS = {
+  demo_normal: {
+    label: "Demo — Huyết áp bình thường",
+    values: {
+      "bp.office1.systolicMmHg": 128, "bp.office1.diastolicMmHg": 78,
+      "bp.office2.systolicMmHg": 126, "bp.office2.diastolicMmHg": 78,
+      "bp.office3.systolicMmHg": 125, "bp.office3.diastolicMmHg": 78,
+      "patient.diagnosisCodes": "NO_KNOWN_CODES", "patient.birthDate": "1985-04-12",
+      "patient.sex": "female", "encounter.number": 1,
+      "vitals.heartRate": 70, "patient.heightM": 1.65, "patient.weightKg": 60,
+      "lab.eGfr": 90, "lab.ldlCholesterol": 2, "lab.triglycerides": 1,
+      "risk.lipidAbnormality": false, "risk.familyHistoryPrematureCvd": false,
+      "risk.currentSmoker": false, "risk.socialEnvironmentalRisk": false,
+      "medication.regimenStableWeeks": 0,
+    },
+  },
+  demo_high_risk: {
+    label: "Demo — Nguy cơ cao",
+    values: {
+      "bp.office1.systolicMmHg": 154, "bp.office1.diastolicMmHg": 94,
+      "bp.office2.systolicMmHg": 150, "bp.office2.diastolicMmHg": 92,
+      "bp.office3.systolicMmHg": 148, "bp.office3.diastolicMmHg": 90,
+      "patient.diagnosisCodes": "I25.1,I50.9,E11.9", "patient.birthDate": "1955-07-21",
+      "patient.sex": "male", "encounter.number": 2,
+      "medication.previousEncounterDrugNames": "Amlodipine, Losartan",
+      "medication.regimenStableWeeks": 6,
+    },
+  },
+};
+
+
 const displayTranslations = new Map([
   ["BP Diagnosis Tree", "Cây chẩn đoán tăng huyết áp"],
   ["BP Thresholds and Targets Tree", "Ngưỡng và mục tiêu huyết áp"],
@@ -28,21 +239,156 @@ const displayTranslations = new Map([
   ["Yes", "Có"],
   ["No", "Không"],
   ["Exactly 2", "Đúng 2"],
-  ["Both arms", "Cả hai tay"],
   ["Target met", "Đạt mục tiêu"],
   ["Not met", "Chưa đạt mục tiêu"],
   [" (reading)", ""],
   [" (week)", ""],
   [" (class)", ""],
-  ["clinical flow", "luồng lâm sàng"],
 ]);
-function localizeText(value) {
-  let text = String(value || "");
-  displayTranslations.forEach((translated, source) => { text = text.split(source).join(translated); });
-  return text;
-}
+
+const valueTranslations = new Map([
+  ["true", "Có"],
+  ["false", "Không"],
+  ["office", "Phòng khám"],
+  ["office_3rd", "Đo phòng khám lần 3"],
+  ["home", "Tại nhà"],
+  ["normal", "Bình thường"],
+  ["high_normal", "Bình thường cao"],
+  ["grade1", "Tăng huyết áp độ 1"],
+  ["grade2", "Tăng huyết áp độ 2"],
+  ["high", "Nguy cơ cao"],
+  ["moderate", "Nguy cơ trung bình"],
+  ["low", "Nguy cơ thấp"],
+  ["high_risk_or_comorbidity", "Nguy cơ cao hoặc có bệnh đồng mắc"],
+  ["comorbidity", "Có bệnh đồng mắc"],
+  ["no_comorbidity", "Không có bệnh đồng mắc"],
+  ["two_drug_combination", "Phối hợp 2 thuốc"],
+  ["monotherapy_or_two_drug", "Đơn trị hoặc phối hợp 2 thuốc"],
+  ["lifestyle_only", "Thay đổi lối sống"],
+  ["initial_treatment", "Điều trị ban đầu"],
+  ["mandatory_indication", "Có chỉ định bắt buộc"],
+  ["escalate_two_drugs", "Tăng lên 2 nhóm thuốc"],
+  ["maintain_two_drugs", "Duy trì 2 nhóm thuốc"],
+  ["escalate_three_drugs", "Tăng lên 3 nhóm thuốc"],
+  ["maintain_three_drugs", "Duy trì 3 nhóm thuốc"],
+  ["escalate_four_drugs", "Tăng lên 4 nhóm thuốc"],
+  ["maintain_four_drugs", "Duy trì 4 nhóm thuốc"],
+  ["resistant_htn_referral", "Chuyển đánh giá THA kháng trị"],
+  ["normal_bp", "Huyết áp bình thường"],
+  ["high_normal_bp", "Huyết áp bình thường cao"],
+  ["hypertension", "Tăng huyết áp"],
+  ["hypertensive_crisis", "Cơn tăng huyết áp"],
+  ["white_coat_hypertension", "Tăng huyết áp áo choàng trắng"],
+  ["masked_hypertension", "Tăng huyết áp ẩn giấu"],
+  ["risk_high", "Nguy cơ cao"],
+  ["risk_medium", "Nguy cơ trung bình"],
+  ["risk_low", "Nguy cơ thấp"],
+  ["male", "Nam"],
+  ["female", "Nữ"],
+  ["other", "Khác"],
+  ["unknown", "Chưa xác định"],
+  ["mandatory_coronary_artery_disease", "Chỉ định bắt buộc — bệnh mạch vành/xơ vữa"],
+  ["mandatory_heart_failure_reduced_ef", "Chỉ định bắt buộc — suy tim EF giảm"],
+  ["mandatory_stroke", "Chỉ định bắt buộc — tiền sử đột quỵ"],
+  ["mandatory_chronic_kidney_disease", "Chỉ định bắt buộc — bệnh thận mạn"],
+  ["mandatory_type2_diabetes", "Chỉ định bắt buộc — đái tháo đường type 2"],
+  ["acei", "Ức chế men chuyển (ACEI — A)"],
+  ["arb", "Ức chế thụ thể angiotensin (ARB — A)"],
+  ["ccb", "Chẹn kênh canxi (CCB — C)"],
+  ["beta_blocker", "Chẹn beta (BB — B)"],
+  ["diuretic", "Lợi tiểu (D)"],
+  ["mra", "Đối kháng thụ thể mineralocorticoid (MRA)"],
+  ["other", "Thuốc hạ áp khác"],
+  ["uncontrolled_htn_arm", "THA chưa kiểm soát"],
+  ["resistant_htn_arm", "THA kháng trị"],
+  ["add_diuretic", "Bổ sung lợi tiểu và phân loại lại"],
+  ["resistant_defer", "Tạm hoãn, đánh giá lại sau"],
+  ["resistant_out_of_range", "Ngoài khoảng, cần xử trí trước"],
+  ["resistant_agent_count_review_required", "Cần rà soát số nhóm thuốc"],
+]);
+
 let graphInstance = null;
 let visualEndAliases = new Map();
+let visualGraph = { nodes: [], edges: [] };
+
+function localizeText(value) {
+  let text = String(value || "");
+  if (state.locale === "en") return text;
+  displayTranslations.forEach((translated, source) => {
+    text = text.split(source).join(translated);
+  });
+  return text;
+}
+
+function applyLocale() {
+  const labels = UI_LABELS[state.locale];
+  const set = (selector, value) => {
+    const element = document.querySelector(selector);
+    if (!element) return;
+    const childElements = [...element.children];
+    element.replaceChildren(...childElements, document.createTextNode(value));
+  };
+  set("#language-label", state.locale === "vi" ? "EN" : "VI");
+  $("language-flag").src = state.locale === "vi" ? "/icon/language_en.svg" : "/icon/language_vi.svg";
+  $("language-flag").alt = state.locale === "vi" ? "English" : "Tiếng Việt";
+  $("language-toggle").setAttribute("aria-label", labels.language);
+  set("#tab-tester", VIEW_LABELS[state.locale].tester);
+  set("#tab-explorer", VIEW_LABELS[state.locale].explorer);
+  set("#tab-builder", VIEW_LABELS[state.locale].builder);
+  set("#sidebar-title", VIEW_LABELS[state.locale][state.currentView]);
+  if (state.currentView === "tester") set("#sidebar-title", labels.patientInfo);
+  set("#simulator-subtitle", labels.simulatorSubtitle);
+  set("label[for=tree-select]", labels.currentTree);
+  set("label[for=patient-record-id]", labels.localRecord);
+  set("#open-patient-record", labels.open);
+  set(".preset-field span", labels.preset);
+  set("#patient-tab-specs", labels.patientSpecs);
+  set("#patient-tab-history", labels.clinicalHistory);
+  set("#form-panel h3", labels.inputData);
+  set("#start-traversal", labels.startTraversal);
+  set("#mode-form", labels.dynamicForm);
+  set("#mode-json", "JSON");
+  set("#run-tree", labels.run);
+  set(".result-title", labels.currentRun);
+  set("#result-box > div:nth-child(2)", labels.tree);
+  set(".explorer-sidebar h2", labels.nodeInfo);
+  set(".explorer-sidebar .field-label", labels.options);
+  const explorerSectionLabels = [labels.navigate, labels.selectedNode, labels.description, labels.metadata];
+  document.querySelectorAll(".explorer-sidebar .section-row strong").forEach((element, index) => {
+    if (explorerSectionLabels[index]) element.textContent = explorerSectionLabels[index];
+  });
+  set(".builder-library h2", labels.treeLibrary);
+  set(".builder-library .section-row strong", labels.view);
+  set(".builder-segment button:nth-child(1)", labels.guideline);
+  set(".builder-segment button:nth-child(2)", labels.setBased);
+  set("#new-tree-button", labels.newTree);
+  set("#import-tree-button", labels.importJson);
+  set("#export-tree-button", labels.exportJson);
+  set(".builder-properties h2", labels.nodeProperties);
+  set(".builder-properties p strong", labels.selected);
+  set(".builder-properties .section-row:last-of-type strong", labels.properties);
+  const visualTitle = state.currentView === "explorer"
+    ? VIEW_LABELS[state.locale].explorer
+    : state.currentView === "builder"
+      ? VIEW_LABELS[state.locale].builder
+      : labels.live;
+  set(".visual-card h2", visualTitle);
+  set("footer div", labels.ready);
+  const explorerSearch = $("explorer-search");
+  explorerSearch.placeholder = state.locale === "en" ? "Search nodes..." : "Tìm kiếm node";
+  explorerSearch.setAttribute("aria-label", state.locale === "en" ? "Search nodes" : "Tìm kiếm node");
+  const builderSearch = $("builder-search");
+  builderSearch.placeholder = state.locale === "en" ? "Search trees..." : "Tìm kiếm cây";
+  builderSearch.setAttribute("aria-label", state.locale === "en" ? "Search trees" : "Tìm kiếm cây");
+  document.documentElement.lang = state.locale;
+}
+
+function valueLabel(value, variableId = "") {
+  const key = String(value);
+  if (variableId === "patient.sex" && key === "other") return state.locale === "en" ? "Other" : "Khác";
+  if (variableId === "patient.sex" && key === "unknown") return state.locale === "en" ? "Unknown" : "Chưa xác định";
+  return valueTranslations.get(key) || localizeText(key.replace(/_/g, " "));
+}
 
 async function api(url, options = {}) {
   const response = await fetch(url, { headers: { "Content-Type": "application/json" }, ...options });
@@ -51,78 +397,208 @@ async function api(url, options = {}) {
   return data;
 }
 
-function tree() { return state.bundle.trees.find((item) => item.id === state.treeId); }
-function activeTree() { return state.editedTrees[state.treeId] || tree(); }
+function currentTree() {
+  return state.builderDrafts[state.treeId] || state.bundle?.trees.find((item) => item.id === state.treeId);
+}
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 function treeLabel(treeId) {
   const target = state.bundle?.trees?.find((item) => item.id === treeId);
   return localizeText(target?.name || "cây liên kết");
 }
+
 function variableLabel(variableId) {
   const variable = state.bundle.variables.find((item) => item.id === variableId);
-  return localizeText(variable?.label || "Thông tin cần nhập");
+  return variableDisplayLabel(variable) || "Thông tin cần nhập";
 }
-function missingVariableLabels(variableIds) {
-  return (variableIds || []).map(variableLabel);
+
+function variableDisplayLabel(variable) {
+  if (!variable) return "";
+  const translated = VARIABLE_TRANSLATIONS[state.locale]?.[variable.id];
+  if (translated) return translated;
+  const raw = String(variable.label || variable.id);
+  if (raw !== variable.id) return localizeText(raw);
+  const technical = variable.id.split(".").at(-1).replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]+/g, " ");
+  return state.locale === "en"
+    ? technical.charAt(0).toUpperCase() + technical.slice(1)
+    : `Thông tin ${technical}`;
 }
-function makeGeneratedTreeId(name) {
-  const normalized = String(name || "")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^A-Za-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .toLowerCase();
-  return `uploaded_${normalized || "tree"}_${Date.now()}`;
+
+function resultDisplayLabel(result) {
+  const candidates = [result?.resultCode, result?.outcomeCode, result?.decision];
+  for (const candidate of candidates) {
+    if (candidate == null) continue;
+    if (typeof candidate === "object") {
+      const nested = candidate.title || candidate.label || candidate.name || candidate.code || candidate.id;
+      if (nested) return localizeText(valueLabel(nested));
+    } else {
+      return localizeText(valueLabel(candidate));
+    }
+  }
+  return "Hoàn tất";
 }
-function showStatus(message, kind = "") { $("ui-status").textContent = message; $("ui-status").className = `status ${kind}`; }
-function showPipelineStatus(message, kind = "") { $("pipeline-status").textContent = message; $("pipeline-status").className = `status ${kind}`; }
+
 function nodeData(node) {
-  if (node && node.data && typeof node.data === "object") return node.data;
+  if (node?.data && typeof node.data === "object") return node.data;
   if (typeof node?.dataJson === "string") {
-    try { return JSON.parse(node.dataJson); } catch (error) { return {}; }
+    try {
+      return JSON.parse(node.dataJson);
+    } catch {
+      return {};
+    }
   }
   return {};
 }
-function linkTarget(node) { return nodeData(node).targetTreeId; }
-const OPTIMIZED_TREE_ID = "optimized_hypertension_treatment";
-const FLOW_DERIVED_VARIABLES = new Set([
-  "treatment.recommendation",
-  "treatment.targetSystolicMmHg",
-  "treatment.targetDiastolicMmHg",
-  "treatment.targetProfile",
-  "treatment.controlWindowMonths",
-]);
-function inputVariableIdsForTree(current) {
-  if (state.treeId !== OPTIMIZED_TREE_ID) return current.inputVariables || [];
-  const flowTreeIds = ["bp_thresholds_targets", OPTIMIZED_TREE_ID, "uncontrolled_resistant_hypertension"];
-  const ids = [];
-  for (const treeId of flowTreeIds) {
-    const source = treeId === state.treeId ? current : state.bundle.trees.find((item) => item.id === treeId);
-    for (const variableId of source?.inputVariables || []) {
-      if (!FLOW_DERIVED_VARIABLES.has(variableId) && !ids.includes(variableId)) ids.push(variableId);
+
+function inputVariableIdsForTree(tree) {
+  // The patient simulator deliberately renders one shared record rather than
+  // changing the form when the selected tree changes. Derived values stay in
+  // the context but are never exposed as manual inputs.
+  return state.bundle.variables
+    .filter((variable) => variable.sourceSystem !== "derived" && variable.dataType !== "array")
+    .map((variable) => variable.id);
+}
+
+function latestBpValues(context = {}) {
+  for (const encounter of [3, 2, 1]) {
+    const systolic = context[`bp.office${encounter}.systolicMmHg`];
+    const diastolic = context[`bp.office${encounter}.diastolicMmHg`];
+    if (Number.isFinite(Number(systolic)) && Number.isFinite(Number(diastolic))) {
+      return { systolic, diastolic, encounter };
     }
   }
-  return ids;
+  return { systolic: "", diastolic: "", encounter: null };
+}
+
+function refreshLatestBpDisplay(context = state.context) {
+  const latest = latestBpValues(context);
+  const systolic = $("derived-latest-systolic");
+  const diastolic = $("derived-latest-diastolic");
+  const source = $("derived-latest-source");
+  if (systolic) systolic.value = isProvided(latest.systolic) ? String(latest.systolic) : "";
+  if (diastolic) diastolic.value = isProvided(latest.diastolic) ? String(latest.diastolic) : "";
+  if (source) source.textContent = latest.encounter
+    ? (state.locale === "en" ? `Automatically taken from clinic visit ${latest.encounter}.` : `Tự động lấy từ HA phòng khám lần ${latest.encounter}.`)
+    : (state.locale === "en" ? "Enter a complete clinic BP pair to calculate the latest BP." : "Nhập đủ một cặp huyết áp phòng khám để tự tính HA lần đo gần nhất.");
+}
+
+function isProvided(value) {
+  return value !== undefined && value !== null && value !== "";
+}
+
+function treeIdsForRun(tree) {
+  return [tree.id];
+}
+
+function requiredVariableIdsForRun(tree) {
+  const produced = new Set();
+  const required = [];
+  for (const treeId of treeIdsForRun(tree)) {
+    const source = state.bundle.trees.find((item) => item.id === treeId);
+    for (const variableId of source?.inputVariables || []) {
+      const variable = state.bundle.variables.find((item) => item.id === variableId);
+      if (variable?.sourceSystem === "derived") continue;
+      // For a linked flow, an output produced by an earlier stage is supplied
+      // by context and must not be requested again from the user.
+      if (!produced.has(variableId) && !required.includes(variableId)) required.push(variableId);
+    }
+    for (const variableId of source?.outputVariables || []) produced.add(variableId);
+  }
+  return required;
+}
+
+function showStatus(message, kind = "") {
+  $("ui-status").textContent = message;
+  $("ui-status").className = `status ${kind}`;
 }
 
 function clearPathHighlight(message = "Nhập dữ liệu để xem đường đi trên cây.") {
   if (graphInstance) {
-    graphInstance.nodes().removeClass("path-mode path-node path-current path-terminal");
-    graphInstance.edges().removeClass("path-mode path-edge");
+    graphInstance.nodes().removeClass("path-mode path-node path-current path-terminal path-condition-node");
+    graphInstance.edges().removeClass("path-mode path-edge path-condition-yes path-condition-no path-condition-threshold path-condition-default");
   }
   $("path-status").textContent = message;
   $("path-status").className = "path-status";
 }
 
+function pathConditionClass(label) {
+  const text = String(label || "").trim().toLowerCase();
+  if (/^(có|yes|true)\b/.test(text)) return "path-condition-yes";
+  if (/^(không|no|false)\b/.test(text)) return "path-condition-no";
+  if (/[<>≤≥=]|\d/.test(text)) return "path-condition-threshold";
+  return "path-condition-default";
+}
+
+function buildVisualGraph(tree) {
+  const nodesById = Object.fromEntries(tree.nodes.map((node) => [node.id, node]));
+  const outgoingByNode = Object.fromEntries(tree.nodes.map((node) => [node.id, []]));
+  tree.edges.forEach((edge) => outgoingByNode[edge.from]?.push(edge));
+  const nodes = [];
+  const edges = [];
+  let occurrence = 0;
+
+  // The bundle can intentionally reuse a shared branch. Unfold shared nodes
+  // for presentation only so the UI remains a readable decision tree; the
+  // runtime still evaluates the canonical JSON nodes and IDs.
+  function addOccurrence(nodeId, parentVisualId, incomingEdge, ancestors) {
+    if (!nodesById[nodeId] || visualEndAliases.has(nodeId) || ancestors.has(nodeId)) return;
+    const node = nodesById[nodeId];
+    const visualId = `${nodeId}__visual_${occurrence++}`;
+    nodes.push({
+      data: {
+        id: visualId,
+        canonicalId: nodeId,
+        label: localizeText(node.display?.title || ""),
+        nodeType: node.type,
+        color: NODE_COLORS[node.type] || NODE_COLORS.condition,
+        borderColor: NODE_BORDERS[node.type] || NODE_BORDERS.condition,
+      },
+    });
+    if (parentVisualId && incomingEdge) {
+      edges.push({
+        data: {
+          id: `edge-${occurrence}-${parentVisualId}-${visualId}`,
+          source: parentVisualId,
+          target: visualId,
+          canonicalSource: incomingEdge.from,
+          canonicalTarget: incomingEdge.to,
+          label: localizeText(incomingEdge.label || (incomingEdge.when === "default" ? "" : incomingEdge.when)),
+          conditionClass: pathConditionClass(incomingEdge.label || incomingEdge.when),
+        },
+      });
+    }
+
+    const nextAncestors = new Set(ancestors);
+    nextAncestors.add(nodeId);
+    for (const edge of outgoingByNode[nodeId] || []) {
+      if (!visualEndAliases.has(edge.to)) addOccurrence(edge.to, visualId, edge, nextAncestors);
+    }
+  }
+
+  addOccurrence(tree.entryNodeId, null, null, new Set());
+  const renderedIds = new Set(nodes.map((item) => item.data.canonicalId));
+  for (const node of tree.nodes) {
+    if (!visualEndAliases.has(node.id) && !renderedIds.has(node.id)) {
+      addOccurrence(node.id, null, null, new Set());
+    }
+  }
+  return { nodes, edges };
+}
+
 function highlightPath(result) {
   if (!graphInstance) return;
-  const events = (result?.trace || []).filter((event) => event.treeId === state.treeId && event.nodeId);
-  const nodeIds = events.map((event) => visualEndAliases.get(event.nodeId) || event.nodeId).filter((nodeId, index, ids) => index === 0 || nodeId !== ids[index - 1]);
-  const nodeIdSet = new Set(nodeIds);
-  const edgeKeys = new Set();
-  for (let index = 1; index < nodeIds.length; index += 1) edgeKeys.add(`${nodeIds[index - 1]}->${nodeIds[index]}`);
 
-  graphInstance.nodes().removeClass("path-mode path-node path-current path-terminal");
-  graphInstance.edges().removeClass("path-mode path-edge");
+  const events = (result?.trace || []).filter((event) => event.treeId === state.treeId && event.nodeId);
+  const nodeIds = events
+    .map((event) => visualEndAliases.get(event.nodeId) || event.nodeId)
+    .filter((nodeId, index, ids) => index === 0 || nodeId !== ids[index - 1]);
+
+  graphInstance.nodes().removeClass("path-mode path-node path-current path-terminal path-condition-node");
+  graphInstance.edges().removeClass("path-mode path-edge path-condition-yes path-condition-no path-condition-threshold path-condition-default");
+
   if (!events.length) {
     clearPathHighlight("Chưa có node nào được đánh giá.");
     return;
@@ -130,170 +606,809 @@ function highlightPath(result) {
 
   graphInstance.nodes().addClass("path-mode");
   graphInstance.edges().addClass("path-mode");
-  graphInstance.nodes().forEach((node) => { if (nodeIdSet.has(node.id())) node.addClass("path-node"); });
+  const visualNodeIds = [];
+  const visualEdgeIds = [];
+  let current = graphInstance.nodes().filter((node) => node.data("canonicalId") === nodeIds[0]).first();
+  if (current?.length) visualNodeIds.push(current.id());
+  for (let index = 1; index < nodeIds.length && current?.length; index += 1) {
+    const edge = current.outgoers("edge").filter((candidate) => candidate.data("canonicalTarget") === nodeIds[index]).first();
+    if (!edge?.length) break;
+    current = edge.target();
+    visualEdgeIds.push(edge.id());
+    visualNodeIds.push(current.id());
+  }
+  const visualNodeSet = new Set(visualNodeIds);
+  const visualEdgeSet = new Set(visualEdgeIds);
+  graphInstance.nodes().forEach((node) => {
+    if (!visualNodeSet.has(node.id())) return;
+    node.addClass("path-node");
+    if (["condition", "branch"].includes(node.data("nodeType"))) node.addClass("path-condition-node");
+  });
   graphInstance.edges().forEach((edge) => {
-    if (edgeKeys.has(`${edge.data("source")}->${edge.data("target")}`)) edge.addClass("path-edge");
+    if (!visualEdgeSet.has(edge.id())) return;
+    edge.addClass("path-edge");
+    edge.addClass(edge.data("conditionClass") || "path-condition-default");
   });
 
   const lastEvent = events[events.length - 1];
-  const lastNode = graphInstance.getElementById(visualEndAliases.get(lastEvent.nodeId) || lastEvent.nodeId);
+  const lastNode = visualNodeIds.length
+    ? graphInstance.getElementById(visualNodeIds[visualNodeIds.length - 1])
+    : graphInstance.nodes().filter((node) => node.data("canonicalId") === (visualEndAliases.get(lastEvent.nodeId) || lastEvent.nodeId)).first();
   if (result.status === "completed") lastNode.addClass("path-terminal");
   else lastNode.addClass("path-current");
+
   const terminal = result.status === "completed"
-    ? `Kết quả: ${result.decision || result.resultCode || result.outcomeCode || "Hoàn tất"}`
+    ? `Kết quả: ${resultDisplayLabel(result)}`
     : result.status === "needs_data"
-      ? `Đang chờ dữ liệu: ${missingVariableLabels(result.missingData).join(", ") || "chưa đủ điều kiện"}`
+      ? `Cần bổ sung: ${(result.missingData || []).map(variableLabel).join(", ") || "chưa đủ điều kiện"}`
       : `Trạng thái: ${result.status}`;
   const linkNote = result.terminalTreeId && result.terminalTreeId !== state.treeId ? ` · chuyển đến ${treeLabel(result.terminalTreeId)}` : "";
+
   $("path-status").textContent = `Đường đi hiện tại: ${events.length} node${linkNote} · ${terminal}`;
   $("path-status").className = `path-status ${result.status === "completed" ? "completed" : "pending"}`;
 }
 
-function renderGraph(current) {
-  const container = $("graph");
+function renderGraph(tree) {
   if (graphInstance) graphInstance.destroy();
-  const nodesById = Object.fromEntries(current.nodes.map((node) => [node.id, node]));
-  const incomingByNode = Object.fromEntries(current.nodes.map((node) => [node.id, []]));
-  current.edges.forEach((edge) => incomingByNode[edge.to]?.push(edge));
+
+  const nodesById = Object.fromEntries(tree.nodes.map((node) => [node.id, node]));
+  const incomingByNode = Object.fromEntries(tree.nodes.map((node) => [node.id, []]));
+  tree.edges.forEach((edge) => incomingByNode[edge.to]?.push(edge));
+
   visualEndAliases = new Map();
-  current.nodes.forEach((node) => {
+  tree.nodes.forEach((node) => {
     if (node.type !== "end" || incomingByNode[node.id].length !== 1) return;
     const sourceId = incomingByNode[node.id][0].from;
     if (nodesById[sourceId]?.type === "inference") visualEndAliases.set(node.id, sourceId);
   });
-  const visibleNodes = current.nodes.filter((node) => !visualEndAliases.has(node.id));
-  const nodeData = visibleNodes.map((node) => {
-    const title = localizeText(node.display?.title || "");
-    return { data: { id: node.id, title, nodeType: node.type, label: title }, classes: node.type };
-  });
-  const edgeData = current.edges
-    .filter((edge) => !visualEndAliases.has(edge.to))
-    .map((edge, index) => ({ data: { id: `edge-${index}-${edge.from}-${edge.to}`, source: edge.from, target: edge.to, label: localizeText(edge.label || (edge.when === "default" ? "" : edge.when)) }, classes: current.nodes.find((node) => node.id === edge.from)?.type === "link" ? "link-edge" : "" }));
+
+  visualGraph = buildVisualGraph(tree);
+  const elements = [...visualGraph.nodes, ...visualGraph.edges];
 
   graphInstance = cytoscape({
-    container,
-    elements: [...nodeData, ...edgeData],
+    container: $("graph"),
+    elements,
     style: [
-      { selector: "node", style: { "background-color": "data(nodeType)", "background-opacity": 1, "border-color": "#23466f", "border-width": 2, shape: "roundrectangle", width: 230, height: 112, label: "data(label)", color: "#14213b", "font-family": "Inter, ui-sans-serif, system-ui, sans-serif", "font-size": 12, "font-weight": 600, "text-wrap": "wrap", "text-max-width": 202, "text-valign": "center", "text-halign": "center", padding: 8, "overlay-opacity": 0, "shadow-blur": 8, "shadow-color": "#19345a", "shadow-opacity": 0.15, "shadow-offset-x": 0, "shadow-offset-y": 3 } },
-      { selector: 'node[nodeType = "start"]', style: { "background-color": colors.start } },
-      { selector: 'node[nodeType = "condition"]', style: { "background-color": colors.condition } },
-      { selector: 'node[nodeType = "inference"]', style: { "background-color": colors.inference } },
-      { selector: 'node[nodeType = "link"]', style: { "background-color": colors.link, "border-color": "#9d174d", cursor: "pointer" } },
-      { selector: 'node[nodeType = "end"]', style: { "background-color": colors.end } },
+      {
+        selector: "node",
+        style: {
+          "background-color": "data(color)",
+          "border-color": "data(borderColor)",
+          "border-width": 1.2,
+          shape: "roundrectangle",
+          width: 254,
+          height: 84,
+          label: "data(label)",
+          color: "#212529",
+          "font-family": "Inter, ui-sans-serif, system-ui, sans-serif",
+          "font-size": 13,
+          "font-weight": 700,
+          "text-wrap": "wrap",
+          "text-max-width": 220,
+          "text-valign": "center",
+          "text-halign": "center",
+          padding: 10,
+          "overlay-opacity": 0,
+        },
+      },
       { selector: "node.path-mode", style: { opacity: 0.34 } },
-      { selector: "node.path-node", style: { opacity: 1, "border-color": "#16a34a", "border-width": 4, "shadow-color": "#16a34a", "shadow-opacity": 0.4, "shadow-blur": 16 } },
-      { selector: "node.path-current", style: { "background-color": "#fde68a", "border-color": "#d97706", "border-width": 5, "shadow-color": "#f59e0b", "shadow-opacity": 0.55, "shadow-blur": 18 } },
-      { selector: "node.path-terminal", style: { "background-color": "#bfdbfe", "border-color": "#2563eb", "border-width": 5, "shadow-color": "#2563eb", "shadow-opacity": 0.55, "shadow-blur": 18 } },
-      { selector: "edge", style: { width: 2, "line-color": "#6b7d97", "target-arrow-color": "#6b7d97", "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", color: "#52637c", "font-size": 11, "font-weight": 600, "text-background-color": "#ffffff", "text-background-opacity": 0.9, "text-background-padding": 3, "text-rotation": "none", "text-margin-y": -4 } },
-      { selector: ".link-edge", style: { "line-color": "#c0266e", "target-arrow-color": "#c0266e", "line-style": "dashed" } },
+      { selector: "node.path-node", style: { opacity: 1, "border-color": "#16a34a", "border-width": 4 } },
+      { selector: "node.path-condition-node", style: { "background-color": "#ffd166", "border-color": "#f97316", "border-width": 4 } },
+      { selector: "node.path-current", style: { "background-color": "#fff4cc", "border-color": "#ff8d28", "border-width": 5 } },
+      { selector: "node.path-terminal", style: { "background-color": "#e8fffc", "border-color": "#00c8b3", "border-width": 5 } },
+      {
+        selector: "edge",
+        style: {
+          width: 1.4,
+          "line-color": "#75839a",
+          "target-arrow-color": "#75839a",
+          "target-arrow-shape": "triangle",
+          "curve-style": "taxi",
+          "taxi-direction": "downward",
+          "taxi-turn": 24,
+          "taxi-turn-min-distance": 12,
+          label: "data(label)",
+          color: "#52637c",
+          "font-size": 11,
+          "font-weight": 700,
+          "text-background-color": "#f1f4f9",
+          "text-background-opacity": 1,
+          "text-background-padding": 5,
+          "text-rotation": "none",
+          "text-margin-y": -8,
+        },
+      },
       { selector: "edge.path-mode", style: { opacity: 0.2 } },
       { selector: "edge.path-edge", style: { opacity: 1, width: 5, "line-color": "#16a34a", "target-arrow-color": "#16a34a", "z-index": 10 } },
-      { selector: ":selected", style: { "border-color": "#2563eb", "border-width": 4, "shadow-opacity": 0.3 } },
+      { selector: "edge.path-edge.path-condition-yes", style: { "text-color": "#047857", "text-background-color": "#bbf7d0", "text-border-color": "#10b981", "text-border-width": 1, "text-border-opacity": 1, "text-background-opacity": 1, "text-background-padding": 6 } },
+      { selector: "edge.path-edge.path-condition-no", style: { "text-color": "#b91c1c", "text-background-color": "#fecaca", "text-border-color": "#ef4444", "text-border-width": 1, "text-border-opacity": 1, "text-background-opacity": 1, "text-background-padding": 6 } },
+      { selector: "edge.path-edge.path-condition-threshold", style: { "text-color": "#9a3412", "text-background-color": "#fed7aa", "text-border-color": "#f97316", "text-border-width": 1, "text-border-opacity": 1, "text-background-opacity": 1, "text-background-padding": 6 } },
+      { selector: "edge.path-edge.path-condition-default", style: { "text-color": "#6d28d9", "text-background-color": "#e9d5ff", "text-border-color": "#a855f7", "text-border-width": 1, "text-border-opacity": 1, "text-background-opacity": 1, "text-background-padding": 6 } },
     ],
-    layout: { name: "dagre", rankDir: "TB", nodeSep: 70, edgeSep: 24, rankSep: 82, padding: 36, fit: true, animate: false },
-    wheelSensitivity: 0.55,
+    layout: {
+      name: "dagre",
+      rankDir: "TB",
+      ranker: "tight-tree",
+      nodeSep: 110,
+      edgeSep: 42,
+      rankSep: 106,
+      padding: 54,
+      fit: true,
+      animate: false,
+    },
+    wheelSensitivity: 1.8,
     minZoom: 0.15,
     maxZoom: 2.2,
   });
+
+  graphInstance.on("zoom", updateZoomLabel);
   graphInstance.on("tap", "node", (event) => {
-    const selected = current.nodes.find((node) => node.id === event.target.id());
-    if (selected?.type !== "link") {
-      openEditTree(selected?.id);
-      return;
+    const selected = tree.nodes.find((node) => node.id === (event.target.data("canonicalId") || event.target.id()));
+    if (state.currentView === "explorer") {
+      state.explorerSelectedNodeId = selected?.id || null;
+      renderExplorerPanel(tree);
     }
-    const targetTreeId = linkTarget(selected);
-    if (targetTreeId && state.bundle.trees.some((item) => item.id === targetTreeId)) {
+    if (state.currentView === "builder") {
+      state.builderSelectedNodeId = selected?.id || null;
+      renderBuilderPanels(tree);
+    }
+    const targetTreeId = selected?.type === "link" ? nodeData(selected).targetTreeId : "";
+    if (!targetTreeId) return;
+    if (state.bundle.trees.some((item) => item.id === targetTreeId)) {
       selectTree(targetTreeId, `Đã chuyển đến cây liên kết: ${treeLabel(targetTreeId)}`);
     } else {
       showStatus("Không tìm thấy cây đích của liên kết.", "bad");
     }
   });
+
+  window.setTimeout(updateZoomLabel, 0);
 }
 
-function renderInputForm(current) {
-  const variables = Object.fromEntries(state.bundle.variables.map((item) => [item.id, item]));
+function renderInputForm(tree) {
+  const variablesById = Object.fromEntries(state.bundle.variables.map((item) => [item.id, item]));
+  const requiredIds = new Set(requiredVariableIdsForRun(tree));
   const form = $("input-form");
   form.innerHTML = "";
-  inputVariableIdsForTree(current).forEach((id) => {
-    const variable = variables[id];
-    if (!variable) return;
-    const card = document.createElement("div");
-    card.className = "input-card";
-    const label = document.createElement("label");
-    label.htmlFor = `var-${id.replace(/[^A-Za-z0-9_-]/g, "_")}`;
-    label.textContent = `${localizeText(variable.label || "Thông tin cần nhập")}${variable.unit ? ` (${localizeText(variable.unit)})` : ""}`;
-    card.appendChild(label);
-    let input;
-    if (variable.dataType === "enum" || variable.dataType === "boolean") {
-      input = document.createElement("select");
-      input.add(new Option("Chưa nhập", ""));
-      const values = variable.dataType === "boolean" ? ["true", "false"] : (variable.allowedValues || []);
-      values.forEach((value) => input.add(new Option(value, value)));
-    } else {
-      input = document.createElement("input");
-      input.type = variable.dataType === "string" ? "text" : "number";
-      if (variable.dataType === "number") input.step = "any";
-      if (variable.validation?.minimum != null) input.min = variable.validation.minimum;
-      if (variable.validation?.maximum != null) input.max = variable.validation.maximum;
-    }
-    input.id = `var-${id.replace(/[^A-Za-z0-9_-]/g, "_")}`;
-    input.dataset.variableId = id;
-    card.appendChild(input);
-    if (variable.definition) {
-      const small = document.createElement("small");
-      small.textContent = localizeText(variable.definition);
-      card.appendChild(small);
-    }
-    form.appendChild(card);
+
+  const variableIds = new Set(inputVariableIdsForTree(tree));
+  Object.entries(FORM_GROUPS).forEach(([groupId, group]) => {
+    if (group.tab !== state.patientTab) return;
+    const ids = group.ids.filter((id) => variableIds.has(id) && variablesById[id]);
+    if (!ids.length) return;
+
+    const section = document.createElement("details");
+    section.className = "input-section";
+    section.open = true;
+    section.dataset.formGroup = groupId;
+    const summary = document.createElement("summary");
+    summary.textContent = state.locale === "en" ? group.en : group.vi;
+    section.appendChild(summary);
+    const fields = document.createElement("div");
+    fields.className = "section-fields";
+
+    const rendered = new Set();
+    ids.forEach((id) => {
+      if (rendered.has(id)) return;
+      const variable = variablesById[id];
+      const pair = pairIdsFor(id, ids);
+      if (pair.length > 1) {
+        pair.forEach((pairId) => rendered.add(pairId));
+        fields.appendChild(renderPairField(pair, variablesById, requiredIds));
+        return;
+      }
+      rendered.add(id);
+      fields.appendChild(renderVariableField(variable, requiredIds.has(id)));
+    });
+    section.appendChild(fields);
+    if (groupId === "bloodPressure") fields.appendChild(renderDerivedLatestBpField());
+    form.appendChild(section);
   });
-  $("input-help").textContent = inputVariableIdsForTree(current).length ? "Nhập các thông tin cần thiết; đường đi sẽ sáng lên tương ứng." : "Cây này không yêu cầu dữ liệu đầu vào.";
+
+  $("input-help").textContent = state.locale === "en"
+    ? "Fields are shared across the five linked trees. Required fields are marked with * when the selected tree needs them."
+    : "Dữ liệu được dùng chung cho năm cây liên kết. Dấu * chỉ xuất hiện khi cây đang xem cần trường đó.";
+  if (state.inputMode === "json") $("json-input").value = pretty(state.context);
+  refreshLatestBpDisplay(state.context);
+}
+
+function renderDerivedLatestBpField() {
+  const card = document.createElement("div");
+  card.className = "input-card pair-card derived-input-card";
+  const title = document.createElement("label");
+  title.textContent = state.locale === "en" ? "Latest BP" : "HA lần đo gần nhất";
+  card.appendChild(title);
+  const row = document.createElement("div");
+  row.className = "bp-pair-row";
+  for (const [id, caption] of [["derived-latest-systolic", "HATT"], ["derived-latest-diastolic", "HATTr"]]) {
+    const group = document.createElement("div");
+    group.className = "bp-pair-field";
+    const label = document.createElement("span");
+    label.textContent = caption;
+    const input = document.createElement("input");
+    input.id = id;
+    input.type = "number";
+    input.readOnly = true;
+    input.tabIndex = -1;
+    input.setAttribute("aria-label", state.locale === "en"
+      ? `${caption === "HATT" ? "Latest BP systolic" : "Latest BP diastolic"}`
+      : `${caption === "HATT" ? "HA lần đo gần nhất - HATT" : "HA lần đo gần nhất - HATTr"}`);
+    input.setAttribute("aria-readonly", "true");
+    group.append(label, input);
+    row.appendChild(group);
+  }
+  const help = document.createElement("small");
+  help.id = "derived-latest-source";
+  card.append(row, help);
+  return card;
+}
+
+function pairIdsFor(id, ids) {
+  const match = id.match(/^(.*)\.(systolicMmHg|diastolicMmHg)$/);
+  if (!match) return [];
+  const sibling = `${match[1]}.${match[2] === "systolicMmHg" ? "diastolicMmHg" : "systolicMmHg"}`;
+  return ids.includes(sibling) ? [id, sibling].sort((a, b) => a.endsWith("systolicMmHg") ? -1 : b.endsWith("systolicMmHg") ? 1 : a.localeCompare(b)) : [];
+}
+
+function inputElementFor(variable, id) {
+  let input;
+  if (variable.dataType === "boolean") {
+    // A binary switch cannot distinguish "not entered" from an explicit
+    // clinical false. Keep a third state so an omitted assessment is never
+    // silently converted to a negative finding.
+    input = document.createElement("select");
+    input.className = "boolean-select";
+    input.dataset.booleanInput = "true";
+    input.add(new Option(state.locale === "en" ? "Not entered" : "Chưa nhập", ""));
+    input.add(new Option(state.locale === "en" ? "Yes" : "Có", "true"));
+    input.add(new Option(state.locale === "en" ? "No" : "Không", "false"));
+  } else if (variable.dataType === "enum") {
+    input = document.createElement("select");
+    input.add(new Option(state.locale === "en" ? "Not entered" : "Chưa nhập", ""));
+    (variable.allowedValues || []).forEach((value) => input.add(new Option(valueLabel(value, variable.id), value)));
+  } else {
+    input = document.createElement("input");
+    input.type = variable.id === "patient.birthDate" ? "date" : variable.dataType === "string" ? "text" : "number";
+    if (variable.dataType !== "string") input.step = "any";
+    if (variable.validation?.minimum != null) input.min = variable.validation.minimum;
+    if (variable.validation?.maximum != null) input.max = variable.validation.maximum;
+  }
+  input.id = `var-${id.replace(/[^A-Za-z0-9_-]/g, "_")}`;
+  input.dataset.variableId = id;
+  const existingValue = state.context[id];
+  if (variable.dataType === "boolean") input.checked = existingValue === true || existingValue === "true";
+  else if (isProvided(existingValue)) input.value = String(existingValue);
+  if (variable.dataType === "boolean") {
+    input.value = existingValue === true || existingValue === "true"
+      ? "true"
+      : existingValue === false || existingValue === "false"
+        ? "false"
+        : "";
+  }
+  return input;
+}
+
+function medicationEntries() {
+  return (state.medicationCatalog?.classes || []).flatMap((group) => (group.drugs || []).map((drug) => {
+    const name = typeof drug === "string" ? drug : drug.name;
+    return {
+      name: String(name || "").toLowerCase(),
+      label: typeof drug === "string" ? String(drug) : (drug.label || String(name || "")),
+      classCode: group.code,
+      classLabel: group.shortLabel || group.label || group.code,
+    };
+  })).filter((item) => item.name);
+}
+
+function medicationNames(value) {
+  if (Array.isArray(value)) return value.map((item) => String(item).trim().toLowerCase()).filter(Boolean);
+  return String(value || "").split(/[,;\n\r\t]+/).map((item) => item.trim().toLowerCase()).filter(Boolean);
+}
+
+function renderMedicationChips(container, hidden) {
+  const entries = medicationEntries();
+  container.innerHTML = "";
+  medicationNames(hidden.value).forEach((name) => {
+    const entry = entries.find((item) => item.name === name);
+    const chip = document.createElement("span");
+    chip.className = "medication-chip";
+    chip.textContent = `${entry?.label || name} · ${entry?.classLabel || (state.locale === "en" ? "Unmapped" : "Chưa ánh xạ")}`;
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "medication-remove";
+    remove.dataset.removeMedication = name;
+    remove.dataset.medicationInput = hidden.dataset.variableId;
+    remove.setAttribute("aria-label", state.locale === "en" ? `Remove ${entry?.label || name}` : `Xóa ${entry?.label || name}`);
+    remove.textContent = "×";
+    remove.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      hidden.value = medicationNames(hidden.value).filter((item) => item !== name).join(", ");
+      renderMedicationChips(container, hidden);
+      rememberCurrentForm();
+      schedulePathPreview();
+    });
+    chip.appendChild(remove);
+    container.appendChild(chip);
+  });
+}
+
+function renderMedicationField(variable, required) {
+  const card = document.createElement("div");
+  card.className = "input-card medication-card";
+  const label = document.createElement("label");
+  label.textContent = `${variableDisplayLabel(variable)}${required ? " *" : ""}`;
+  card.appendChild(label);
+
+  const hidden = document.createElement("input");
+  hidden.type = "hidden";
+  hidden.dataset.variableId = variable.id;
+  hidden.className = "medication-value";
+  hidden.value = medicationNames(state.context[variable.id]).join(", ");
+
+  const picker = document.createElement("select");
+  picker.className = "medication-picker";
+  picker.add(new Option(state.locale === "en" ? "Add a medicine…" : "Thêm thuốc…", ""));
+  medicationEntries().forEach((entry) => picker.add(new Option(`${entry.label} · ${entry.classLabel}`, entry.name)));
+  const chips = document.createElement("div");
+  chips.className = "medication-chips";
+  picker.addEventListener("change", () => {
+    const names = medicationNames(hidden.value);
+    if (picker.value && !names.includes(picker.value)) names.push(picker.value);
+    hidden.value = names.join(", ");
+    picker.value = "";
+    renderMedicationChips(chips, hidden);
+    rememberCurrentForm();
+    schedulePathPreview();
+  });
+  renderMedicationChips(chips, hidden);
+  card.append(picker, hidden, chips);
+  addVariableHelp(card, variable);
+  if (state.missingInputIds.has(variable.id)) card.classList.add("missing");
+  return card;
+}
+
+function renderVariableField(variable, required) {
+  if (variable.id === "medication.currentDrugNames" || variable.id === "medication.previousEncounterDrugNames") {
+    return renderMedicationField(variable, required);
+  }
+  const card = document.createElement("div");
+  card.className = "input-card";
+  const label = document.createElement("label");
+  label.htmlFor = `var-${variable.id.replace(/[^A-Za-z0-9_-]/g, "_")}`;
+  label.textContent = `${variableDisplayLabel(variable)}${variable.unit ? ` (${localizeText(variable.unit)})` : ""}${required ? " *" : ""}`;
+  card.appendChild(label);
+  const input = inputElementFor(variable, variable.id);
+  card.appendChild(input);
+  addVariableHelp(card, variable);
+  if (state.missingInputIds.has(variable.id)) card.classList.add("missing");
+  return card;
+}
+
+function renderPairField(ids, variablesById, requiredIds) {
+  const card = document.createElement("div");
+  card.className = "input-card pair-card";
+  const title = document.createElement("label");
+  const first = variablesById[ids[0]];
+  const prefix = first.id.replace(/\.(systolicMmHg|diastolicMmHg)$/, "");
+  const pairTitles = state.locale === "en"
+    ? { "bp.office1": "Clinic visit 1", "bp.office2": "Clinic visit 2", "bp.office3": "Clinic visit 3" }
+    : { "bp.office1": "HA phòng khám lần 1", "bp.office2": "HA phòng khám lần 2", "bp.office3": "HA phòng khám lần 3" };
+  title.textContent = pairTitles[prefix] || (state.locale === "en" ? "Blood pressure" : "Huyết áp");
+  card.appendChild(title);
+  const row = document.createElement("div");
+  row.className = "bp-pair-row";
+  ids.forEach((id) => {
+    const variable = variablesById[id];
+    const group = document.createElement("div");
+    group.className = "bp-pair-field";
+    const caption = document.createElement("span");
+    caption.textContent = id.endsWith("systolicMmHg") ? "HATT" : "HATTr";
+    const input = inputElementFor(variable, id);
+    input.setAttribute("aria-label", `${variableDisplayLabel(variable)}${requiredIds.has(id) ? " *" : ""}`);
+    group.append(caption, input);
+    row.appendChild(group);
+    if (state.missingInputIds.has(id)) card.classList.add("missing");
+  });
+  card.appendChild(row);
+  addVariableHelp(card, first);
+  return card;
+}
+
+function addVariableHelp(card, variable) {
+  if (!variable.definition) return;
+  const help = document.createElement("small");
+  help.textContent = localizeText(variable.definition);
+  card.appendChild(help);
+}
+
+function collectInputsFromForm() {
+  const values = { ...state.context };
+  document.querySelectorAll("[data-variable-id]").forEach((input) => {
+    const value = input.type === "checkbox"
+      ? (input.checked ? true : "")
+      : input.dataset.booleanInput === "true"
+        ? (input.value === "true" ? true : input.value === "false" ? false : "")
+        : input.value;
+    if (value !== "") values[input.dataset.variableId] = value;
+    else delete values[input.dataset.variableId];
+  });
+  return values;
+}
+
+function normalizeFhirContext(parsed) {
+  const resources = parsed?.resourceType === "Bundle"
+    ? (parsed.entry || []).map((entry) => entry?.resource).filter(Boolean)
+    : [parsed];
+  if (!resources.some((resource) => resource?.resourceType)) return {};
+  const context = {};
+  const diagnoses = [];
+  const medications = [];
+  const observations = new Map();
+  resources.forEach((resource) => {
+    if (resource.resourceType === "Patient") {
+      if (resource.birthDate) context["patient.birthDate"] = resource.birthDate;
+      if (resource.gender) context["patient.sex"] = ["male", "female", "other", "unknown"].includes(resource.gender) ? resource.gender : "unknown";
+    }
+    if (resource.resourceType === "Condition") {
+      const codings = resource.code?.coding || [];
+      codings.forEach((coding) => { if (coding.code) diagnoses.push(coding.code); });
+    }
+    if (resource.resourceType === "Observation") {
+      const code = resource.code?.coding?.[0]?.code;
+      const value = resource.valueQuantity?.value ?? resource.value?.value ?? resource.value;
+      if (code && value != null) observations.set(code, value);
+    }
+    if (resource.resourceType === "MedicationRequest" || resource.resourceType === "MedicationStatement") {
+      const medication = resource.medicationCodeableConcept?.coding?.[0]?.code
+        || resource.medicationCodeableConcept?.text
+        || resource.medicationReference?.display;
+      if (medication) medications.push(medication);
+    }
+  });
+  if (diagnoses.length) context["patient.diagnosisCodes"] = [...new Set(diagnoses)].join(",");
+  if (medications.length) context["medication.currentDrugNames"] = [...new Set(medications)].join(", ");
+  const observationMap = {
+    "8867-4": "vitals.heartRate",
+    "98979-8": "lab.eGfr",
+    "13457-7": "lab.ldlCholesterol",
+    "2571-8": "lab.triglycerides",
+  };
+  observations.forEach((value, code) => {
+    if (observationMap[code] && Number.isFinite(Number(value))) context[observationMap[code]] = Number(value);
+  });
+  return context;
+}
+
+function normalizeJsonContext(parsed) {
+  const fhirContext = normalizeFhirContext(parsed);
+  const context = {};
+  if (parsed.variables && typeof parsed.variables === "object" && !Array.isArray(parsed.variables)) Object.assign(context, parsed.variables);
+  if (parsed.context && typeof parsed.context === "object" && !Array.isArray(parsed.context)) Object.assign(context, parsed.context);
+  if (parsed.result?.context && typeof parsed.result.context === "object" && !Array.isArray(parsed.result.context)) Object.assign(context, parsed.result.context);
+  if (!Object.keys(context).length && !Object.keys(fhirContext).length) Object.assign(context, parsed);
+  delete context.result;
+  delete context.variables;
+  delete context.context;
+  return { ...fhirContext, ...context };
+}
+
+function collectInputsFromJson() {
+  const raw = $("json-input").value.trim();
+  if (!raw) return {};
+  const parsed = JSON.parse(raw);
+  if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") throw new Error("JSON đầu vào phải là object key-value.");
+  return normalizeJsonContext(parsed);
 }
 
 function collectInputs() {
-  const values = {};
-  document.querySelectorAll("[data-variable-id]").forEach((input) => { if (input.value !== "") values[input.dataset.variableId] = input.value; });
-  return values;
+  return state.inputMode === "json" ? collectInputsFromJson() : collectInputsFromForm();
+}
+
+function syncJsonFromForm() {
+  state.context = collectInputsFromForm();
+  $("json-input").value = pretty(state.context);
+}
+
+function applyJsonToForm() {
+  const values = collectInputsFromJson();
+  // JSON is an explicit patient-record replacement. Merging here leaves
+  // stale values from the previous patient when a field was removed.
+  state.context = { ...values };
+}
+
+function rememberCurrentForm() {
+  if (state.inputMode === "form" && $("input-form")?.children.length) state.context = collectInputsFromForm();
+}
+
+function markMissingInputs(ids) {
+  state.missingInputIds = new Set(ids);
+  document.querySelectorAll("[data-variable-id]").forEach((input) => {
+    input.closest(".input-card")?.classList.toggle("missing", state.missingInputIds.has(input.dataset.variableId));
+  });
+}
+
+function validateInputsBeforeRun(tree, variables) {
+  const missing = requiredVariableIdsForRun(tree).filter((id) => !isProvided(variables[id]));
+  markMissingInputs(missing);
+  if (missing.length) {
+    const labels = missing.map(variableLabel).join(", ");
+    showStatus(`Chưa đủ dữ liệu. Vui lòng bổ sung: ${labels}`, "bad");
+    setResultCard("Chưa đủ dữ liệu", [`Cần bổ sung: ${labels}`]);
+    $("path-status").textContent = `Chưa thể chạy: còn thiếu ${missing.length} trường dữ liệu.`;
+    $("path-status").className = "path-status pending";
+    return false;
+  }
+  return true;
+}
+
+async function loadJsonFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") throw new Error("Tệp JSON phải là object.");
+    state.context = normalizeJsonContext(parsed);
+    $("json-input").value = pretty(state.context);
+    if (state.inputMode !== "json") setInputMode("json", { preserveContext: true });
+    else renderInputForm(currentTree());
+    showStatus(`Đã nạp dữ liệu từ ${file.name}.`, "good");
+    schedulePathPreview();
+  } catch (error) {
+    showStatus(`Không thể nạp JSON: ${error.message}`, "bad");
+  } finally {
+    event.target.value = "";
+  }
+}
+
+function setInputMode(mode, options = {}) {
+  if (mode === state.inputMode) return;
+  if (mode === "json") {
+    if (!options.preserveContext) syncJsonFromForm();
+  } else {
+    try {
+      applyJsonToForm();
+    } catch (error) {
+      showStatus(`JSON chưa hợp lệ: ${error.message}`, "bad");
+      return;
+    }
+  }
+
+  state.inputMode = mode;
+  $("mode-form").classList.toggle("active", mode === "form");
+  $("mode-json").classList.toggle("active", mode === "json");
+  $("form-panel").hidden = mode !== "form";
+  $("json-panel").hidden = mode !== "json";
+  const tree = currentTree();
+  if (tree) renderInputForm(tree);
+  showStatus("");
+  schedulePathPreview();
 }
 
 function refreshTreeOptions() {
   const select = $("tree-select");
   select.innerHTML = "";
-  state.bundle.trees.forEach((item) => select.add(new Option(localizeText(item.name || item.id), item.id)));
+  state.bundle.trees.forEach((tree) => select.add(new Option(localizeText(tree.name || tree.id), tree.id)));
   select.value = state.treeId;
 }
 
-function renderTree() {
-  state.previewSequence += 1;
-  clearTimeout(state.previewTimer);
-  const current = activeTree();
-  if (!current) return;
-  refreshTreeOptions();
-  $("tree-purpose").textContent = localizeText(current.purpose || "");
-  $("graph-title").textContent = localizeText(current.name || "Sơ đồ quyết định");
-  renderGraph(current);
-  renderInputForm(current);
-  $("result-box").textContent = "Chưa có kết quả.";
-  showStatus("");
-  clearPathHighlight();
-  const hasDraft = Boolean(state.editedTrees[state.treeId]);
-  $("run-draft").disabled = !hasDraft;
-  $("graph-title").classList.toggle("draft-active", hasDraft);
+function setResultCard(title = UI_LABELS[state.locale].currentRun, lines = [UI_LABELS[state.locale].tree], treeId = state.treeId) {
+  $("result-box").innerHTML = `
+    <div class="result-title"><span class="eye-icon" aria-hidden="true"></span>${title}</div>
+    ${lines.map((line) => `<div>${escapeHtml(line)}</div>`).join("")}
+    <div class="result-tree-row">${escapeHtml(UI_LABELS[state.locale].tree)} <button id="current-run-tree" type="button" data-tree-id="${escapeHtml(treeId || "")}">${escapeHtml(treeLabel(treeId || state.treeId))}</button></div>
+  `;
 }
 
-function setGraphFullscreen(isFullscreen) {
-  const panel = $("graph-panel");
-  const button = $("fullscreen-graph");
-  panel.classList.toggle("is-fullscreen", isFullscreen);
-  document.body.classList.toggle("graph-fullscreen", isFullscreen);
-  button.textContent = isFullscreen ? "Thu nhỏ" : "Toàn màn hình";
-  button.setAttribute("aria-label", isFullscreen ? "Thu nhỏ sơ đồ quyết định" : "Hiển thị cây toàn màn hình");
-  button.setAttribute("aria-pressed", String(isFullscreen));
-  if (graphInstance) {
-    window.setTimeout(() => {
-      graphInstance.resize();
-      graphInstance.fit(undefined, isFullscreen ? 48 : 36);
-    }, 50);
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#39;",
+  }[char]));
+}
+
+function firstVisibleNode(tree) {
+  return tree.nodes.find((node) => node.type !== "end") || tree.nodes[0];
+}
+
+function nodeTypeLabel(node) {
+  if (!node) return "—";
+  const labels = state.locale === "vi"
+    ? { start: "Bắt đầu", condition: "Điều kiện", branch: "Nhánh bệnh nền", inference: "Khuyến nghị", link: "Liên kết", end: "Kết thúc" }
+    : { start: "Start", condition: "Condition", branch: "Clinical branch", inference: "Recommendation", link: "Link", end: "Outcome" };
+  if (labels[node.type]) return labels[node.type];
+  return node.type;
+}
+
+function renderExplorerPanel(tree) {
+  const selected = tree.nodes.find((node) => node.id === state.explorerSelectedNodeId) || firstVisibleNode(tree);
+  state.explorerSelectedNodeId = selected?.id || null;
+  const outgoing = tree.edges.filter((edge) => edge.from === selected?.id);
+  const query = state.explorerSearch.trim().toLowerCase();
+  const matching = query
+    ? tree.nodes.filter((node) => `${node.display?.title || ""} ${node.display?.detail || ""}`.toLowerCase().includes(query))
+    : [];
+  const options = query
+    ? matching.map((node) => `<button type="button" data-explorer-node-id="${escapeHtml(node.id)}">${escapeHtml(localizeText(node.display?.title || node.id))}</button>`).join("")
+    : outgoing.map((edge) => `<button type="button" data-explorer-node-id="${escapeHtml(edge.to)}">${escapeHtml(localizeText(edge.label || edge.when || "Default"))}</button>`).join("");
+  const emptyOptions = state.locale === "en"
+    ? (query ? "No nodes found" : "No next branch")
+    : (query ? "Không tìm thấy node" : "Không có nhánh tiếp theo");
+  $("explorer-options").innerHTML = options || `<button type="button" disabled>${emptyOptions}</button>`;
+  $("explorer-selected-node").innerHTML = `${escapeHtml(localizeText(selected?.display?.title || "—"))}<small>${escapeHtml(nodeTypeLabel(selected))}</small>`;
+  $("explorer-description").textContent = localizeText(selected?.display?.detail || selected?.description || "—");
+  const metadataLabel = state.locale === "en" ? "Description" : "Mô tả";
+  $("explorer-metadata").textContent = `${metadataLabel}: ${localizeText(tree.purpose || tree.metadata?.description || "—")}`;
+  $("explorer-terminal-card").hidden = selected?.type !== "inference" && selected?.type !== "end";
+}
+
+function builderDraftTree() {
+  const tree = currentTree();
+  if (!tree) return null;
+  if (!state.builderDrafts[tree.id]) state.builderDrafts[tree.id] = cloneJson(tree);
+  return state.builderDrafts[tree.id];
+}
+
+function updateBuilderTree(mutator, message = "Đã cập nhật bản nháp cây.") {
+  const draft = builderDraftTree();
+  if (!draft) return;
+  mutator(draft);
+  state.builderDrafts[draft.id] = draft;
+  renderTree();
+  showStatus(message, "good");
+}
+
+function createNewTree() {
+  const baseId = "new_decision_tree";
+  let id = baseId;
+  let suffix = 2;
+  while (state.bundle.trees.some((tree) => tree.id === id)) id = `${baseId}_${suffix++}`;
+  const tree = {
+    id,
+    name: "Cây quyết định mới",
+    purpose: "Bản nháp cây quyết định mới.",
+    clinicalStatus: "draft",
+    entryNodeId: "new_start",
+    inputVariables: [],
+    outputVariables: [],
+    nodes: [{
+      id: "new_start",
+      type: "start",
+      display: { title: "Bắt đầu cây quyết định mới", detail: "" },
+    }],
+    edges: [],
+    notes: ["Bản nháp chỉ được lưu khi export JSON và chưa được đưa vào runtime."] ,
+    localOnly: true,
+  };
+  state.bundle.trees.push(tree);
+  state.builderDrafts[id] = cloneJson(tree);
+  state.treeId = id;
+  state.builderSelectedNodeId = "new_start";
+  renderTree();
+  showStatus("Đã tạo bản nháp cây mới.", "good");
+}
+
+function exportTreeJson() {
+  const tree = currentTree();
+  if (!tree) return;
+  const blob = new Blob([JSON.stringify(tree, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${tree.id}.json`;
+  anchor.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  showStatus(`Đã xuất bản nháp ${tree.id}.json.`, "good");
+}
+
+async function importTreeFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    const imported = Array.isArray(parsed.trees) ? parsed.trees : [parsed.tree || parsed];
+    const validTrees = imported.filter((tree) => tree && typeof tree === "object" && tree.id && Array.isArray(tree.nodes) && Array.isArray(tree.edges));
+    if (!validTrees.length) throw new Error("JSON phải là một cây hoặc bundle có trường trees.");
+    let firstId = null;
+    validTrees.forEach((rawTree) => {
+      const tree = cloneJson(rawTree);
+      const originalId = tree.id;
+      let id = originalId;
+      let suffix = 2;
+      while (state.bundle.trees.some((item) => item.id === id)) id = `${originalId}_imported_${suffix++}`;
+      tree.id = id;
+      tree.localOnly = true;
+      state.bundle.trees.push(tree);
+      state.builderDrafts[id] = cloneJson(tree);
+      if (!firstId) firstId = id;
+    });
+    state.treeId = firstId;
+    state.builderSelectedNodeId = currentTree()?.entryNodeId || currentTree()?.nodes?.[0]?.id || null;
+    renderTree();
+    showStatus(`Đã nhập ${validTrees.length} cây vào bản nháp.`, "good");
+  } catch (error) {
+    showStatus(`Không thể nhập cây: ${error.message}`, "bad");
+  } finally {
+    event.target.value = "";
   }
+}
+
+function updateSelectedBuilderNode() {
+  const nodeId = state.builderSelectedNodeId;
+  if (!nodeId) return;
+  updateBuilderTree((tree) => {
+    const node = tree.nodes.find((item) => item.id === nodeId);
+    if (!node) return;
+    node.display = node.display || {};
+    node.display.title = $("builder-node-label").value;
+    node.display.detail = $("builder-node-detail").value;
+    node.type = $("builder-node-type").value;
+  });
+}
+
+function renderBuilderPanels(tree) {
+  const query = state.builderSearch.trim().toLowerCase();
+  const visibleTrees = state.bundle.trees
+    .map((item) => state.builderDrafts[item.id] || item)
+    .filter((item) => !query || `${item.name || ""} ${item.purpose || ""}`.toLowerCase().includes(query));
+  $("builder-tree-list").innerHTML = visibleTrees.map((item, index) => `
+    <button type="button" class="${item.id === state.treeId ? "active" : ""}" data-builder-tree-id="${escapeHtml(item.id)}">
+      ${escapeHtml(localizeText(item.name || `Tree ${index + 1}`))}
+      <small>${escapeHtml(localizeText(item.purpose || "Decision tree"))}</small>
+    </button>
+  `).join("");
+  document.querySelectorAll("[data-builder-tree-id]").forEach((button) => {
+    button.addEventListener("click", () => selectTree(button.dataset.builderTreeId));
+  });
+  const selected = tree.nodes.find((node) => node.id === state.builderSelectedNodeId) || firstVisibleNode(tree);
+  state.builderSelectedNodeId = selected?.id || null;
+  $("builder-selected-node").textContent = nodeTypeLabel(selected);
+  $("builder-backend-id").value = tree.id || "";
+  $("builder-tree-name").value = localizeText(tree.name || tree.id || "");
+  $("builder-tree-status").value = tree.clinicalStatus || "draft";
+  $("builder-node-label").value = selected?.display?.title || "";
+  $("builder-node-type").value = selected?.type || "start";
+  $("builder-node-detail").value = selected?.display?.detail || "";
+}
+
+function updateViewPanels(tree) {
+  const isTester = state.currentView === "tester";
+  const isExplorer = state.currentView === "explorer";
+  const isBuilder = state.currentView === "builder";
+  document.querySelector(".tester-sidebar").hidden = !isTester;
+  document.querySelector(".explorer-sidebar").hidden = !isExplorer;
+  document.querySelector(".builder-library").hidden = !isBuilder;
+  document.querySelector(".builder-properties").hidden = !isBuilder;
+  document.querySelector(".legend-card").hidden = !isExplorer;
+  document.querySelector(".builder-mode-switch").hidden = !isBuilder;
+  $("node-count-label").textContent = `${tree.nodes.length} nodes`;
+  document.querySelector(".visual-card h2").textContent = isExplorer
+    ? VIEW_LABELS[state.locale].explorer
+    : isBuilder
+      ? VIEW_LABELS[state.locale].builder
+      : UI_LABELS[state.locale].live;
+  renderExplorerPanel(tree);
+  renderBuilderPanels(tree);
+}
+
+function renderTree() {
+  const tree = currentTree();
+  if (!tree) return;
+
+  rememberCurrentForm();
+  state.previewSequence += 1;
+  clearTimeout(state.previewTimer);
+  refreshTreeOptions();
+  $("tree-purpose").textContent = localizeText(tree.purpose || "");
+  $("graph-title").textContent = localizeText(tree.name || "Sơ đồ quyết định");
+  renderGraph(tree);
+  renderInputForm(tree);
+  updateViewPanels(tree);
+  setResultCard(UI_LABELS[state.locale].currentRun, [], tree.id);
+  showStatus("");
+  clearPathHighlight();
 }
 
 function selectTree(treeId, message = "") {
@@ -305,34 +1420,110 @@ function selectTree(treeId, message = "") {
 }
 
 function renderResult(result) {
+  state.previewSequence += 1;
+  clearTimeout(state.previewTimer);
+  if (result?.context && typeof result.context === "object") {
+    state.context = { ...state.context, ...result.context };
+    if (state.inputMode === "json") $("json-input").value = pretty(state.context);
+  }
+  markMissingInputs(result?.missingData || []);
   const headline = result.status === "completed"
-    ? (result.decision || result.resultCode || result.outcomeCode || "Hoàn tất")
+    ? resultDisplayLabel(result)
     : result.status === "needs_data"
       ? "Chưa đủ dữ liệu"
       : `Không thể hoàn tất (${result.status || "unknown"})`;
   const lines = [headline];
-  if (result.missingData?.length) lines.push(`Cần bổ sung: ${missingVariableLabels(result.missingData).join(", ")}`);
-  $("result-box").textContent = lines.join("\n");
+  if (result.missingData?.length) lines.push(`Cần bổ sung: ${result.missingData.map(variableLabel).join(", ")}`);
+  setResultCard(UI_LABELS[state.locale].currentRun, lines, result?.terminalTreeId || state.treeId);
   highlightPath(result);
 }
 
-function runtimeJobForCurrentTree() { return state.treeJobs[state.treeId]; }
-function usesClinicalFlow() { return state.treeId === OPTIMIZED_TREE_ID; }
+function populatePresets() {
+  const select = $("preset-select");
+  if (!select) return;
+  select.innerHTML = `<option value="">${state.locale === "en" ? "— Select a preset —" : "— Chọn bệnh nhân mẫu —"}</option>`;
+  Object.entries(PATIENT_PRESETS).forEach(([id, preset]) => select.add(new Option(preset.label, id)));
+}
+
+function applyPatientValues(values, message = "") {
+  // A loaded preset/record is a new patient snapshot. Do not retain fields
+  // that happened to be present for the previously loaded patient.
+  state.context = { ...values };
+  renderInputForm(currentTree());
+  if (state.inputMode === "json") $("json-input").value = pretty(state.context);
+  markMissingInputs([]);
+  schedulePathPreview();
+  if (message) showStatus(message, "good");
+}
+
+function usePreset(id) {
+  if (!id || !PATIENT_PRESETS[id]) return;
+  applyPatientValues(PATIENT_PRESETS[id].values, state.locale === "en" ? "Preset patient loaded." : `Đã nạp ${PATIENT_PRESETS[id].label}.`);
+}
+
+function openLocalPatientRecord() {
+  const raw = $("patient-record-id").value.trim();
+  if (!raw) {
+    showStatus(state.locale === "en" ? "Enter a preset id or patient JSON." : "Nhập mã preset hoặc JSON hồ sơ bệnh nhân.", "bad");
+    return;
+  }
+  const presetId = raw.replaceAll("-", "_");
+  if (PATIENT_PRESETS[presetId]) {
+    $("preset-select").value = presetId;
+    usePreset(presetId);
+    return;
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    const values = normalizeJsonContext(parsed);
+    if (!Object.keys(values).length) throw new Error(state.locale === "en" ? "No patient data found." : "Không tìm thấy dữ liệu bệnh nhân.");
+    applyPatientValues(values, state.locale === "en" ? "Local patient record loaded." : "Đã nạp hồ sơ bệnh nhân cục bộ.");
+  } catch (error) {
+    showStatus(`${state.locale === "en" ? "Unable to open record" : "Không thể mở hồ sơ"}: ${error.message}`, "bad");
+  }
+}
+
+function setPatientTab(tab) {
+  if (!FORM_GROUPS || !["specs", "history"].includes(tab)) return;
+  rememberCurrentForm();
+  state.patientTab = tab;
+  document.querySelectorAll("[data-patient-tab]").forEach((button) => {
+    const active = button.dataset.patientTab === tab;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+  renderInputForm(currentTree());
+}
+
+function resetPatientData() {
+  state.context = {};
+  state.missingInputIds = new Set();
+  $("preset-select").value = "";
+  $("patient-record-id").value = "";
+  if (state.inputMode === "json") $("json-input").value = "{}";
+  renderInputForm(currentTree());
+  clearPathHighlight();
+  setResultCard(state.locale === "en" ? "Current run" : "Lần chạy hiện tại", [], currentTree()?.id);
+  showStatus(state.locale === "en" ? "Patient data cleared." : "Đã xóa dữ liệu người bệnh.", "good");
+}
 
 async function runTree() {
   $("run-tree").disabled = true;
+  state.previewSequence += 1;
+  clearTimeout(state.previewTimer);
   try {
-    const jobId = runtimeJobForCurrentTree();
+    if (state.builderDrafts[state.treeId] || currentTree()?.localOnly) {
+      showStatus("Cây bản nháp chỉ có thể chỉnh sửa và xuất JSON; cần nạp lại bundle sau khi clinical review để chạy.", "bad");
+      return;
+    }
     const variables = collectInputs();
-    const response = usesClinicalFlow()
-      ? (state.editedTrees[state.treeId]
-        ? await api("/api/run-draft-flow", { method: "POST", body: JSON.stringify({ startTreeId: state.treeId, tree: state.editedTrees[state.treeId], variables }) })
-        : await api("/api/run-flow", { method: "POST", body: JSON.stringify({ startTreeId: "bp_thresholds_targets", variables }) }))
-      : jobId
-        ? await api("/api/pipeline/run", { method: "POST", body: JSON.stringify({ jobId, treeId: state.treeId, variables }) })
-        : await api("/api/run", { method: "POST", body: JSON.stringify({ treeId: state.treeId, variables }) });
+    if (!validateInputsBeforeRun(currentTree(), variables)) return;
+    const endpoint = "/api/run";
+    const payload = { treeId: state.treeId, variables, strict: true };
+    const response = await api(endpoint, { method: "POST", body: JSON.stringify(payload) });
     renderResult(response.result);
-    showStatus("Đã chạy cây quyết định.", "good");
+    const completed = response.result?.status === "completed";
+    showStatus(completed ? "Đã chạy cây quyết định." : "Chưa thể hoàn tất vì còn thiếu dữ liệu.", completed ? "good" : "bad");
   } catch (error) {
     $("result-box").textContent = error.message;
     showStatus(error.message, "bad");
@@ -341,372 +1532,53 @@ async function runTree() {
   }
 }
 
-function showDraftStatus(message, kind = "") {
-  $("draft-status").textContent = message;
-  $("draft-status").className = `status ${kind}`;
-}
-
-const nodeTypeLabels = {
-  start: "Điểm bắt đầu",
-  condition: "Câu hỏi điều kiện",
-  inference: "Khuyến nghị / kết luận",
-  link: "Liên kết sang cây khác",
-  end: "Điểm kết thúc",
-};
-const operationLabels = {
-  eq: "bằng",
-  neq: "khác",
-  gt: "lớn hơn",
-  gte: "lớn hơn hoặc bằng",
-  lt: "nhỏ hơn",
-  lte: "nhỏ hơn hoặc bằng",
-  in: "thuộc một trong",
-  not_in: "không thuộc",
-  present: "đã có dữ liệu",
-};
-
-function workingNode() {
-  return state.nodeWorkingTree?.nodes?.find((node) => node.id === state.nodeId);
-}
-
-function nodeDisplayTitle(node) {
-  return localizeText(node?.display?.title || "Node chưa có tiêu đề");
-}
-
-function variableForId(variableId) {
-  return state.bundle.variables.find((item) => item.id === variableId);
-}
-
-function appendOptions(select, options, selectedValue) {
-  options.forEach(([value, label]) => select.add(new Option(label, value, false, value === selectedValue)));
-}
-
-function coerceEditorValue(raw, variable) {
-  const value = String(raw ?? "").trim();
-  if (!value) return null;
-  if (variable?.dataType === "boolean") return value === "true";
-  if (variable?.dataType === "integer") return Number.parseInt(value, 10);
-  if (variable?.dataType === "number") return Number(value);
-  return value;
-}
-
-function createPredicateValueControl(variable, operation, value) {
-  if (operation === "present") return null;
-  const isArray = operation === "in" || operation === "not_in";
-  if (isArray) {
-    const input = document.createElement("input");
-    input.className = "condition-value-array";
-    input.dataset.arrayValue = "true";
-    input.placeholder = "Ví dụ: hypertension, grade1";
-    input.value = Array.isArray(value) ? value.join(", ") : "";
-    return input;
-  }
-  if (variable?.dataType === "boolean") {
-    const select = document.createElement("select");
-    appendOptions(select, [["", "Chưa chọn"], ["true", "Có"], ["false", "Không"]], value == null ? "" : String(value));
-    return select;
-  }
-  if (variable?.dataType === "enum" && variable.allowedValues?.length) {
-    const select = document.createElement("select");
-    appendOptions(select, [["", "Chưa chọn"], ...variable.allowedValues.map((item) => [item, item])], value == null ? "" : String(value));
-    return select;
-  }
-  const input = document.createElement("input");
-  input.type = variable?.dataType === "string" ? "text" : "number";
-  if (input.type === "number") input.step = "any";
-  input.value = value == null ? "" : String(value);
-  return input;
-}
-
-function refreshPredicateValue(row, value) {
-  const variable = variableForId(row.querySelector(".condition-field").value);
-  const operation = row.querySelector(".condition-operation").value;
-  const oldValue = value === undefined ? row.querySelector(".condition-value")?.value : value;
-  const oldControl = row.querySelector(".condition-value");
-  if (oldControl) oldControl.remove();
-  const control = createPredicateValueControl(variable, operation, oldValue);
-  if (control) {
-    control.classList.add("condition-value");
-    row.insertBefore(control, row.querySelector(".remove-condition"));
-  }
-}
-
-function renderPredicate(container, expression = {}) {
-  const row = document.createElement("div");
-  row.className = "condition-row condition-item";
-  row.dataset.conditionKind = "predicate";
-  const field = document.createElement("select");
-  field.className = "condition-field";
-  field.setAttribute("aria-label", "Biến điều kiện");
-  appendOptions(field, state.bundle.variables.map((variable) => [variable.id, localizeText(variable.label || variable.id)]), expression.field);
-  const operation = document.createElement("select");
-  operation.className = "condition-operation";
-  operation.setAttribute("aria-label", "Phép so sánh");
-  appendOptions(operation, Object.entries(operationLabels), expression.op || "eq");
-  row.append(field, operation);
-  const remove = document.createElement("button");
-  remove.type = "button";
-  remove.className = "secondary remove-condition";
-  remove.textContent = "Xóa";
-  remove.addEventListener("click", () => row.remove());
-  row.appendChild(remove);
-  field.addEventListener("change", () => refreshPredicateValue(row, ""));
-  operation.addEventListener("change", () => refreshPredicateValue(row, undefined));
-  container.appendChild(row);
-  refreshPredicateValue(row, expression.value);
-}
-
-function renderConditionNode(container, expression, nested = false) {
-  const isGroup = expression && (Array.isArray(expression.all) || Array.isArray(expression.any));
-  if (!isGroup) {
-    renderPredicate(container, expression || {});
-    return;
-  }
-  const group = document.createElement("div");
-  group.className = `condition-group condition-item${nested ? " nested" : ""}`;
-  group.dataset.conditionKind = "group";
-  const head = document.createElement("div");
-  head.className = "condition-group-head";
-  const selector = document.createElement("select");
-  selector.className = "condition-group-operation";
-  selector.setAttribute("aria-label", "Cách kết hợp điều kiện");
-  appendOptions(selector, [["all", "Tất cả điều kiện"], ["any", "Một trong các điều kiện"]], Array.isArray(expression.any) ? "any" : "all");
-  const addRule = document.createElement("button");
-  addRule.type = "button";
-  addRule.className = "secondary";
-  addRule.textContent = "Thêm điều kiện";
-  const addGroup = document.createElement("button");
-  addGroup.type = "button";
-  addGroup.className = "secondary";
-  addGroup.textContent = "Thêm nhóm";
-  const removeGroup = document.createElement("button");
-  removeGroup.type = "button";
-  removeGroup.className = "secondary";
-  removeGroup.textContent = "Xóa nhóm";
-  head.append(selector, addRule, addGroup);
-  if (nested) head.appendChild(removeGroup);
-  const children = document.createElement("div");
-  children.className = "condition-children";
-  group.append(head, children);
-  const items = Array.isArray(expression.all) ? expression.all : expression.any;
-  (items.length ? items : [{ field: state.bundle.variables[0]?.id || "", op: "eq", value: "" }]).forEach((item) => renderConditionNode(children, item, true));
-  addRule.addEventListener("click", () => renderPredicate(children, { field: state.bundle.variables[0]?.id || "", op: "eq", value: "" }));
-  addGroup.addEventListener("click", () => renderConditionNode(children, { all: [{ field: state.bundle.variables[0]?.id || "", op: "eq", value: "" }] }, true));
-  removeGroup.addEventListener("click", () => group.remove());
-  selector.addEventListener("change", () => {});
-  container.appendChild(group);
-}
-
-function readPredicate(row) {
-  const variable = variableForId(row.querySelector(".condition-field").value);
-  const operation = row.querySelector(".condition-operation").value;
-  const predicate = { field: row.querySelector(".condition-field").value, op: operation };
-  if (operation === "present") return predicate;
-  const control = row.querySelector(".condition-value");
-  if (!control) return predicate;
-  if (control.dataset.arrayValue === "true") {
-    predicate.value = control.value.split(",").map((item) => item.trim()).filter(Boolean).map((item) => coerceEditorValue(item, variable));
-  } else {
-    predicate.value = coerceEditorValue(control.value, variable);
-  }
-  return predicate;
-}
-
-function readConditionNode(element) {
-  if (element.dataset.conditionKind === "predicate") return readPredicate(element);
-  const operation = element.querySelector(":scope > .condition-group-head .condition-group-operation").value;
-  const children = element.querySelector(":scope > .condition-children");
-  return { [operation]: Array.from(children.children).map(readConditionNode) };
-}
-
-function renderConditionEditor(node) {
-  const panel = $("condition-editor-panel");
-  panel.hidden = node?.type !== "condition";
-  const builder = $("condition-builder");
-  builder.innerHTML = "";
-  if (node?.type !== "condition") return;
-  const predicate = node.logic?.predicate || { field: state.bundle.variables[0]?.id || "", op: "eq", value: "" };
-  renderConditionNode(builder, predicate);
-}
-
-function renderLinkEditor(node) {
-  const panel = $("link-editor-panel");
-  panel.hidden = node?.type !== "link";
-  if (node?.type !== "link") return;
-  const select = $("node-link-target");
-  select.innerHTML = "";
-  appendOptions(select, state.bundle.trees.filter((item) => item.id !== state.treeId).map((item) => [item.id, localizeText(item.name || item.id)]), node.data?.targetTreeId);
-}
-
-function renderEdgeEditor(node) {
-  const builder = $("edge-builder");
-  builder.innerHTML = "";
-  const edges = (state.nodeWorkingTree?.edges || []).filter((edge) => edge.from === node?.id);
-  if (!edges.length) {
-    builder.innerHTML = '<div class="condition-empty">Node này không có nhánh đi ra.</div>';
-    return;
-  }
-  edges.forEach((edge, index) => {
-    const row = document.createElement("div");
-    row.className = "edge-row";
-    row.dataset.edgeIndex = String(index);
-    const target = state.nodeWorkingTree.nodes.find((item) => item.id === edge.to);
-    const branchWhen = edge.when === "default" ? "Mặc định" : localizeText(edge.when || "Mặc định");
-    const targetText = `Nhánh ${localizeText(edge.label || branchWhen)}`;
-    const targetLabel = document.createElement("span");
-    targetLabel.className = "edge-target";
-    targetLabel.textContent = `${targetText} → ${nodeDisplayTitle(target)}`;
-    const input = document.createElement("input");
-    input.className = "edge-label-input";
-    input.value = edge.label || "";
-    input.placeholder = branchWhen;
-    input.setAttribute("aria-label", `Nhãn ${targetText}`);
-    row.append(targetLabel, input);
-    builder.appendChild(row);
-  });
-}
-
-function renderNodeSelector() {
-  const select = $("node-select");
-  select.innerHTML = "";
-  (state.nodeWorkingTree?.nodes || []).forEach((node) => {
-    select.add(new Option(`${nodeDisplayTitle(node)} · ${nodeTypeLabels[node.type] || node.type}`, node.id, false, node.id === state.nodeId));
-  });
-}
-
-function loadNodeEditor() {
-  const node = workingNode();
-  if (!node) return;
-  $("node-title").value = node.display?.title || "";
-  $("node-detail").value = node.display?.detail || "";
-  $("node-type-help").textContent = nodeTypeLabels[node.type] || "Node quyết định";
-  renderConditionEditor(node);
-  renderLinkEditor(node);
-  renderEdgeEditor(node);
-}
-
-function saveNodeForm() {
-  const node = workingNode();
-  if (!node) return;
-  node.display = { ...(node.display || {}), title: $("node-title").value.trim() };
-  const detail = $("node-detail").value.trim();
-  if (detail) node.display.detail = detail;
-  else delete node.display.detail;
-  if (node.type === "condition") {
-    const root = $("condition-builder").firstElementChild;
-    if (root) node.logic = { ...(node.logic || {}), predicate: readConditionNode(root) };
-  }
-  if (node.type === "link") {
-    node.data = { ...(node.data || {}), targetTreeId: $("node-link-target").value };
-  }
-  const outgoing = (state.nodeWorkingTree.edges || []).filter((edge) => edge.from === node.id);
-  const rows = Array.from($("edge-builder").querySelectorAll(".edge-row"));
-  outgoing.forEach((edge, index) => {
-    const label = rows[index]?.querySelector(".edge-label-input")?.value.trim() || "";
-    if (label) edge.label = label;
-    else delete edge.label;
-  });
-}
-
-function openEditTree(nodeId = null) {
-  const current = activeTree();
-  state.nodeWorkingTree = structuredClone(current);
-  state.nodeId = nodeId || state.nodeWorkingTree.nodes[0]?.id;
-  $("edit-dialog-title").textContent = `Chỉnh sửa: ${localizeText(current?.name || "cây quyết định")}`;
-  renderNodeSelector();
-  loadNodeEditor();
-  $("apply-tree").disabled = true;
-  $("save-draft").disabled = true;
-  showDraftStatus(state.editedTrees[state.treeId] ? "Đang chỉnh sửa bản nháp đã áp dụng." : "Bản gốc chỉ đọc; các thay đổi sẽ được lưu thành bản nháp.");
-  $("edit-tree-dialog").showModal();
-}
-
-async function validateEditedTree() {
-  saveNodeForm();
-  const edited = state.nodeWorkingTree;
-  if (!edited) return null;
-  try {
-    const result = await api("/api/validate-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: edited }) });
-    if (!result.ok) {
-      showDraftStatus((result.errors || ["Cây chưa đạt kiểm tra."]).join("\n"), "bad");
-      $("apply-tree").disabled = true;
-      $("save-draft").disabled = true;
-      return null;
-    }
-    $("apply-tree").disabled = false;
-    $("save-draft").disabled = false;
-    showDraftStatus("Thay đổi hợp lệ. Bạn có thể áp dụng xem trước hoặc lưu bản nháp.", "good");
-    return edited;
-  } catch (error) {
-    showDraftStatus(error.message, "bad");
-    return null;
-  }
-}
-
-async function applyEditedTree() {
-  const edited = await validateEditedTree();
-  if (!edited) return;
-  state.editedTrees[state.treeId] = edited;
-  $("edit-tree-dialog").close();
-  renderTree();
-  showStatus("Đã áp dụng bản chỉnh sửa để xem trước. Cây chuẩn chưa bị ghi đè.", "good");
-}
-
-async function saveEditedTree() {
-  const edited = await validateEditedTree();
-  if (!edited) return;
-  try {
-    const result = await api("/api/save-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: edited }) });
-    state.editedTrees[state.treeId] = edited;
-    $("edit-tree-dialog").close();
-    renderTree();
-    showStatus(`Đã lưu bản nháp cây ${localizeText(edited.name || edited.id)}.`, "good");
-    return result;
-  } catch (error) {
-    showDraftStatus(error.message, "bad");
-    return null;
-  }
-}
-
-async function runDraft() {
-  const edited = state.editedTrees[state.treeId];
-  if (!edited) {
-    showStatus("Hãy áp dụng bản chỉnh sửa trước khi chạy thử.", "bad");
-    return;
-  }
-  $("run-draft").disabled = true;
+async function runClinicalFlowFromForm() {
+  const button = $("start-traversal");
+  button.disabled = true;
+  state.previewSequence += 1;
+  clearTimeout(state.previewTimer);
   try {
     const variables = collectInputs();
-    const response = usesClinicalFlow()
-      ? await api("/api/run-draft-flow", { method: "POST", body: JSON.stringify({ startTreeId: state.treeId, tree: edited, variables }) })
-      : await api("/api/run-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: edited, variables }) });
+    if (!Object.keys(variables).length) {
+      showStatus(state.locale === "en" ? "Enter patient data before starting traversal." : "Vui lòng nhập dữ liệu người bệnh trước khi chạy.", "bad");
+      return;
+    }
+    const response = await api("/api/run-flow", { method: "POST", body: JSON.stringify({ startTreeId: "bp_diagnosis", variables, strict: false }) });
     renderResult(response.result);
-    showStatus("Đã chạy bản chỉnh sửa; cây chuẩn vẫn giữ nguyên.", "good");
+    showStatus(response.result.status === "completed"
+      ? (state.locale === "en" ? "Clinical flow completed." : "Đã hoàn tất clinical flow.")
+      : (state.locale === "en" ? "Traversal paused: more data is needed." : "Clinical flow tạm dừng vì cần thêm dữ liệu."), response.result.status === "completed" ? "good" : "");
   } catch (error) {
-    $("result-box").textContent = error.message;
     showStatus(error.message, "bad");
   } finally {
-    $("run-draft").disabled = false;
+    button.disabled = false;
   }
 }
 
 function schedulePathPreview() {
   clearTimeout(state.previewTimer);
   const sequence = ++state.previewSequence;
-  const variables = collectInputs();
-  if (!Object.keys(variables).length) { clearPathHighlight(); return; }
+  let variables;
+
+  try {
+    variables = collectInputs();
+    refreshLatestBpDisplay(variables);
+  } catch (error) {
+    $("path-status").textContent = `JSON chưa hợp lệ: ${error.message}`;
+    $("path-status").className = "path-status pending";
+    return;
+  }
+
+  if (!Object.keys(variables).length) {
+    clearPathHighlight();
+    return;
+  }
+
   state.previewTimer = setTimeout(async () => {
     try {
-      const jobId = runtimeJobForCurrentTree();
-      const response = usesClinicalFlow()
-        ? (state.editedTrees[state.treeId]
-          ? await api("/api/run-draft-flow", { method: "POST", body: JSON.stringify({ startTreeId: state.treeId, tree: state.editedTrees[state.treeId], variables }) })
-          : await api("/api/run-flow", { method: "POST", body: JSON.stringify({ startTreeId: "bp_thresholds_targets", variables }) }))
-        : state.editedTrees[state.treeId]
-          ? await api("/api/run-draft", { method: "POST", body: JSON.stringify({ treeId: state.treeId, tree: state.editedTrees[state.treeId], variables }) })
-          : jobId
-            ? await api("/api/pipeline/run", { method: "POST", body: JSON.stringify({ jobId, treeId: state.treeId, variables }) })
-            : await api("/api/run", { method: "POST", body: JSON.stringify({ treeId: state.treeId, variables }) });
+      const endpoint = "/api/run";
+      const payload = { treeId: state.treeId, variables, strict: false };
+      const response = await api(endpoint, { method: "POST", body: JSON.stringify(payload) });
       if (sequence === state.previewSequence) highlightPath(response.result);
     } catch (error) {
       if (sequence === state.previewSequence) $("path-status").textContent = `Không thể xem đường đi: ${error.message}`;
@@ -714,63 +1586,43 @@ function schedulePathPreview() {
   }, 180);
 }
 
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Không thể đọc ảnh."));
-    reader.readAsDataURL(file);
+function updateZoomLabel() {
+  if (graphInstance) $("zoom-label").textContent = `${Math.round(graphInstance.zoom() * 100)}%`;
+}
+
+function zoomGraph(multiplier) {
+  if (!graphInstance) return;
+  const nextZoom = Math.max(graphInstance.minZoom(), Math.min(graphInstance.maxZoom(), graphInstance.zoom() * multiplier));
+  graphInstance.zoom({
+    level: nextZoom,
+    renderedPosition: { x: graphInstance.width() / 2, y: graphInstance.height() / 2 },
   });
+  updateZoomLabel();
 }
 
-async function pollPipeline(jobId) {
-  const job = await api(`/api/pipeline/jobs/${encodeURIComponent(jobId)}`);
-  if (job.status === "queued" || job.status === "running") {
-    showPipelineStatus(job.message || "Đang trích xuất ảnh, tạo biến và kiểm tra cây…");
-    window.setTimeout(() => pollPipeline(jobId).catch((error) => showPipelineStatus(error.message, "bad")), 1500);
-    return;
-  }
-  if (job.status !== "completed" || !job.bundleReady) {
-    showPipelineStatus(job.error || "Pipeline chưa tạo được cây đạt điều kiện kiểm tra.", "bad");
-    $("start-pipeline").disabled = false;
-    return;
-  }
-  const generatedBundle = await api(`/api/pipeline/jobs/${encodeURIComponent(jobId)}/bundle`);
-  const generatedTree = generatedBundle.trees[0];
-  state.bundle.variables = [...new Map([...state.bundle.variables, ...generatedBundle.variables].map((item) => [item.id, item])).values()];
-  state.bundle.trees = [...state.bundle.trees.filter((item) => item.id !== generatedTree.id), generatedTree];
-  state.runtimeBundles[generatedTree.id] = generatedBundle;
-  state.treeJobs[generatedTree.id] = jobId;
-  $("new-tree-dialog").close();
-  selectTree(generatedTree.id, `Đã tạo và kiểm tra cây: ${localizeText(generatedTree.name || generatedTree.id)}`);
-  $("new-tree-form").reset();
-  showPipelineStatus("");
-  $("start-pipeline").disabled = false;
-}
-
-async function createTreeFromImage(event) {
-  event.preventDefault();
-  const file = $("new-tree-image").files[0];
-  if (!file) { showPipelineStatus("Hãy chọn một ảnh guideline.", "bad"); return; }
-  $("start-pipeline").disabled = true;
-  showPipelineStatus("Đang tải ảnh lên…");
-  try {
-    const data = await fileToDataUrl(file);
-    const name = $("new-tree-name").value.trim();
-    const response = await api("/api/pipeline/upload", { method: "POST", body: JSON.stringify({ treeId: makeGeneratedTreeId(name), name, purpose: $("new-tree-purpose").value.trim(), fileName: file.name, mimeType: file.type, data }) });
-    showPipelineStatus("Ảnh đã nhận. Đang chạy pipeline…");
-    await pollPipeline(response.jobId);
-  } catch (error) {
-    showPipelineStatus(error.message, "bad");
-    $("start-pipeline").disabled = false;
-  }
+function setAppView(view) {
+  state.currentView = view;
+  document.body.dataset.view = view;
+  document.querySelectorAll("[data-view-target]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.viewTarget === view);
+  });
+  $("sidebar-title").textContent = VIEW_LABELS[state.locale][view];
+  $("footer-view").textContent = VIEW_LABELS[state.locale][view];
+  const tree = currentTree();
+  if (tree) updateViewPanels(tree);
+  applyLocale();
+  if (graphInstance) window.setTimeout(() => graphInstance.fit(undefined, 36), 30);
 }
 
 async function init() {
   try {
-    state.bundle = await api("/api/bundle");
+    const [bundle, medicationCatalog] = await Promise.all([api("/api/bundle"), api("/api/medication-catalog")]);
+    state.bundle = bundle;
+    state.medicationCatalog = medicationCatalog;
     state.treeId = state.bundle.trees[0].id;
+    populatePresets();
     renderTree();
+    applyLocale();
   } catch (error) {
     showStatus(error.message, "bad");
   }
@@ -778,38 +1630,100 @@ async function init() {
 
 $("tree-select").addEventListener("change", (event) => selectTree(event.target.value));
 $("run-tree").addEventListener("click", runTree);
-$("run-draft").addEventListener("click", runDraft);
+$("start-traversal").addEventListener("click", runClinicalFlowFromForm);
+$("reset-inputs").addEventListener("click", resetPatientData);
+$("preset-select").addEventListener("change", (event) => usePreset(event.target.value));
+$("open-patient-record").addEventListener("click", openLocalPatientRecord);
+$("patient-record-id").addEventListener("keydown", (event) => { if (event.key === "Enter") openLocalPatientRecord(); });
+document.addEventListener("click", (event) => {
+  const tab = event.target.closest?.("[data-patient-tab]");
+  if (tab) setPatientTab(tab.dataset.patientTab);
+  const remove = event.target.closest?.("[data-remove-medication]");
+  if (remove) {
+    const input = [...document.querySelectorAll("[data-variable-id]")].find((candidate) => candidate.dataset.variableId === remove.dataset.medicationInput);
+    if (!input) return;
+    input.value = medicationNames(input.value).filter((name) => name !== remove.dataset.removeMedication).join(", ");
+    const container = input.closest(".medication-card")?.querySelector(".medication-chips");
+    if (container) renderMedicationChips(container, input);
+    rememberCurrentForm();
+    schedulePathPreview();
+  }
+  const resultTree = event.target.closest?.("#current-run-tree[data-tree-id]");
+  if (resultTree) selectTree(resultTree.dataset.treeId, state.locale === "en" ? "Opened linked tree." : "Đã mở cây liên quan.");
+});
 $("input-form").addEventListener("input", schedulePathPreview);
-$("input-form").addEventListener("change", schedulePathPreview);
-$("clear-input").addEventListener("click", () => { document.querySelectorAll("[data-variable-id]").forEach((input) => { input.value = ""; }); state.previewSequence += 1; clearPathHighlight(); });
-$("fit-graph").addEventListener("click", () => { if (graphInstance) graphInstance.fit(undefined, 36); });
-$("fullscreen-graph").addEventListener("click", () => setGraphFullscreen(!$("graph-panel").classList.contains("is-fullscreen")));
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && $("graph-panel").classList.contains("is-fullscreen")) setGraphFullscreen(false);
+$("input-form").addEventListener("change", () => { rememberCurrentForm(); markMissingInputs([]); schedulePathPreview(); });
+$("input-form").addEventListener("input", () => { rememberCurrentForm(); markMissingInputs([]); });
+$("json-input").addEventListener("input", schedulePathPreview);
+$("json-file").addEventListener("change", loadJsonFile);
+$("language-toggle").addEventListener("click", () => {
+  state.locale = state.locale === "vi" ? "en" : "vi";
+  const tree = currentTree();
+  if (tree) {
+    renderGraph(tree);
+    renderInputForm(tree);
+    updateViewPanels(tree);
+  }
+  populatePresets();
+  applyLocale();
 });
-$("edit-tree").addEventListener("click", () => openEditTree());
-$("close-edit-tree").addEventListener("click", () => $("edit-tree-dialog").close());
-$("node-select").addEventListener("change", () => {
-  saveNodeForm();
-  state.nodeId = $("node-select").value;
-  loadNodeEditor();
-  $("apply-tree").disabled = true;
-  $("save-draft").disabled = true;
-  showDraftStatus("Bạn có thể tiếp tục chỉnh sửa node, sau đó kiểm tra thay đổi.");
+$("explorer-search").addEventListener("input", (event) => {
+  state.explorerSearch = event.target.value;
+  renderExplorerPanel(currentTree());
 });
-$("edit-tree-form").addEventListener("input", () => {
-  $("apply-tree").disabled = true;
-  $("save-draft").disabled = true;
+$("explorer-options").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-explorer-node-id]");
+  if (!button) return;
+  state.explorerSelectedNodeId = button.dataset.explorerNodeId;
+  renderExplorerPanel(currentTree());
+  const node = graphInstance?.getElementById(state.explorerSelectedNodeId);
+  if (node?.length) graphInstance.center(node);
 });
-$("validate-tree").addEventListener("click", validateEditedTree);
-$("apply-tree").addEventListener("click", applyEditedTree);
-$("save-draft").addEventListener("click", saveEditedTree);
-$("new-tree-button").addEventListener("click", () => { $("new-tree-dialog").showModal(); });
-$("close-new-tree").addEventListener("click", () => $("new-tree-dialog").close());
-$("cancel-new-tree").addEventListener("click", () => $("new-tree-dialog").close());
-$("new-tree-form").addEventListener("submit", createTreeFromImage);
-$("new-tree-image").addEventListener("change", () => {
-  const file = $("new-tree-image").files[0];
-  $("new-tree-file-name").textContent = file ? file.name : "PNG hoặc JPEG, tối đa 8 MB";
+$("builder-search").addEventListener("input", (event) => {
+  state.builderSearch = event.target.value;
+  renderBuilderPanels(currentTree());
 });
+$("new-tree-button").addEventListener("click", createNewTree);
+$("import-tree-button").addEventListener("click", () => $("import-tree-file").click());
+$("import-tree-file").addEventListener("change", importTreeFile);
+$("export-tree-button").addEventListener("click", exportTreeJson);
+$("publish-tree-button").addEventListener("click", exportTreeJson);
+$("builder-tree-name").addEventListener("change", () => updateBuilderTree((tree) => { tree.name = $("builder-tree-name").value.trim() || tree.id; }));
+$("builder-tree-status").addEventListener("change", () => updateBuilderTree((tree) => { tree.clinicalStatus = $("builder-tree-status").value; }));
+$("builder-node-label").addEventListener("change", updateSelectedBuilderNode);
+$("builder-node-type").addEventListener("change", updateSelectedBuilderNode);
+$("builder-node-detail").addEventListener("change", updateSelectedBuilderNode);
+$("mode-form").addEventListener("click", () => setInputMode("form"));
+$("mode-json").addEventListener("click", () => setInputMode("json"));
+$("zoom-out").addEventListener("click", () => zoomGraph(1 / 1.2));
+$("zoom-in").addEventListener("click", () => zoomGraph(1.2));
+const layoutResizer = $("layout-resizer");
+let resizingLayout = false;
+layoutResizer.addEventListener("pointerdown", (event) => {
+  if (window.matchMedia("(max-width: 980px)").matches) return;
+  resizingLayout = true;
+  layoutResizer.setPointerCapture?.(event.pointerId);
+  document.body.classList.add("is-resizing");
+  event.preventDefault();
+});
+layoutResizer.addEventListener("pointermove", (event) => {
+  if (!resizingLayout) return;
+  const main = document.querySelector("main");
+  const bounds = main.getBoundingClientRect();
+  const maximum = Math.min(760, bounds.width - (state.currentView === "builder" ? 420 : 360));
+  const width = Math.max(300, Math.min(maximum, event.clientX - bounds.left));
+  main.style.setProperty("--sidebar-width", `${Math.round(width)}px`);
+  graphInstance?.resize();
+});
+const stopLayoutResize = () => {
+  if (!resizingLayout) return;
+  resizingLayout = false;
+  document.body.classList.remove("is-resizing");
+};
+layoutResizer.addEventListener("pointerup", stopLayoutResize);
+layoutResizer.addEventListener("pointercancel", stopLayoutResize);
+document.querySelectorAll("[data-view-target]").forEach((button) => {
+  button.addEventListener("click", () => setAppView(button.dataset.viewTarget));
+});
+
 init();

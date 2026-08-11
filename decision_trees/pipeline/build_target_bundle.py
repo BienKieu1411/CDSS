@@ -178,16 +178,17 @@ def build_variables() -> list[dict[str, Any]]:
     v: list[dict[str, Any]] = []
     add = v.append
     s1 = "image_01_bp_diagnosis"
-    add(variable("bp.measurementMethod", "Phương pháp đo HA xác nhận", "enum", None, "vitals", s1, "Phương pháp dùng sau nhánh đo phòng khám lần 1/lần 2.", allowed=["office_3rd", "home", "abpm_24h"], required=True))
     for prefix, label in (("bp.office1", "HA phòng khám lần 1"), ("bp.office2", "HA phòng khám lần 2"), ("bp.office3", "HA phòng khám lần 3")):
         add(variable(f"{prefix}.systolicMmHg", f"{label} - HATT", "number", "mmHg", "vitals", s1, "Giá trị HATT của lần đo phòng khám tương ứng.", validation={"minimum": 40, "maximum": 300}))
         add(variable(f"{prefix}.diastolicMmHg", f"{label} - HATTr", "number", "mmHg", "vitals", s1, "Giá trị HATTr của lần đo phòng khám tương ứng.", validation={"minimum": 20, "maximum": 200}))
-    add(variable("bp.office1.targetOrganDamageOrCvd", "Bằng chứng tổn thương cơ quan đích/bệnh tim mạch ở lần 1", "boolean", None, "clinician_input", s1, "Có bằng chứng tổn thương cơ quan đích hoặc bệnh tim mạch trong đánh giá ban đầu."))
-    add(variable("bp.office2.targetOrganDamageOrCvd", "Bằng chứng tổn thương cơ quan đích/bệnh tim mạch ở lần 2", "boolean", None, "clinician_input", s1, "Có bằng chứng tổn thương cơ quan đích do tăng huyết áp hoặc bệnh tim mạch ở lần 2."))
-    for prefix, label in (("bp.home", "HA tại nhà"), ("bp.abpm.daytime", "HALT ban ngày"), ("bp.abpm.average24h", "HALT trung bình 24 giờ")):
-        add(variable(f"{prefix}.systolicMmHg", f"{label} - HATT", "number", "mmHg", "vitals", s1, "Giá trị HATT của phương pháp đo ngoài phòng khám.", validation={"minimum": 40, "maximum": 300}))
-        add(variable(f"{prefix}.diastolicMmHg", f"{label} - HATTr", "number", "mmHg", "vitals", s1, "Giá trị HATTr của phương pháp đo ngoài phòng khám.", validation={"minimum": 20, "maximum": 200}))
-    add(variable("bp.category", "Phân loại huyết áp", "enum", None, "derived", s1, "Biến dẫn xuất từ kết quả chẩn đoán hoặc clinical flow.", allowed=["normal", "high_normal", "hypertension", "grade1", "grade2", "hypertensive_crisis", "white_coat_hypertension", "masked_hypertension", "review_required"], derived_from=["bp.office1.systolicMmHg", "bp.office1.diastolicMmHg", "bp.office2.systolicMmHg", "bp.office2.diastolicMmHg", "bp.measurementMethod"], required=False))
+    latest_sources = [
+        "bp.office1.systolicMmHg", "bp.office1.diastolicMmHg",
+        "bp.office2.systolicMmHg", "bp.office2.diastolicMmHg",
+        "bp.office3.systolicMmHg", "bp.office3.diastolicMmHg",
+    ]
+    add(variable("bp.latest.systolicMmHg", "HA lần đo gần nhất - HATT", "number", "mmHg", "derived", s1, "Tự động lấy HATT của lần đo phòng khám gần nhất: lần 3, nếu thiếu thì lần 2, nếu thiếu thì lần 1.", derived_from=latest_sources, required=False, validation={"minimum": 40, "maximum": 300}))
+    add(variable("bp.latest.diastolicMmHg", "HA lần đo gần nhất - HATTr", "number", "mmHg", "derived", s1, "Tự động lấy HATTr của lần đo phòng khám gần nhất: lần 3, nếu thiếu thì lần 2, nếu thiếu thì lần 1.", derived_from=latest_sources, required=False, validation={"minimum": 20, "maximum": 200}))
+    add(variable("bp.category", "Phân loại huyết áp", "enum", None, "derived", s1, "Biến dẫn xuất từ kết quả chẩn đoán.", allowed=["normal", "high_normal", "hypertension", "grade1", "grade2", "hypertensive_crisis", "white_coat_hypertension", "masked_hypertension", "review_required"], derived_from=["bp.office1.systolicMmHg", "bp.office1.diastolicMmHg", "bp.office2.systolicMmHg", "bp.office2.diastolicMmHg"], required=False))
 
     s2 = "image_02_bp_thresholds_targets"
     add(variable("risk.class", "Phân tầng nguy cơ tim mạch", "enum", None, "derived", s2, "Kết quả từ cây phân tầng nguy cơ.", allowed=["low", "medium", "high"], required=False))
@@ -203,6 +204,7 @@ def build_variables() -> list[dict[str, Any]]:
     add(variable("encounter.number", "Số lần khám", "integer", "encounter", "encounter", s3, "Số thứ tự của lần khám hiện tại; 1 là bệnh nhân mới, lớn hơn 1 là tái khám.", required=True, validation={"minimum": 1, "maximum": 1000}))
     for condition_id, label in (("atheroscleroticCvd", "Bệnh tim mạch do xơ vữa"), ("heartFailure", "Suy tim"), ("stroke", "Tiền sử đột quỵ"), ("ckd", "Bệnh thận mạn"), ("diabetes", "Đái tháo đường")):
         add(variable(f"comorbidity.{condition_id}", label, "boolean", None, "problem_list", s3, f"Có {label.lower()} trong danh sách bệnh đồng mắc."))
+    add(variable("comorbidity.targetOrganDamageOrCvd", "Tổn thương cơ quan đích hoặc bệnh tim mạch", "boolean", None, "derived", s1, "Tự tổng hợp từ mã bệnh, tổn thương cơ quan đích và bệnh tim mạch trong hồ sơ người bệnh.", derived_from=["risk.targetOrganDamage", "risk.cardiovascularDisease"], required=False))
     add(variable("treatment.mandatoryIndication", "Có chỉ định điều trị bắt buộc", "boolean", None, "derived", s3, "Biến dẫn xuất từ bệnh mạch vành/xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường.", derived_from=["comorbidity.atheroscleroticCvd", "comorbidity.heartFailure", "comorbidity.stroke", "comorbidity.ckd", "comorbidity.diabetes"]))
     add(variable("medication.previousEncounterAgentCount", "Số nhóm thuốc được kê ở lần khám trước", "integer", "class", "medication", s3, "Số nhóm thuốc được kê tại encounter n-1; dùng để xác định giai đoạn 1, 2, 3 hoặc 4 thuốc khi tái khám.", validation={"minimum": 1, "maximum": 4}))
     add(variable("medication.previousEncounterIncludesDiuretic", "Lần khám trước có thuốc lợi tiểu", "boolean", None, "medication", s3, "Lần khám n-1 có thiazide, lợi tiểu quai hoặc MRA hay không; dùng khi chuyển phân loại không kiểm soát/kháng trị."))
@@ -313,13 +315,12 @@ def build_trees() -> list[dict[str, Any]]:
 
     bp_nodes = [
         node("bp_start", "start", "Bắt đầu chẩn đoán HA", s1, detail="Đo HA phòng khám lần 1 và khai thác tổn thương cơ quan đích/bệnh tim mạch."),
-        node("bp_crisis_gate", "condition", "HA phòng khám lần 1 ≥180/120 và có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=all_of(any_of(predicate("bp.office1.systolicMmHg", "gte", 180), predicate("bp.office1.diastolicMmHg", "gte", 120)), predicate("bp.office1.targetOrganDamageOrCvd", "eq", True))),
+        node("bp_crisis_gate", "condition", "HA phòng khám lần 1 ≥180/120 và có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=all_of(any_of(predicate("bp.office1.systolicMmHg", "gte", 180), predicate("bp.office1.diastolicMmHg", "gte", 120)), predicate("comorbidity.targetOrganDamageOrCvd", "eq", True))),
         node("bp_infer_crisis", "inference", "Cơn tăng huyết áp", s1, data={"resultCode": "hypertensive_crisis", "severity": "critical", "sets": {"bp.category": "hypertensive_crisis"}}),
         node("bp_end_crisis", "end", "Cơn THA", s1, data={"outcomeCode": "hypertensive_crisis_detected", "actions": ["Đánh giá cấp cứu và tổn thương cơ quan đích ngay"]}),
-        node("bp_second_gate", "condition", "HA phòng khám lần 2 140-179/90-119 và có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=all_of(any_of(all_of(predicate("bp.office2.systolicMmHg", "gte", 140), predicate("bp.office2.systolicMmHg", "lte", 179)), all_of(predicate("bp.office2.diastolicMmHg", "gte", 90), predicate("bp.office2.diastolicMmHg", "lte", 119))), predicate("bp.office2.targetOrganDamageOrCvd", "eq", True))),
+        node("bp_second_gate", "condition", "HA phòng khám lần 2 140-179/90-119 và có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=all_of(any_of(all_of(predicate("bp.office2.systolicMmHg", "gte", 140), predicate("bp.office2.systolicMmHg", "lte", 179)), all_of(predicate("bp.office2.diastolicMmHg", "gte", 90), predicate("bp.office2.diastolicMmHg", "lte", 119))), predicate("comorbidity.targetOrganDamageOrCvd", "eq", True))),
         node("bp_infer_hypertension", "inference", "Tăng huyết áp", s1, data={"resultCode": "hypertension", "severity": "high", "sets": {"bp.category": "hypertension"}}),
         node("bp_end_hypertension", "end", "THA", s1, data={"outcomeCode": "hypertension_detected", "actions": ["Đánh giá nguy cơ và chỉ định điều trị"]}),
-        node("bp_method_office", "condition", "Dùng kết quả khám phòng khám lần 3?", s1, logic=predicate("bp.measurementMethod", "eq", "office_3rd")),
         node("bp_office3_normal", "condition", "HATT <130 và HATTr <85?", s1, logic=all_of(predicate("bp.office3.systolicMmHg", "lt", 130), predicate("bp.office3.diastolicMmHg", "lt", 85))),
         node("bp_infer_normal", "inference", "HA bình thường", s1, data={"resultCode": "normal_bp", "severity": "info", "sets": {"bp.category": "normal"}}),
         node("bp_end_normal", "end", "HA bình thường", s1, data={"outcomeCode": "normal_bp"}),
@@ -328,26 +329,12 @@ def build_trees() -> list[dict[str, Any]]:
         node("bp_end_high_normal", "end", "HA bình thường-cao", s1, data={"outcomeCode": "high_normal_bp"}),
         node("bp_infer_office3_htn", "inference", "Tăng huyết áp", s1, data={"resultCode": "hypertension", "severity": "high", "sets": {"bp.category": "hypertension"}}),
         node("bp_end_office3_htn", "end", "THA", s1, data={"outcomeCode": "hypertension_detected"}),
-        node("bp_method_home", "condition", "Dùng kết quả HA tại nhà?", s1, logic=predicate("bp.measurementMethod", "eq", "home")),
-        node("bp_home_gate", "condition", "HATT <135 và HATTr <85?", s1, logic=all_of(predicate("bp.home.systolicMmHg", "lt", 135), predicate("bp.home.diastolicMmHg", "lt", 85))),
-        node("bp_infer_white_coat_home", "inference", "THA áo choàng trắng/HABT", s1, data={"resultCode": "white_coat_hypertension", "severity": "medium", "sets": {"bp.category": "white_coat_hypertension"}}),
-        node("bp_end_white_coat_home", "end", "THA áo choàng trắng/HABT", s1, data={"outcomeCode": "white_coat_hypertension"}),
-        node("bp_infer_masked_home", "inference", "THA/THA ẩn", s1, data={"resultCode": "masked_hypertension", "severity": "high", "sets": {"bp.category": "masked_hypertension"}}),
-        node("bp_end_masked_home", "end", "THA/THA ẩn", s1, data={"outcomeCode": "masked_hypertension"}),
-        node("bp_method_abpm", "condition", "Dùng HALT 24 giờ?", s1, logic=predicate("bp.measurementMethod", "eq", "abpm_24h")),
-        node("bp_abpm_gate", "condition", "HA ban ngày <135/85 và/hoặc HA 24h <130/80?", s1, logic=any_of(all_of(predicate("bp.abpm.daytime.systolicMmHg", "lt", 135), predicate("bp.abpm.daytime.diastolicMmHg", "lt", 85)), all_of(predicate("bp.abpm.average24h.systolicMmHg", "lt", 130), predicate("bp.abpm.average24h.diastolicMmHg", "lt", 80)))),
-        node("bp_infer_white_coat_abpm", "inference", "THA áo choàng trắng/HABT", s1, data={"resultCode": "white_coat_hypertension", "severity": "medium", "sets": {"bp.category": "white_coat_hypertension"}}),
-        node("bp_end_white_coat_abpm", "end", "THA áo choàng trắng/HABT", s1, data={"outcomeCode": "white_coat_hypertension"}),
-        node("bp_infer_masked_abpm", "inference", "THA/THA ẩn", s1, data={"resultCode": "masked_hypertension", "severity": "high", "sets": {"bp.category": "masked_hypertension"}}),
-        node("bp_end_masked_abpm", "end", "THA/THA ẩn", s1, data={"outcomeCode": "masked_hypertension"}),
         node("bp_end_review", "end", "Cần rà soát dữ liệu đo", s1, data={"resultCode": "bp_diagnosis_review_required", "outcomeCode": "bp_diagnosis_review_required"}),
     ]
     bp_edges = [
         edge("bp_start", "bp_crisis_gate"), edge("bp_crisis_gate", "bp_infer_crisis", "true", "Có"), edge("bp_crisis_gate", "bp_second_gate", "false", "Không"), edge("bp_infer_crisis", "bp_end_crisis"),
-        edge("bp_second_gate", "bp_infer_hypertension", "true", "Có"), edge("bp_second_gate", "bp_method_office", "false", "Không"), edge("bp_infer_hypertension", "bp_end_hypertension"),
-        edge("bp_method_office", "bp_office3_normal", "true", "HAPK lần 3"), edge("bp_method_office", "bp_method_home", "false", "Không"), edge("bp_office3_normal", "bp_infer_normal", "true", "<130/85"), edge("bp_office3_normal", "bp_office3_high_normal", "false", "Không"), edge("bp_infer_normal", "bp_end_normal"), edge("bp_office3_high_normal", "bp_infer_high_normal", "true", "130-139/85-89"), edge("bp_office3_high_normal", "bp_infer_office3_htn", "false", "≥140/90"), edge("bp_infer_high_normal", "bp_end_high_normal"), edge("bp_infer_office3_htn", "bp_end_office3_htn"),
-        edge("bp_method_home", "bp_home_gate", "true", "HATN"), edge("bp_method_home", "bp_method_abpm", "false", "Không"), edge("bp_home_gate", "bp_infer_white_coat_home", "true", "<135/85"), edge("bp_home_gate", "bp_infer_masked_home", "false", "≥135/85"), edge("bp_infer_white_coat_home", "bp_end_white_coat_home"), edge("bp_infer_masked_home", "bp_end_masked_home"),
-        edge("bp_method_abpm", "bp_abpm_gate", "true", "HALT 24h"), edge("bp_method_abpm", "bp_end_review", "false", "Chưa chọn phương pháp"), edge("bp_abpm_gate", "bp_infer_white_coat_abpm", "true", "Đạt ngưỡng thấp"), edge("bp_abpm_gate", "bp_infer_masked_abpm", "false", "Không đạt"), edge("bp_infer_white_coat_abpm", "bp_end_white_coat_abpm"), edge("bp_infer_masked_abpm", "bp_end_masked_abpm"),
+        edge("bp_second_gate", "bp_infer_hypertension", "true", "Có"), edge("bp_second_gate", "bp_office3_normal", "false", "Không"), edge("bp_infer_hypertension", "bp_end_hypertension"),
+        edge("bp_office3_normal", "bp_infer_normal", "true", "<130/85"), edge("bp_office3_normal", "bp_office3_high_normal", "false", "Không"), edge("bp_infer_normal", "bp_end_normal"), edge("bp_office3_high_normal", "bp_infer_high_normal", "true", "130-139/85-89"), edge("bp_office3_high_normal", "bp_infer_office3_htn", "false", "≥140/90"), edge("bp_infer_high_normal", "bp_end_high_normal"), edge("bp_infer_office3_htn", "bp_end_office3_htn"),
     ]
 
     threshold_nodes = [
@@ -486,7 +473,7 @@ def build_trees() -> list[dict[str, Any]]:
     ]
 
     trees = [
-        tree("bp_diagnosis", "BP Diagnosis Tree", "Chẩn đoán tăng huyết áp bằng đo phòng khám, HATN và HALT.", s1, "bp_start", ["bp.measurementMethod", "bp.office1.systolicMmHg", "bp.office1.diastolicMmHg", "bp.office1.targetOrganDamageOrCvd", "bp.office2.systolicMmHg", "bp.office2.diastolicMmHg", "bp.office2.targetOrganDamageOrCvd", "bp.office3.systolicMmHg", "bp.office3.diastolicMmHg", "bp.home.systolicMmHg", "bp.home.diastolicMmHg", "bp.abpm.daytime.systolicMmHg", "bp.abpm.daytime.diastolicMmHg", "bp.abpm.average24h.systolicMmHg", "bp.abpm.average24h.diastolicMmHg"], ["bp.category"], bp_nodes, bp_edges),
+        tree("bp_diagnosis", "BP Diagnosis Tree", "Chẩn đoán tăng huyết áp bằng ba lần đo phòng khám.", s1, "bp_start", ["bp.office1.systolicMmHg", "bp.office1.diastolicMmHg", "bp.office2.systolicMmHg", "bp.office2.diastolicMmHg", "bp.office3.systolicMmHg", "bp.office3.diastolicMmHg", "comorbidity.targetOrganDamageOrCvd"], ["bp.category"], bp_nodes, bp_edges),
         tree("bp_thresholds_targets", "BP Thresholds and Targets Tree", "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng.", s2, "threshold_start", ["bp.category", "risk.class", "treatment.hasHighRiskComorbidity"], ["treatment.recommendation", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg", "treatment.targetProfile", "treatment.controlWindowMonths"], threshold_nodes, threshold_edges),
         tree("optimized_hypertension_treatment", "Optimized Hypertension Treatment Tree", "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2.", s3, "optimized_start", ["patient.ageYears", "bp.assessmentOfficeSystolicMmHg", "bp.assessmentOfficeDiastolicMmHg", "bp.category", "treatment.hasHighRiskComorbidity", "treatment.mandatoryIndication", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg", "treatment.targetProfile", "medication.agentCount"], ["treatment.path"], optimized_nodes, optimized_edges, links_to=["uncontrolled_resistant_hypertension"]),
         tree("hypertension_risk_stratification", "Hypertension Risk Stratification Tree", "Phân tầng nguy cơ theo bảng nguy cơ trong năm nhóm phân loại.", s4, "risk_start", ["bp.category", "bp.systolicMmHg", "bp.diastolicMmHg", "risk.factorCount", "risk.ageOver65", "risk.maleSex", "risk.heartRateOver80", "risk.overweight", "risk.lipidAbnormality", "risk.familyHistoryPrematureCvd", "risk.currentSmoker", "risk.socialEnvironmentalRisk", "risk.highRiskComorbidity", "risk.targetOrganDamage", "risk.ckdStageAtLeast3", "risk.diabetes", "risk.cardiovascularDisease"], ["risk.class"], risk_nodes, risk_edges),

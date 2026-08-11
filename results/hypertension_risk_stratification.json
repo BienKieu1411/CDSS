@@ -1,35 +1,73 @@
 {
   "treeId": "hypertension_risk_stratification",
   "testInput": {
-    "bp.category": "grade1",
-    "bp.systolicMmHg": 150,
-    "bp.diastolicMmHg": 95,
-    "risk.factorCount": 3,
-    "risk.highRiskComorbidity": false
+    "bp.office3.systolicMmHg": 150,
+    "bp.office3.diastolicMmHg": 95,
+    "patient.diagnosisCodes": "",
+    "risk.ageOver65": false,
+    "risk.maleSex": false,
+    "risk.heartRateOver80": false,
+    "risk.overweight": false,
+    "risk.lipidAbnormality": false,
+    "risk.familyHistoryPrematureCvd": false,
+    "risk.currentSmoker": false,
+    "risk.socialEnvironmentalRisk": false
   },
   "result": {
     "treeId": "hypertension_risk_stratification",
     "status": "completed",
-    "outcomeCode": "risk_high",
-    "actions": [],
+    "resultCode": "risk_low",
+    "outcomeCode": "risk_low",
     "sets": {
-      "risk.class": "high"
+      "risk.class": "low"
     },
-    "resultCode": "risk_high",
-    "severity": "high",
+    "severity": "low",
+    "actions": [],
+    "linkTargetTreeId": "bp_thresholds_targets",
     "entryTreeId": "hypertension_risk_stratification",
     "terminalTreeId": "hypertension_risk_stratification",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.3.0",
+    "bundleVersion": "0.7.0",
     "context": {
-      "bp.category": "grade1",
-      "bp.systolicMmHg": 150,
-      "bp.diastolicMmHg": 95,
-      "risk.factorCount": 3,
+      "bp.office3.systolicMmHg": 150,
+      "bp.office3.diastolicMmHg": 95,
+      "patient.diagnosisCodes": "",
+      "risk.ageOver65": false,
+      "risk.maleSex": false,
+      "risk.heartRateOver80": false,
+      "risk.overweight": false,
+      "risk.lipidAbnormality": false,
+      "risk.familyHistoryPrematureCvd": false,
+      "risk.currentSmoker": false,
+      "risk.socialEnvironmentalRisk": false,
+      "comorbidity.earlyMenopause": false,
+      "comorbidity.diabetes": false,
+      "comorbidity.type2Diabetes": false,
+      "comorbidity.leftVentricularHypertrophy": false,
+      "comorbidity.atheroscleroticCvd": false,
+      "comorbidity.coronaryArteryDisease": false,
+      "comorbidity.heartFailure": false,
+      "comorbidity.heartFailureReducedEjectionFraction": false,
+      "comorbidity.stroke": false,
+      "comorbidity.peripheralArteryDisease": false,
+      "comorbidity.atrialFibrillation": false,
+      "comorbidity.ckd": false,
+      "risk.ckdStageAtLeast3": false,
+      "risk.diabetes": false,
+      "risk.cardiovascularDisease": false,
+      "risk.targetOrganDamage": false,
+      "comorbidity.targetOrganDamageOrCvd": false,
       "risk.highRiskComorbidity": false,
-      "risk.class": "high"
+      "treatment.mandatoryIndication": false,
+      "treatment.hasHighRiskComorbidity": false,
+      "bp.latest.systolicMmHg": 150,
+      "bp.latest.diastolicMmHg": 95,
+      "risk.factorCount": 0,
+      "risk.class": "low"
     },
-    "linksVisited": [],
+    "linksVisited": [
+      "bp_thresholds_targets"
+    ],
     "trace": [
       {
         "treeId": "hypertension_risk_stratification",
@@ -59,17 +97,30 @@
         "treeId": "hypertension_risk_stratification",
         "nodeId": "risk_grade1_three",
         "type": "condition",
-        "value": true
+        "value": false
       },
       {
         "treeId": "hypertension_risk_stratification",
-        "nodeId": "risk_infer_high_grade1",
-        "type": "end",
-        "outcomeCode": "risk_high",
-        "actions": [],
+        "nodeId": "risk_grade1_one",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_infer_low_grade1",
+        "type": "inference",
+        "resultCode": "risk_low",
         "sets": {
-          "risk.class": "high"
-        }
+          "risk.class": "low"
+        },
+        "severity": "low",
+        "actions": []
+      },
+      {
+        "treeId": "hypertension_risk_stratification",
+        "nodeId": "risk_link_thresholds_low_grade1",
+        "type": "link",
+        "targetTreeId": "bp_thresholds_targets"
       }
     ],
     "sourceRefs": [
@@ -120,27 +171,42 @@
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "Nguy cơ cao"
+        "note": "Có ít nhất 1 yếu tố nguy cơ?"
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Nguy cơ thấp"
+      },
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 57,
-      "nodes": 90,
-      "edges": 88,
-      "links": 1
+      "variables": 84,
+      "nodes": 111,
+      "edges": 110,
+      "links": 20
     },
     "decision": {
       "status": "completed",
-      "resultCode": "risk_high",
-      "outcomeCode": "risk_high",
+      "resultCode": "risk_low",
+      "outcomeCode": "risk_low",
       "sets": {
-        "risk.class": "high"
+        "risk.class": "low"
       },
-      "severity": "high",
+      "severity": "low",
       "actions": [],
       "missingData": [],
-      "reason": null
+      "reason": null,
+      "errors": []
     }
   }
 }

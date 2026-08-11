@@ -1,43 +1,64 @@
 {
   "treeId": "bp_diagnosis",
   "testInput": {
-    "bp.measurementMethod": "office_3rd",
     "bp.office1.systolicMmHg": 130,
     "bp.office1.diastolicMmHg": 80,
-    "bp.office1.targetOrganDamageOrCvd": false,
     "bp.office2.systolicMmHg": 130,
     "bp.office2.diastolicMmHg": 80,
-    "bp.office2.targetOrganDamageOrCvd": false,
     "bp.office3.systolicMmHg": 125,
-    "bp.office3.diastolicMmHg": 80
+    "bp.office3.diastolicMmHg": 80,
+    "patient.diagnosisCodes": ""
   },
   "result": {
     "treeId": "bp_diagnosis",
     "status": "completed",
+    "resultCode": "normal_bp",
     "outcomeCode": "normal_bp",
-    "actions": [],
     "sets": {
       "bp.category": "normal"
     },
-    "resultCode": "normal_bp",
     "severity": "info",
+    "actions": [],
+    "linkTargetTreeId": "hypertension_risk_stratification",
     "entryTreeId": "bp_diagnosis",
     "terminalTreeId": "bp_diagnosis",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.3.0",
+    "bundleVersion": "0.7.0",
     "context": {
-      "bp.measurementMethod": "office_3rd",
       "bp.office1.systolicMmHg": 130,
       "bp.office1.diastolicMmHg": 80,
-      "bp.office1.targetOrganDamageOrCvd": false,
       "bp.office2.systolicMmHg": 130,
       "bp.office2.diastolicMmHg": 80,
-      "bp.office2.targetOrganDamageOrCvd": false,
       "bp.office3.systolicMmHg": 125,
       "bp.office3.diastolicMmHg": 80,
+      "patient.diagnosisCodes": "",
+      "comorbidity.earlyMenopause": false,
+      "comorbidity.diabetes": false,
+      "comorbidity.type2Diabetes": false,
+      "comorbidity.leftVentricularHypertrophy": false,
+      "comorbidity.atheroscleroticCvd": false,
+      "comorbidity.coronaryArteryDisease": false,
+      "comorbidity.heartFailure": false,
+      "comorbidity.heartFailureReducedEjectionFraction": false,
+      "comorbidity.stroke": false,
+      "comorbidity.peripheralArteryDisease": false,
+      "comorbidity.atrialFibrillation": false,
+      "comorbidity.ckd": false,
+      "risk.ckdStageAtLeast3": false,
+      "risk.diabetes": false,
+      "risk.cardiovascularDisease": false,
+      "risk.targetOrganDamage": false,
+      "comorbidity.targetOrganDamageOrCvd": false,
+      "risk.highRiskComorbidity": false,
+      "treatment.mandatoryIndication": false,
+      "treatment.hasHighRiskComorbidity": false,
+      "bp.latest.systolicMmHg": 125,
+      "bp.latest.diastolicMmHg": 80,
       "bp.category": "normal"
     },
-    "linksVisited": [],
+    "linksVisited": [
+      "hypertension_risk_stratification"
+    ],
     "trace": [
       {
         "treeId": "bp_diagnosis",
@@ -47,37 +68,38 @@
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_crisis_gate",
+        "nodeId": "bp_first_screen",
         "type": "condition",
         "value": false
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_second_gate",
+        "nodeId": "bp_second_screen",
         "type": "condition",
         "value": false
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_method_office",
+        "nodeId": "bp_third_normal_screen",
         "type": "condition",
         "value": true
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_office3_normal",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "bp_diagnosis",
-        "nodeId": "bp_infer_normal",
-        "type": "end",
-        "outcomeCode": "normal_bp",
-        "actions": [],
+        "nodeId": "bp_normal_result",
+        "type": "inference",
+        "resultCode": "normal_bp",
         "sets": {
           "bp.category": "normal"
-        }
+        },
+        "severity": "info",
+        "actions": []
+      },
+      {
+        "treeId": "bp_diagnosis",
+        "nodeId": "bp_link_risk_normal",
+        "type": "link",
+        "targetTreeId": "hypertension_risk_stratification"
       }
     ],
     "sourceRefs": [
@@ -86,57 +108,57 @@
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Chẩn đoán tăng huyết áp bằng đo phòng khám, HATN và HALT."
+        "note": "Cây 1 chỉ giữ các nhánh đo huyết áp phòng khám lần 1, lần 2 và lần 3 theo bản phác thảo."
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Bắt đầu chẩn đoán HA"
+        "note": "Bắt đầu chẩn đoán huyết áp"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "HA phòng khám lần 1 ≥180/120 và có tổn thương cơ quan đích/bệnh tim mạch?"
+        "note": "Huyết áp phòng khám lần 1 có mức rất cao hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "HA phòng khám lần 2 140-179/90-119 và có tổn thương cơ quan đích/bệnh tim mạch?"
+        "note": "Huyết áp phòng khám lần 2 có thuộc khoảng 140–179/90–119 mmHg hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Dùng kết quả khám phòng khám lần 3?"
+        "note": "Huyết áp phòng khám lần 3 có dưới 130/85 mmHg?"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "HATT <130 và HATTr <85?"
+        "note": "Huyết áp bình thường"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "HA bình thường"
+        "note": "Liên kết sang Cây 4 sau phân loại huyết áp bình thường."
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 57,
-      "nodes": 90,
-      "edges": 88,
-      "links": 1
+      "variables": 84,
+      "nodes": 111,
+      "edges": 110,
+      "links": 20
     },
     "decision": {
       "status": "completed",
@@ -148,7 +170,8 @@
       "severity": "info",
       "actions": [],
       "missingData": [],
-      "reason": null
+      "reason": null,
+      "errors": []
     }
   }
 }

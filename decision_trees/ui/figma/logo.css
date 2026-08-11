@@ -1,0 +1,255 @@
+/* Logo */
+
+box-sizing: border-box;
+
+position: relative;
+width: 565px;
+height: 196px;
+
+border: 1px dashed #9747FF;
+border-radius: 5px;
+
+
+/* Style=Default */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+position: absolute;
+width: 540px;
+height: 60px;
+left: 20px;
+top: 20px;
+
+
+
+/* Icon */
+
+width: 48px;
+height: 48px;
+
+/* Main */
+background: #5260FF;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Logo */
+
+position: absolute;
+width: 48px;
+height: 48px;
+left: 0px;
+top: 0px;
+
+
+
+/* Group 2 */
+
+position: absolute;
+width: 33.88px;
+height: 33.88px;
+left: calc(50% - 33.88px/2 - 0px);
+top: calc(50% - 33.88px/2 - 0px);
+
+
+
+/* Vector */
+
+position: absolute;
+left: 14.7%;
+right: 14.71%;
+top: 14.7%;
+bottom: 14.71%;
+
+/* Neutral/100 */
+background: #F8F9FA;
+
+
+/* Text */
+
+width: 484px;
+height: 60px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Clinical Decision Support System */
+
+position: absolute;
+width: 484px;
+height: 40px;
+left: 56px;
+top: 0px;
+
+/* Subtitle 2 */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 700;
+font-size: 24px;
+line-height: 40px;
+/* identical to box height, or 167% */
+display: flex;
+align-items: flex-end;
+letter-spacing: 0.4px;
+text-transform: capitalize;
+
+/* Neutral/Black */
+color: #000000;
+
+
+
+/* Clinical Pathway Builder & Analyzer */
+
+position: absolute;
+width: 449px;
+height: 24px;
+left: 56px;
+top: 36px;
+
+/* Body 3/Regular */
+font-family: 'Inter';
+font-style: italic;
+font-weight: 400;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+display: flex;
+align-items: flex-end;
+
+/* Neutral/Black */
+color: #000000;
+
+
+
+/* Style=Variant2 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+position: absolute;
+width: 540px;
+height: 60px;
+left: 20px;
+top: 103px;
+
+
+
+/* Icon */
+
+width: 48px;
+height: 48px;
+
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Logo */
+
+position: absolute;
+width: 48px;
+height: 48px;
+left: 0px;
+top: 0px;
+
+
+
+/* Group 2 */
+
+position: absolute;
+width: 33.88px;
+height: 33.88px;
+left: calc(50% - 33.88px/2 - 0px);
+top: calc(50% - 33.88px/2 - 0px);
+
+
+
+/* Vector */
+
+position: absolute;
+left: 14.7%;
+right: 14.71%;
+top: 14.7%;
+bottom: 14.71%;
+
+/* Main */
+background: #5260FF;
+
+
+/* Text */
+
+width: 484px;
+height: 60px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Clinical Decision Support System */
+
+position: absolute;
+width: 484px;
+height: 40px;
+left: 56px;
+top: 0px;
+
+/* Subtitle 2 */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 700;
+font-size: 24px;
+line-height: 40px;
+/* identical to box height, or 167% */
+display: flex;
+align-items: flex-end;
+letter-spacing: 0.4px;
+text-transform: capitalize;
+
+/* Neutral/Black */
+color: #000000;
+
+
+
+/* Clinical Pathway Builder & Analyzer */
+
+position: absolute;
+width: 449px;
+height: 24px;
+left: 56px;
+top: 36px;
+
+/* Body 3/Regular */
+font-family: 'Inter';
+font-style: italic;
+font-weight: 400;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+display: flex;
+align-items: flex-end;
+
+/* Neutral/Black */
+color: #000000;

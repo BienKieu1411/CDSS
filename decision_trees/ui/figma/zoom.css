@@ -1,0 +1,300 @@
+/* Zoom */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: flex-start;
+padding: 0px;
+
+position: relative;
+width: 182px;
+height: 40px;
+
+
+
+/* Job Card / Desktop */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 182px;
+height: 40px;
+
+background: #FFFFFF;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+/* Shadow 1 */
+box-shadow: 0px 4px 6px rgba(33, 37, 41, 0.2),
+0px 0px 1px rgba(33, 37, 41, 0.32);
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Avatar / Square / Large */
+
+margin: 0 auto;
+width: 48px;
+height: 48px;
+
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* zoom-out */
+
+position: absolute;
+width: 24px;
+height: 24px;
+left: calc(50% - 24px/2);
+top: calc(50% - 24px/2);
+
+
+
+/* Group */
+
+position: absolute;
+left: 12.5%;
+right: 12.5%;
+top: 12.5%;
+bottom: 12.5%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 12.5%;
+right: 20.83%;
+top: 12.5%;
+bottom: 20.83%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;
+
+
+/* Vector */
+
+position: absolute;
+left: 33.33%;
+right: 12.5%;
+top: 45.83%;
+bottom: 12.5%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;
+
+
+/* Group 501 */
+
+margin: 0 auto;
+width: 85.44px;
+height: 40px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Details */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+position: absolute;
+width: 85.44px;
+height: 40px;
+left: 48.28px;
+top: 0px;
+
+/* Neutral/100 */
+background: #F8F9FA;
+
+
+/* Frame */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 41px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 41px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* 100% */
+
+width: 41px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral/Black */
+color: #000000;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* hypertension181 */
+
+display: none;
+width: 110px;
+height: 24px;
+
+/* Body 3/Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 500 */
+color: #ADB5BD;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+margin: -4px 0px;
+
+
+/* Caption */
+
+display: none;
+width: 52px;
+height: 24px;
+
+/* Body 3/Regular */
+font-family: 'Inter';
+font-style: italic;
+font-weight: 400;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Avatar / Square / Large */
+
+margin: 0 auto;
+width: 48px;
+height: 48px;
+
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* zoom-in */
+
+position: absolute;
+width: 24px;
+height: 24px;
+left: calc(50% - 24px/2);
+top: calc(50% - 24px/2);
+
+
+
+/* Group */
+
+position: absolute;
+left: 12.5%;
+right: 12.5%;
+top: 12.5%;
+bottom: 12.5%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 12.5%;
+right: 20.83%;
+top: 12.5%;
+bottom: 20.83%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;
+
+
+/* Vector */
+
+position: absolute;
+left: 33.33%;
+right: 12.5%;
+top: 33.33%;
+bottom: 12.5%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;

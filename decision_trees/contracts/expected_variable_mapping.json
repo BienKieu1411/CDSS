@@ -1,0 +1,63 @@
+{
+  "formatVersion": "expected-variable-mapping.v1",
+  "locale": "vi-VN",
+  "source": "codex-clipboard-937364f0-d8a5-47ba-9a6d-753b252cf26e.png",
+  "canonicalCatalog": "decision_trees/contracts/clinical_variables.json",
+  "notes": [
+    "Tên trong ảnh là tên tích hợp dự kiến; canonicalId là ID ổn định dùng trong bundle/runtime.",
+    "Không đổi canonicalId chỉ vì tên field của database/API khác nhau."
+  ],
+  "independent": [
+    { "expectedId": "sys_bp_first", "canonicalId": "bp.office1.systolicMmHg", "status": "mapped" },
+    { "expectedId": "dias_bp_first", "canonicalId": "bp.office1.diastolicMmHg", "status": "mapped" },
+    { "expectedId": "sys_bp_second", "canonicalId": "bp.office2.systolicMmHg", "status": "mapped" },
+    { "expectedId": "dias_bp_second", "canonicalId": "bp.office2.diastolicMmHg", "status": "mapped" },
+    { "expectedId": "sys_bp_third", "canonicalId": "bp.office3.systolicMmHg", "status": "mapped" },
+    { "expectedId": "dias_bp_third", "canonicalId": "bp.office3.diastolicMmHg", "status": "mapped" },
+    { "expectedId": "birth_date", "canonicalId": "patient.birthDate", "status": "mapped" },
+    { "expectedId": "gender", "canonicalId": "patient.sex", "status": "mapped" },
+    { "expectedId": "heart_rate", "canonicalId": "vitals.heartRate", "status": "mapped", "note": "Tên hiển thị trong ảnh là tần số tim; LOINC 8867-4." },
+    { "expectedId": "height", "canonicalId": "patient.heightM", "status": "mapped", "note": "Đơn vị mét; threshold BMI/chiều cao không tự suy đoán thêm." },
+    { "expectedId": "weight", "canonicalId": "patient.weightKg", "status": "mapped", "note": "Đơn vị kilogram; threshold cân nặng không tự suy đoán thêm." },
+    { "expectedId": "eGFR", "canonicalId": "lab.eGfr", "status": "mapped", "note": "LOINC 98979-8; CKD giai đoạn ≥3 được suy ra khi eGFR <60." },
+    { "expectedId": "ldl_c", "canonicalId": "lab.ldlCholesterol", "status": "mapped", "note": "LOINC 13457-7." },
+    { "expectedId": "triglyceride", "canonicalId": "lab.triglycerides", "status": "mapped", "note": "LOINC 2571-8." },
+    { "expectedId": "early_menopause", "canonicalId": "comorbidity.earlyMenopause", "status": "mapped", "note": "SNOMED CT 373717006 hoặc ICD-10 E28.3." },
+    { "expectedId": "diabetes", "canonicalId": "comorbidity.diabetes", "status": "mapped", "note": "Tự nhận diện từ nhóm ICD-10 E08–E14." },
+    { "expectedId": "left_ventricular_hypertrophy", "canonicalId": "comorbidity.leftVentricularHypertrophy", "status": "mapped", "note": "SNOMED CT 25488008." },
+    { "expectedId": "coronary_artery_disease", "canonicalId": "comorbidity.coronaryArteryDisease", "status": "mapped", "note": "ICD-10 I25.1." },
+    { "expectedId": "heart_failure", "canonicalId": "comorbidity.heartFailure", "status": "mapped", "note": "ICD-10 nhóm I50, gồm I50.9." },
+    { "expectedId": "stroke", "canonicalId": "comorbidity.stroke", "status": "mapped", "note": "ICD-10 nhóm I63, gồm I63.9." },
+    { "expectedId": "peripheral_artery_disease", "canonicalId": "comorbidity.peripheralArteryDisease", "status": "mapped", "note": "ICD-10 I73.9." },
+    { "expectedId": "atrial_fibrillation", "canonicalId": "comorbidity.atrialFibrillation", "status": "mapped", "note": "ICD-10 nhóm I48, gồm I48.91." },
+    { "expectedId": "encounter", "canonicalId": "encounter.number", "status": "mapped" },
+    { "expectedId": "heart_failure_reduced_ejection_fraction", "canonicalId": "comorbidity.heartFailureReducedEjectionFraction", "status": "mapped", "note": "ICD-10 nhóm I50.2x." },
+    { "expectedId": "chronic_kidney_disease", "canonicalId": "comorbidity.ckd", "status": "mapped", "note": "ICD-10 nhóm N18; phân tầng ≥3 dùng risk.ckdStageAtLeast3." },
+    { "expectedId": "type2_diabetes", "canonicalId": "comorbidity.type2Diabetes", "status": "mapped", "note": "ICD-10 E11/E11.9." },
+    { "expectedId": "current_smoker", "canonicalId": "risk.currentSmoker", "status": "mapped", "note": "Biến cần input lâm sàng; ảnh dùng biến này trong công thức ytnc dù không có dòng independent riêng." }
+  ],
+  "dependent": [
+    { "expectedId": "target_organ_damage_or_cvd", "canonicalId": "comorbidity.targetOrganDamageOrCvd", "status": "mapped" },
+    { "expectedId": "chan_doan_tha", "canonicalId": "bp.category", "status": "mapped", "note": "Canonical values là normal/high_normal/grade1/grade2/...; adapter chịu trách nhiệm đổi tên hiển thị nếu cần." },
+    { "expectedId": "sys_bp_latest", "canonicalId": "bp.latest.systolicMmHg", "status": "mapped" },
+    { "expectedId": "dias_bp_latest", "canonicalId": "bp.latest.diastolicMmHg", "status": "mapped" },
+    { "expectedId": "nguy_co", "canonicalId": "risk.class", "status": "mapped", "note": "Allowed values: low/medium/high." },
+    { "expectedId": "age", "canonicalId": "patient.ageYears", "status": "derived" },
+    { "expectedId": "bmi", "canonicalId": "patient.bmi", "status": "derived", "note": "weightKg / heightM²; thừa cân khi BMI ≥25." },
+    { "expectedId": "ytnc", "canonicalId": "risk.factorCount", "status": "derived", "note": "Đếm tuổi >65, nam, nhịp tim >80, BMI ≥25, đái tháo đường, rối loạn lipid, mãn kinh sớm và hút thuốc." },
+    { "expectedId": "ckd_stage_at_least_3", "canonicalId": "risk.ckdStageAtLeast3", "status": "derived", "note": "eGFR <60 mL/min/1.73m²." },
+    { "expectedId": "cardiovascular_disease_or_history", "canonicalId": "risk.cardiovascularDisease", "status": "derived" },
+    { "expectedId": "treatment_target_systolic", "canonicalId": "treatment.targetSystolicMmHg", "status": "mapped" },
+    { "expectedId": "treatment_target_diastolic", "canonicalId": "treatment.targetDiastolicMmHg", "status": "mapped" },
+    { "expectedId": "drug_class", "canonicalId": "medication.drugClass", "status": "needs_clinical_mapping", "note": "Ảnh ghi A/B/C/D, còn catalog hiện dùng nhóm dược lý acei/arb/ccb/beta_blocker/diuretic/mra/other; cần clinical owner chốt bảng quy đổi." },
+    { "expectedId": "bp_controlled_after_2_drugs", "canonicalId": "bp.controlledAfterTwoDrugs", "status": "mapped" },
+    { "expectedId": "bp_controlled_after_3_drugs", "canonicalId": "bp.controlledAfterThreeDrugs", "status": "mapped" },
+    { "expectedId": "bp_controlled_after_4_drugs", "canonicalId": "bp.controlledAfterFourDrugs", "status": "mapped" },
+    { "expectedId": "benh_nen", "canonicalId": "patient.diagnosisCodes", "status": "mapped", "note": "Các cờ comorbidity được runtime suy ra từ ICD-10/SNOMED CT." }
+  ],
+  "unresolved": [
+    "Ngưỡng tăng LDL-C/triglyceride để tự động set risk.lipidAbnormality chưa có trong ảnh.",
+    "Ảnh có ghi tuổi >65; catalog/runtime đã dùng điều kiện >65, cần clinical review nếu quy ước mong muốn là ≥65.",
+    "Bảng quy đổi drug_class A/B/C/D chưa có định nghĩa trong repo."
+  ]
+}

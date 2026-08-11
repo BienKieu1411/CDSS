@@ -19,6 +19,19 @@ from decision_trees.pipeline.multi_agent_pipeline import (
 )
 
 
+def first_predicate_leaf(predicate: dict) -> dict:
+    if "field" in predicate:
+        return predicate
+    for key in ("all", "any"):
+        children = predicate.get(key)
+        if isinstance(children, list):
+            for child in children:
+                return first_predicate_leaf(child)
+    if "not" in predicate:
+        return first_predicate_leaf(predicate["not"])
+    raise AssertionError(f"predicate has no leaf: {predicate}")
+
+
 def main() -> None:
     criteria = json.loads(PASS_CRITERIA_PATH.read_text(encoding="utf-8"))
     passing = {
@@ -48,7 +61,7 @@ def main() -> None:
     bundle = json.loads(BUNDLE_PATH.read_text(encoding="utf-8"))
     candidate = copy.deepcopy(next(tree for tree in bundle["trees"] if tree["id"] == "bp_diagnosis"))
     condition = next(node for node in candidate["nodes"] if node["type"] == "condition")
-    condition["logic"]["predicate"]["all"][0]["field"] = "bp.systolicMmHg"
+    first_predicate_leaf(condition["logic"]["predicate"])["field"] = "bp.systolicMmHg"
     errors = candidate_validation_errors("bp_diagnosis", candidate, bundle)
     assert any("undeclared input variable bp.systolicMmHg" in error for error in errors)
 

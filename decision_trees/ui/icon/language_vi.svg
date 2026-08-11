@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16" role="img" aria-label="Tiếng Việt">
+  <defs><clipPath id="r"><rect width="24" height="16" rx="8"/></clipPath></defs>
+  <g clip-path="url(#r)">
+    <rect width="24" height="16" fill="#da251d"/>
+    <path fill="#ff0" d="m12 2.2 1.3 3.9h4.1l-3.3 2.4 1.3 3.9-3.4-2.4-3.4 2.4 1.3-3.9-3.3-2.4h4.1z"/>
+  </g>
+</svg>

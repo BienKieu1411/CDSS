@@ -1,0 +1,362 @@
+/* Language */
+
+box-sizing: border-box;
+
+position: relative;
+width: 169px;
+height: 108px;
+
+border: 1px dashed #9747FF;
+border-radius: 5px;
+
+
+/* State=ENG */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+position: absolute;
+width: 54px;
+height: 24px;
+left: 20px;
+top: 20px;
+
+
+
+/* E flag */
+
+width: 24px;
+height: 16px;
+
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Group */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+
+
+/* Group */
+
+position: absolute;
+left: 0%;
+right: 0.02%;
+top: 0.01%;
+bottom: 0.16%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 0%;
+right: 0.03%;
+top: 0.01%;
+bottom: 0.16%;
+
+background: #FFFFFF;
+
+
+/* Vector */
+
+position: absolute;
+left: 0.04%;
+right: 0.02%;
+top: 0.02%;
+bottom: 0.16%;
+
+background: #CE1124;
+
+
+/* Group */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0.01%;
+bottom: 0.17%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 0%;
+right: 78.19%;
+top: 11.64%;
+bottom: 66.63%;
+
+background: #00247D;
+
+
+/* Vector */
+
+position: absolute;
+left: 11.71%;
+right: 60.01%;
+top: 0.01%;
+bottom: 71.63%;
+
+background: #00247D;
+
+
+/* Vector */
+
+position: absolute;
+left: 0%;
+right: 66.44%;
+top: 0.01%;
+bottom: 66.77%;
+
+background: #CE1124;
+
+
+/* Vector */
+
+position: absolute;
+left: 66.44%;
+right: 0%;
+top: 66.61%;
+bottom: 0.17%;
+
+background: #CE1124;
+
+
+/* Group */
+
+position: absolute;
+left: 0%;
+right: 59.98%;
+top: 66.6%;
+bottom: 0%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 0%;
+right: 78.19%;
+top: 66.64%;
+bottom: 11.63%;
+
+background: #00247D;
+
+
+/* Vector */
+
+position: absolute;
+left: 11.71%;
+right: 60.01%;
+top: 71.64%;
+bottom: 0%;
+
+background: #00247D;
+
+
+/* Vector */
+
+position: absolute;
+left: 0.02%;
+right: 59.98%;
+top: 66.6%;
+bottom: 0.17%;
+
+background: #CE1124;
+
+
+/* Group */
+
+position: absolute;
+left: 60.02%;
+right: 0%;
+top: 0%;
+bottom: 66.64%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 78.19%;
+right: 0%;
+top: 11.63%;
+bottom: 66.63%;
+
+background: #00247D;
+
+
+/* Vector */
+
+position: absolute;
+left: 60.02%;
+right: 11.71%;
+top: 0%;
+bottom: 71.64%;
+
+background: #00247D;
+
+
+/* Vector */
+
+position: absolute;
+left: 60.04%;
+right: 0.03%;
+top: 0.05%;
+bottom: 66.73%;
+
+background: #CE1124;
+
+
+/* Group */
+
+position: absolute;
+left: 60.02%;
+right: 0%;
+top: 66.63%;
+bottom: 0.01%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 78.19%;
+right: 0%;
+top: 66.63%;
+bottom: 11.64%;
+
+background: #00247D;
+
+
+/* Vector */
+
+position: absolute;
+left: 60.02%;
+right: 11.71%;
+top: 71.63%;
+bottom: 0.01%;
+
+background: #00247D;
+
+
+/* EN */
+
+width: 22px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* State=VN */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+position: absolute;
+width: 48px;
+height: 24px;
+left: 20px;
+top: 64px;
+
+
+
+/* VN flag */
+
+width: 24px;
+height: 16px;
+
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Group */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+background: #D11C1A;
+
+
+/* Vector */
+
+position: absolute;
+left: 25%;
+right: 25%;
+top: 18.75%;
+bottom: 18.75%;
+
+background: #FFF741;
+
+
+/* VI */
+
+width: 16px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;

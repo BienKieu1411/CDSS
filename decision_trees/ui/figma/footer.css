@@ -1,0 +1,200 @@
+/* Footer */
+
+box-sizing: border-box;
+
+position: relative;
+width: 1483px;
+height: 139px;
+
+border: 1px dashed #9747FF;
+border-radius: 5px;
+
+
+/* Type=2 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 8px 20px;
+gap: 65px;
+
+position: absolute;
+width: 1440px;
+height: 32px;
+left: 20px;
+top: 74px;
+
+/* White */
+background: #FFFFFF;
+/* Shadow 1 */
+box-shadow: 0px 4px 6px rgba(33, 37, 41, 0.2),
+0px 0px 1px rgba(33, 37, 41, 0.32);
+
+
+/* Frame 502 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 618px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Ellipse 1 */
+
+width: 12px;
+height: 12px;
+
+background: #34C759;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Database Connected */
+
+width: 142px;
+height: 24px;
+
+/* Body 3/Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* © 2026 Decision Tree System • Version 2.1.0 */
+
+margin: 0 auto;
+width: 300px;
+height: 24px;
+
+/* Body 3/Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Type=1 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 8px 20px;
+gap: 65px;
+
+position: absolute;
+width: 931px;
+height: 32px;
+left: 20px;
+top: 20px;
+
+/* Blue/100 */
+background: #EBF4FF;
+
+
+/* Frame 502 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 618px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* → Fill inputs and run to compute path */
+
+width: 250px;
+height: 24px;
+
+/* Body 3/Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Tree Tester */
+
+margin: 0 auto;
+width: 77px;
+height: 24px;
+
+/* Body 3/Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;

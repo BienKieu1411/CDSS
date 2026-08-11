@@ -1,54 +1,86 @@
 {
   "treeId": "optimized_hypertension_treatment",
   "testInput": {
-    "patient.ageYears": 55,
+    "patient.birthDate": "1990-01-01",
+    "asOf": "2026-08-11",
+    "bp.category": "hypertension",
+    "treatment.recommendation": "medication_now",
+    "risk.class": "low",
+    "treatment.hasHighRiskComorbidity": false,
     "encounter.number": 2,
-    "bp.category": "grade2",
-    "treatment.mandatoryIndication": false,
-    "medication.previousEncounterAgentCount": 4,
-    "medication.previousEncounterIncludesDiuretic": true,
+    "patient.diagnosisCodes": "",
+    "medication.previousEncounterDrugNames": "Losartan, amlodipine",
     "bp.controlledAfterTwoDrugs": false,
     "bp.controlledAfterThreeDrugs": false,
-    "bp.controlledAfterFourDrugs": false,
-    "bp.officeAverageSystolicMmHg": 150,
-    "bp.officeReadingCount": 2,
-    "medication.regimenStableWeeks": 4
+    "bp.controlledAfterFourDrugs": false
   },
   "result": {
-    "treeId": "uncontrolled_resistant_hypertension",
+    "treeId": "optimized_hypertension_treatment",
     "status": "completed",
-    "resultCode": "resistant_htn_arm",
-    "sets": {
-      "treatment.path": "resistant_referral",
-      "resistant.classification": "resistant_three_or_more_with_diuretic"
-    },
-    "severity": "critical",
+    "outcomeCode": "followup_escalate_three_drugs",
     "actions": [],
-    "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
+    "sets": {
+      "treatment.path": "followup_escalate_three_drugs"
+    },
+    "resultCode": "followup_escalate_three_drugs",
+    "severity": "high",
     "entryTreeId": "optimized_hypertension_treatment",
-    "terminalTreeId": "uncontrolled_resistant_hypertension",
+    "terminalTreeId": "optimized_hypertension_treatment",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.3.0",
+    "bundleVersion": "0.7.0",
     "context": {
-      "patient.ageYears": 55,
+      "patient.birthDate": "1990-01-01",
+      "asOf": "2026-08-11",
+      "bp.category": "hypertension",
+      "treatment.recommendation": "medication_now",
+      "risk.class": "low",
+      "treatment.hasHighRiskComorbidity": false,
       "encounter.number": 2,
-      "bp.category": "grade2",
-      "treatment.mandatoryIndication": false,
-      "medication.previousEncounterAgentCount": 4,
-      "medication.previousEncounterIncludesDiuretic": true,
+      "patient.diagnosisCodes": "",
+      "medication.previousEncounterDrugNames": "Losartan, amlodipine",
       "bp.controlledAfterTwoDrugs": false,
       "bp.controlledAfterThreeDrugs": false,
       "bp.controlledAfterFourDrugs": false,
-      "bp.officeAverageSystolicMmHg": 150,
-      "bp.officeReadingCount": 2,
-      "medication.regimenStableWeeks": 4,
-      "treatment.path": "resistant_referral",
-      "resistant.classification": "resistant_three_or_more_with_diuretic"
+      "comorbidity.earlyMenopause": false,
+      "comorbidity.diabetes": false,
+      "comorbidity.type2Diabetes": false,
+      "comorbidity.leftVentricularHypertrophy": false,
+      "comorbidity.atheroscleroticCvd": false,
+      "comorbidity.coronaryArteryDisease": false,
+      "comorbidity.heartFailure": false,
+      "comorbidity.heartFailureReducedEjectionFraction": false,
+      "comorbidity.stroke": false,
+      "comorbidity.peripheralArteryDisease": false,
+      "comorbidity.atrialFibrillation": false,
+      "comorbidity.ckd": false,
+      "risk.ckdStageAtLeast3": false,
+      "risk.diabetes": false,
+      "risk.cardiovascularDisease": false,
+      "risk.targetOrganDamage": false,
+      "comorbidity.targetOrganDamageOrCvd": false,
+      "risk.highRiskComorbidity": false,
+      "treatment.mandatoryIndication": false,
+      "patient.ageYears": 36,
+      "risk.ageOver65": false,
+      "medication.previousEncounterDrugClassList": [
+        "arb",
+        "ccb"
+      ],
+      "medication.previousEncounterDrugClassCodes": "arb,ccb",
+      "medication.previousEncounterAgentCount": 2,
+      "medication.previousEncounterIncludesDiuretic": false,
+      "medication.previousEncounterUnmappedDrugNames": "",
+      "medication.previousEncounterHasUnmappedDrug": false,
+      "treatment.path": "followup_escalate_three_drugs"
     },
-    "linksVisited": [
-      "uncontrolled_resistant_hypertension"
-    ],
+    "linksVisited": [],
     "trace": [
+      {
+        "treeId": "optimized_hypertension_treatment",
+        "type": "entry_precondition",
+        "status": "passed",
+        "value": true
+      },
       {
         "treeId": "optimized_hypertension_treatment",
         "nodeId": "optimized_start",
@@ -57,15 +89,21 @@
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_entry_gate",
+        "nodeId": "optimized_encounter_type",
         "type": "condition",
         "value": true
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_encounter_type",
+        "nodeId": "optimized_followup_mandatory",
         "type": "condition",
         "value": false
+      },
+      {
+        "treeId": "optimized_hypertension_treatment",
+        "nodeId": "optimized_previous_drug_mapping",
+        "type": "condition",
+        "value": true
       },
       {
         "treeId": "optimized_hypertension_treatment",
@@ -83,87 +121,22 @@
         "treeId": "optimized_hypertension_treatment",
         "nodeId": "optimized_previous_count_two",
         "type": "condition",
-        "value": false
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_previous_count_three",
-        "type": "condition",
-        "value": false
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_previous_count_four",
-        "type": "condition",
         "value": true
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_control_after_four",
+        "nodeId": "optimized_control_after_two",
         "type": "condition",
         "value": false
       },
       {
         "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_infer_resistant",
-        "type": "inference",
-        "resultCode": "resistant_htn_referral",
-        "sets": {
-          "treatment.path": "resistant_referral"
-        },
-        "severity": "high",
-        "actions": []
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_link_resistant",
-        "type": "link",
-        "targetTreeId": "uncontrolled_resistant_hypertension"
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_start",
-        "type": "start",
-        "status": "entered"
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_range",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_stable",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_agent_count",
-        "type": "condition",
-        "value": false
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_agent_count_ge3",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_diuretic",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_infer_resistant",
+        "nodeId": "optimized_infer_escalate_three",
         "type": "end",
-        "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
+        "outcomeCode": "followup_escalate_three_drugs",
         "actions": [],
         "sets": {
-          "resistant.classification": "resistant_three_or_more_with_diuretic"
+          "treatment.path": "followup_escalate_three_drugs"
         }
       }
     ],
@@ -173,7 +146,7 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Điều trị tăng huyết áp theo encounter và giai đoạn số nhóm thuốc."
+        "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
       },
       {
         "sourceId": "image_03_optimized_treatment",
@@ -187,14 +160,14 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
+        "note": "Phân biệt buổi tái khám theo dõi thuốc với cuộc gặp ban đầu."
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Đây là bệnh nhân mới (lần khám số 1)?"
+        "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
       },
       {
         "sourceId": "image_03_optimized_treatment",
@@ -222,126 +195,42 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Lần khám trước kê 3 nhóm thuốc?"
+        "note": "Huyết áp đã kiểm soát sau 2 nhóm thuốc?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Lần khám trước kê 4 nhóm thuốc?"
+        "note": "Giai đoạn 2 thuốc — huyết áp chưa kiểm soát, tăng lên 3 thuốc"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Huyết áp đã kiểm soát sau 4 nhóm thuốc?"
-      },
-      {
-        "sourceId": "image_03_optimized_treatment",
-        "page": 1,
-        "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-        "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Giai đoạn 4 thuốc — huyết áp chưa kiểm soát, chuyển phân loại"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Nhánh chuyển sang flow không kiểm soát/kháng trị"
-      },
-      {
-        "sourceId": "image_03_optimized_treatment",
-        "page": 1,
-        "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-        "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Chuyển cây không kiểm soát/kháng trị"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Cây mục tiêu cho nhánh kháng trị"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5."
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Hypertension General — Phân loại THA"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "HATT tư thế ngồi 140–169 mmHg?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Phác đồ ổn định ≥ 4 tuần?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Số nhóm thuốc hạ áp đang dùng?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Số nhóm thuốc ≥3?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Phác đồ có lợi tiểu?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu"
+        "note": "Tăng lên 3 thuốc"
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 57,
-      "nodes": 90,
-      "edges": 88,
-      "links": 1
+      "variables": 84,
+      "nodes": 111,
+      "edges": 110,
+      "links": 20
     },
     "decision": {
       "status": "completed",
-      "resultCode": "resistant_htn_arm",
-      "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
+      "resultCode": "followup_escalate_three_drugs",
+      "outcomeCode": "followup_escalate_three_drugs",
       "sets": {
-        "treatment.path": "resistant_referral",
-        "resistant.classification": "resistant_three_or_more_with_diuretic"
+        "treatment.path": "followup_escalate_three_drugs"
       },
-      "severity": "critical",
+      "severity": "high",
       "actions": [],
       "missingData": [],
-      "reason": null
+      "reason": null,
+      "errors": []
     }
   }
 }

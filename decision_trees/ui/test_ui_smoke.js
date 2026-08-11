@@ -3,7 +3,7 @@
 
 const assert = require("node:assert/strict");
 const http = require("node:http");
-const { createServer, loadBundle, validateTreePayload, runEngine, runClinicalFlow, runDraftFlow, runDraft } = require("./server.js");
+const { createServer, loadBundle, runEngine, runClinicalFlow, missingRequiredVariables } = require("./server.js");
 
 function request(port, method, pathname, payload) {
   return new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ function request(port, method, pathname, payload) {
       response.setEncoding("utf8");
       response.on("data", (chunk) => { text += chunk; });
       response.on("end", () => {
-        if (response.headers["content-type"]?.startsWith("text/html") || response.headers["content-type"]?.startsWith("text/javascript")) {
+        if (response.headers["content-type"]?.startsWith("text/html") || response.headers["content-type"]?.startsWith("text/javascript") || response.headers["content-type"]?.startsWith("text/css") || response.headers["content-type"]?.startsWith("image/")) {
           resolve({ status: response.statusCode, body: text });
           return;
         }
@@ -31,52 +31,43 @@ async function main() {
   assert.equal(bundle.trees.length, 5);
   const bp = bundle.trees.find((item) => item.id === "bp_diagnosis");
   assert.ok(bp);
-
-  const validation = validateTreePayload(bp.id, bp);
-  assert.equal(validation.ok, true, JSON.stringify(validation));
+  assert.ok(bundle.trees.find((item) => item.id === "hypertension_risk_stratification"));
+  assert.ok(bundle.trees.find((item) => item.id === "optimized_hypertension_treatment"));
+  assert.ok(bundle.trees.find((item) => item.id === "uncontrolled_resistant_hypertension"));
 
   const input = {
-    "bp.measurementMethod": "office_3rd",
     "bp.office1.systolicMmHg": "130",
     "bp.office1.diastolicMmHg": "80",
-    "bp.office1.targetOrganDamageOrCvd": "false",
     "bp.office2.systolicMmHg": "130",
     "bp.office2.diastolicMmHg": "80",
-    "bp.office2.targetOrganDamageOrCvd": "false",
     "bp.office3.systolicMmHg": "120",
     "bp.office3.diastolicMmHg": "80",
+    "patient.diagnosisCodes": "373717006",
   };
   const run = runEngine(bp.id, input);
   assert.equal(run.result.status, "completed");
   assert.equal(run.result.resultCode, "normal_bp");
   assert.ok(Array.isArray(run.result.trace));
-
-  const draftRun = runDraft(bp.id, bp, input);
-  assert.equal(draftRun.ok, true, JSON.stringify(draftRun));
-  assert.equal(draftRun.result.resultCode, "normal_bp");
+  assert.deepEqual(missingRequiredVariables([bp.id], input, bundle), []);
+  const incomplete = runEngine(bp.id, { "bp.office1.systolicMmHg": 130 }, { strict: true });
+  assert.equal(incomplete.result.status, "needs_data");
+  assert.ok(incomplete.result.missingData.includes("bp.office1.diastolicMmHg"));
 
   const flowInput = {
-    "bp.category": "grade1",
+    "bp.category": "high_normal",
     "risk.class": "low",
-    "treatment.hasHighRiskComorbidity": false,
-    "patient.ageYears": 55,
-    "bp.assessmentOfficeSystolicMmHg": 150,
-    "bp.assessmentOfficeDiastolicMmHg": 95,
-    "treatment.mandatoryIndication": false,
-    "medication.agentCount": 3,
-    "bp.officeAverageSystolicMmHg": 150,
-    "bp.officeReadingCount": 2,
-    "medication.regimenStableWeeks": 4,
-    "medication.includesDiuretic": true,
+    "encounter.number": 1,
+    "patient.birthDate": "1990-01-01",
+    "patient.diagnosisCodes": "NO_KNOWN_CODES",
   };
   const flow = runClinicalFlow("bp_thresholds_targets", flowInput);
-  assert.equal(flow.result.terminalTreeId, "uncontrolled_resistant_hypertension");
-  assert.equal(flow.result.resultCode, "resistant_htn_arm");
-  assert.equal(flow.result.context["treatment.targetSystolicMmHg"], 140);
-  const treatmentTree = bundle.trees.find((item) => item.id === "optimized_hypertension_treatment");
-  const draftFlow = runDraftFlow(treatmentTree.id, treatmentTree, flowInput);
-  assert.equal(draftFlow.ok, true, JSON.stringify(draftFlow));
-  assert.equal(draftFlow.result.terminalTreeId, "uncontrolled_resistant_hypertension");
+  assert.equal(flow.result.terminalTreeId, "optimized_hypertension_treatment");
+  assert.equal(flow.result.resultCode, "new_patient_lifestyle_first");
+  assert.equal(flow.result.context["treatment.recommendation"], "lifestyle_first");
+
+  const defaultFlow = runClinicalFlow(undefined, { "bp.office1.systolicMmHg": 130 });
+  assert.equal(defaultFlow.result.entryTreeId, "bp_diagnosis");
+  assert.equal(defaultFlow.result.status, "needs_data");
 
   const port = 18765;
   const server = createServer();
@@ -88,59 +79,72 @@ async function main() {
 
     const page = await request(port, "GET", "/");
     assert.equal(page.status, 200);
-    assert.match(page.body, /Cây quyết định/);
+    assert.match(page.body, /Clinical Decision Support System/);
+    assert.match(page.body, /Tree Tester/);
+    assert.match(page.body, /Tree Explorer/);
+    assert.match(page.body, /Tree Builder/);
+    assert.match(page.body, /Dynamic form/);
+    assert.match(page.body, /json-input/);
+    assert.match(page.body, /json-file/);
+    assert.match(page.body, /Dữ liệu dùng chung/);
+    assert.match(page.body, /zoom-in/);
+    assert.match(page.body, /zoom-out/);
     assert.match(page.body, /vendor\/cytoscape\.min\.js/);
     assert.match(page.body, /path-status/);
+    assert.match(page.body, /language-toggle/);
+    assert.match(page.body, /Patient Simulator|Mô phỏng người bệnh/);
+    assert.match(page.body, /start-traversal/);
+    assert.match(page.body, /preset-select/);
+    assert.match(page.body, /patient-tab-history/);
     assert.match(page.body, /new-tree-button/);
-    assert.match(page.body, /new-tree-image/);
-    assert.match(page.body, /Tạo cây mới từ ảnh/);
-    assert.match(page.body, /edit-tree/);
-    assert.match(page.body, /fullscreen-graph/);
-    assert.match(page.body, /Toàn màn hình/);
-    assert.match(page.body, /node-select/);
-    assert.match(page.body, /condition-builder/);
-    assert.match(page.body, /validate-tree/);
-    assert.match(page.body, /Chỉnh sửa cây/);
-    assert.match(page.body, /run-draft/);
-    assert.doesNotMatch(page.body, /tree-editor/);
-    assert.doesNotMatch(page.body, /node-inspector/);
-    assert.doesNotMatch(page.body, /Source references/);
-    assert.doesNotMatch(page.body, /Trace/);
-    assert.doesNotMatch(page.body, /Format JSON/);
+    assert.match(page.body, /import-tree-file/);
+    assert.match(page.body, /export-tree-button/);
+    assert.match(page.body, /builder-search/);
+    assert.match(page.body, /builder-node-label/);
+    assert.match(page.body, /builder-node-type/);
+    assert.match(page.body, /builder-node-detail/);
+    assert.match(page.body, /explorer-search/);
+    assert.match(page.body, /explorer-options/);
     assert.doesNotMatch(page.body, /NO LLM · NO API KEY/);
     assert.doesNotMatch(page.body, /Node\.js local UI/);
+    const styles = await request(port, "GET", "/styles.css");
+    assert.equal(styles.status, 200);
+    assert.match(styles.body, /\.tester-sidebar[\s\S]*overflow-y: auto/);
+    assert.match(styles.body, /\.tester-actions-footer/);
+    assert.doesNotMatch(styles.body, /\.simulator-actions\s*\{[\s\S]*position:\s*sticky/);
     const cytoscapeAsset = await request(port, "GET", "/vendor/cytoscape.min.js");
     assert.equal(cytoscapeAsset.status, 200);
     assert.match(cytoscapeAsset.body, /Cytoscape/);
+    const medicationCatalog = await request(port, "GET", "/api/medication-catalog");
+    assert.equal(medicationCatalog.status, 200);
+    assert.equal(medicationCatalog.body.classes.length, 7);
+    for (const icon of ["logo_app.png", "logo_visual.png", "tree_builder_icon.png", "tree_explorer_icon.png", "tree_tester_icon.png", "language_en.svg", "language_vi.svg"]) {
+      const asset = await request(port, "GET", `/icon/${icon}`);
+      assert.equal(asset.status, 200);
+      assert.equal(asset.body.length > 0, true);
+    }
 
-    const runApi = await request(port, "POST", "/api/run", { treeId: bp.id, variables: input });
+    const runApi = await request(port, "POST", "/api/run", {
+      treeId: bp.id,
+      patientId: "patient-smoke",
+      asOf: "2026-08-11",
+      variables: input,
+    });
     assert.equal(runApi.status, 200);
     assert.equal(runApi.body.result.resultCode, "normal_bp");
+    assert.equal(runApi.body.result.patientId, "patient-smoke");
+    assert.equal(runApi.body.result.asOf, "2026-08-11");
 
     const flowApi = await request(port, "POST", "/api/run-flow", { startTreeId: "bp_thresholds_targets", variables: flowInput });
     assert.equal(flowApi.status, 200);
-    assert.equal(flowApi.body.result.terminalTreeId, "uncontrolled_resistant_hypertension");
-    assert.equal(flowApi.body.result.resultCode, "resistant_htn_arm");
+    assert.equal(flowApi.body.result.terminalTreeId, "optimized_hypertension_treatment");
+    assert.equal(flowApi.body.result.resultCode, "new_patient_lifestyle_first");
 
-    const draftFlowApi = await request(port, "POST", "/api/run-draft-flow", { startTreeId: treatmentTree.id, tree: treatmentTree, variables: flowInput });
-    assert.equal(draftFlowApi.status, 200);
-    assert.equal(draftFlowApi.body.result.terminalTreeId, "uncontrolled_resistant_hypertension");
+    const removedDraftApi = await request(port, "POST", "/api/run-draft", { treeId: bp.id, tree: bp, variables: input });
+    assert.equal(removedDraftApi.status, 404);
 
-    const draftApi = await request(port, "POST", "/api/validate-draft", { treeId: bp.id, tree: bp });
-    assert.equal(draftApi.status, 200);
-    assert.equal(draftApi.body.ok, true);
-
-    const runDraftApi = await request(port, "POST", "/api/run-draft", { treeId: bp.id, tree: bp, variables: input });
-    assert.equal(runDraftApi.status, 200);
-    assert.equal(runDraftApi.body.result.resultCode, "normal_bp");
-
-    const uploadValidation = await request(port, "POST", "/api/pipeline/upload", {});
-    assert.equal(uploadValidation.status, 400);
-    assert.match(uploadValidation.body.errors[0], /treeId/);
-
-    const missingJob = await request(port, "GET", "/api/pipeline/jobs/unknown-job");
-    assert.equal(missingJob.status, 400);
-    assert.match(missingJob.body.errors[0], /Không tìm thấy/);
+    const removedPipelineApi = await request(port, "POST", "/api/pipeline/upload", {});
+    assert.equal(removedPipelineApi.status, 404);
 
     console.log(JSON.stringify({ status: "ok", node: process.version, trees: bundle.trees.length, resultCode: run.result.resultCode }));
   } finally {

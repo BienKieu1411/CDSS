@@ -1,33 +1,42 @@
 {
   "treeId": "uncontrolled_resistant_hypertension",
   "testInput": {
-    "bp.officeAverageSystolicMmHg": 150,
-    "bp.officeReadingCount": 2,
+    "bp.office3.systolicMmHg": 150,
+    "bp.office3.diastolicMmHg": 95,
     "medication.regimenStableWeeks": 4,
-    "medication.previousEncounterAgentCount": 3,
-    "medication.previousEncounterIncludesDiuretic": true
+    "medication.currentDrugNames": "Losartan, amlodipine"
   },
   "result": {
     "treeId": "uncontrolled_resistant_hypertension",
     "status": "completed",
-    "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
+    "outcomeCode": "uncontrolled_two_drug_classified",
     "actions": [],
     "sets": {
-      "resistant.classification": "resistant_three_or_more_with_diuretic"
+      "resistant.classification": "uncontrolled_two_drug"
     },
-    "resultCode": "resistant_htn_arm",
-    "severity": "critical",
+    "resultCode": "uncontrolled_htn_arm",
+    "severity": "high",
     "entryTreeId": "uncontrolled_resistant_hypertension",
     "terminalTreeId": "uncontrolled_resistant_hypertension",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.3.0",
+    "bundleVersion": "0.7.0",
     "context": {
-      "bp.officeAverageSystolicMmHg": 150,
-      "bp.officeReadingCount": 2,
+      "bp.office3.systolicMmHg": 150,
+      "bp.office3.diastolicMmHg": 95,
       "medication.regimenStableWeeks": 4,
-      "medication.previousEncounterAgentCount": 3,
-      "medication.previousEncounterIncludesDiuretic": true,
-      "resistant.classification": "resistant_three_or_more_with_diuretic"
+      "medication.currentDrugNames": "Losartan, amlodipine",
+      "bp.latest.systolicMmHg": 150,
+      "bp.latest.diastolicMmHg": 95,
+      "medication.currentDrugClassList": [
+        "arb",
+        "ccb"
+      ],
+      "medication.currentDrugClassCodes": "arb,ccb",
+      "medication.currentDrugClassCount": 2,
+      "medication.currentIncludesDiuretic": false,
+      "medication.currentUnmappedDrugNames": "",
+      "medication.currentHasUnmappedDrug": false,
+      "resistant.classification": "uncontrolled_two_drug"
     },
     "linksVisited": [],
     "trace": [
@@ -51,30 +60,24 @@
       },
       {
         "treeId": "uncontrolled_resistant_hypertension",
+        "nodeId": "resistant_drug_mapping",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "uncontrolled_resistant_hypertension",
         "nodeId": "resistant_agent_count",
         "type": "condition",
-        "value": false
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_agent_count_ge3",
-        "type": "condition",
         "value": true
       },
       {
         "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_diuretic",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_infer_resistant",
+        "nodeId": "resistant_infer_uncontrolled",
         "type": "end",
-        "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
+        "outcomeCode": "uncontrolled_two_drug_classified",
         "actions": [],
         "sets": {
-          "resistant.classification": "resistant_three_or_more_with_diuretic"
+          "resistant.classification": "uncontrolled_two_drug"
         }
       }
     ],
@@ -112,6 +115,13 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+        "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+      },
+      {
+        "sourceId": "image_05_uncontrolled_resistant",
+        "page": 1,
+        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
         "note": "Số nhóm thuốc hạ áp đang dùng?"
       },
       {
@@ -119,41 +129,28 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Số nhóm thuốc ≥3?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Phác đồ có lợi tiểu?"
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu"
+        "note": "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc"
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 57,
-      "nodes": 90,
-      "edges": 88,
-      "links": 1
+      "variables": 84,
+      "nodes": 111,
+      "edges": 110,
+      "links": 20
     },
     "decision": {
       "status": "completed",
-      "resultCode": "resistant_htn_arm",
-      "outcomeCode": "resistant_three_or_more_with_diuretic_classified",
+      "resultCode": "uncontrolled_htn_arm",
+      "outcomeCode": "uncontrolled_two_drug_classified",
       "sets": {
-        "resistant.classification": "resistant_three_or_more_with_diuretic"
+        "resistant.classification": "uncontrolled_two_drug"
       },
-      "severity": "critical",
+      "severity": "high",
       "actions": [],
       "missingData": [],
-      "reason": null
+      "reason": null,
+      "errors": []
     }
   }
 }

@@ -3,8 +3,9 @@
   "treeBundle": "decision_trees/bundle/decision_tree_bundle.json",
   "owner": "clinical-flow",
   "notes": [
-    "Các tree có thể được clinical flow gọi trực tiếp hoặc được gọi qua node LINK.",
-    "Mặc định ưu tiên một lần chạy cho mỗi encounter và lưu bundleVersion cùng trace."
+    "Runtime hiện kích hoạt đủ Cây 1–5 theo thứ tự lâm sàng.",
+    "Cây 3 chuyển trực tiếp sang Cây 5 ở nhánh 4 nhóm thuốc chưa kiểm soát.",
+    "requiredVariables là dữ liệu thô tối thiểu để mở form/adapter; biến derived được engine tạo từ context và không yêu cầu người dùng nhập lại."
   ],
   "triggers": [
     {
@@ -14,13 +15,19 @@
       "activationMode": "direct",
       "priority": 100,
       "runPolicy": "once_per_encounter",
-      "requiredVariables": ["bp.measurementMethod", "bp.office1.systolicMmHg", "bp.office1.diastolicMmHg"],
+      "requiredVariables": [
+        "bp.office1.systolicMmHg",
+        "bp.office1.diastolicMmHg",
+        "bp.office2.systolicMmHg",
+        "bp.office2.diastolicMmHg",
+        "bp.office3.systolicMmHg",
+        "bp.office3.diastolicMmHg",
+        "patient.diagnosisCodes"
+      ],
+      "inputMode": "shared_patient_context",
       "guard": {
-        "all": [
-          {"field": "bp.measurementMethod", "op": "present"},
-          {"field": "bp.office1.systolicMmHg", "op": "present"},
-          {"field": "bp.office1.diastolicMmHg", "op": "present"}
-        ]
+        "field": "bp.office1.systolicMmHg",
+        "op": "present"
       }
     },
     {
@@ -30,18 +37,16 @@
       "activationMode": "direct",
       "priority": 110,
       "runPolicy": "once_per_encounter",
-      "requiredVariables": ["bp.category", "bp.systolicMmHg", "bp.diastolicMmHg", "risk.factorCount", "risk.highRiskComorbidity"],
-      "guard": {"field": "bp.category", "op": "in", "value": ["normal", "high_normal", "grade1", "grade2", "hypertension"]}
-    },
-    {
-      "id": "bp_thresholds_targets_started",
-      "event": "decision.hypertension_risk_stratification_completed",
-      "entryTreeId": "bp_thresholds_targets",
-      "activationMode": "direct",
-      "priority": 120,
-      "runPolicy": "once_per_encounter",
-      "requiredVariables": ["bp.category", "risk.class", "treatment.hasHighRiskComorbidity"],
-      "guard": {"field": "bp.category", "op": "in", "value": ["high_normal", "grade1", "grade2", "hypertension", "masked_hypertension"]}
+      "requiredVariables": [
+        "bp.latest.systolicMmHg",
+        "bp.latest.diastolicMmHg",
+        "patient.diagnosisCodes"
+      ],
+      "inputMode": "shared_patient_context",
+      "guard": {
+        "field": "bp.latest.systolicMmHg",
+        "op": "present"
+      }
     },
     {
       "id": "optimized_hypertension_treatment_started",
@@ -50,18 +55,57 @@
       "activationMode": "direct",
       "priority": 130,
       "runPolicy": "once_per_encounter",
-      "requiredVariables": ["patient.ageYears", "encounter.number", "bp.category", "treatment.mandatoryIndication", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg", "treatment.targetProfile", "medication.previousEncounterAgentCount", "medication.previousEncounterIncludesDiuretic", "bp.controlledAfterTwoDrugs", "bp.controlledAfterThreeDrugs", "bp.controlledAfterFourDrugs"],
-      "guard": {"field": "bp.category", "op": "in", "value": ["high_normal", "grade1", "grade2", "hypertension", "masked_hypertension"]}
+      "requiredVariables": [
+        "patient.birthDate",
+        "encounter.number",
+        "bp.latest.systolicMmHg",
+        "bp.latest.diastolicMmHg",
+        "medication.previousEncounterDrugNames"
+      ],
+      "inputMode": "shared_patient_context",
+      "guard": {
+        "field": "encounter.number",
+        "op": "present"
+      }
     },
     {
-      "id": "uncontrolled_resistant_assessment_started",
+      "id": "uncontrolled_resistant_hypertension_started",
       "event": "decision.optimized_hypertension_treatment_completed",
       "entryTreeId": "uncontrolled_resistant_hypertension",
       "activationMode": "link_or_direct",
       "priority": 200,
       "runPolicy": "once_per_encounter",
-      "requiredVariables": ["bp.officeAverageSystolicMmHg", "bp.officeReadingCount", "medication.regimenStableWeeks", "medication.previousEncounterAgentCount", "medication.previousEncounterIncludesDiuretic"],
-      "guard": {"field": "bp.officeAverageSystolicMmHg", "op": "present"}
+      "requiredVariables": [
+        "bp.latest.systolicMmHg",
+        "bp.latest.diastolicMmHg",
+        "medication.regimenStableWeeks",
+        "medication.currentDrugNames"
+      ],
+      "inputMode": "shared_patient_context",
+      "guard": {
+        "field": "bp.latest.systolicMmHg",
+        "op": "present"
+      }
+    },
+    {
+      "id": "bp_thresholds_targets_started",
+      "event": "decision.hypertension_risk_stratification_completed",
+      "entryTreeId": "bp_thresholds_targets",
+      "activationMode": "direct",
+      "priority": 120,
+      "runPolicy": "once_per_encounter",
+      "requiredVariables": [
+        "bp.category",
+        "risk.class",
+        "encounter.number",
+        "patient.diagnosisCodes"
+      ],
+      "inputMode": "shared_patient_context",
+      "guard": {
+        "field": "bp.category",
+        "op": "in",
+        "value": ["high_normal", "grade1", "grade2", "hypertension", "masked_hypertension"]
+      }
     }
   ]
 }

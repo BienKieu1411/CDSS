@@ -1,0 +1,249 @@
+/* Tab */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 20px;
+gap: 12px;
+
+position: relative;
+width: 296px;
+height: 96px;
+
+/* White */
+background: #FFFFFF;
+border: 1px dashed #7B61FF;
+border-radius: 5px;
+
+
+/* State=Selected */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 7px 14px;
+gap: 8px;
+
+width: 129px;
+height: 56px;
+
+/* Main */
+border-bottom: 2.5px solid #5260FF;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* test-tube */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 35.42%;
+right: 35.42%;
+top: 8.33%;
+bottom: 8.33%;
+
+/* Main */
+border: 2px solid #5260FF;
+
+
+/* Selected */
+
+width: 69px;
+height: 24px;
+
+/* Body 2/SemiBold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+text-align: center;
+
+/* Main */
+color: #5260FF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* State=Default */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 7px 14px;
+gap: 8px;
+
+width: 115px;
+height: 56px;
+
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* test-tube */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 35.42%;
+right: 35.42%;
+top: 8.33%;
+bottom: 8.33%;
+
+/* Neutral / 600 */
+border: 2px solid #6C757D;
+
+
+/* Default */
+
+width: 55px;
+height: 24px;
+
+/* Body 2/Regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+text-align: center;
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* State=Focus */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 7px 14px;
+gap: 8px;
+
+display: none;
+width: 74px;
+height: 38px;
+
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Focus */
+
+width: 46px;
+height: 24px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+text-align: center;
+text-decoration-line: underline;
+
+/* Purple/500 */
+color: #556AEB;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* State=Disable */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 7px 14px;
+gap: 8px;
+
+display: none;
+width: 78px;
+height: 38px;
+
+opacity: 0.4;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* Disable */
+
+width: 50px;
+height: 24px;
+
+/* Body 3/Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+text-align: center;
+
+/* Neutral / 900 */
+color: #212529;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;

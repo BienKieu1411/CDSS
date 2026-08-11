@@ -1,0 +1,249 @@
+/* Header */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+
+position: relative;
+width: 225px;
+height: 48px;
+
+
+
+/* Job Card / Desktop */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 8px 16px;
+gap: 8px;
+
+width: 225px;
+height: 48px;
+
+background: #FFFFFF;
+/* Neutral / 400 */
+border: 1px solid #CED4DA;
+/* Shadow 1 */
+box-shadow: 0px 4px 6px rgba(33, 37, 41, 0.2),
+0px 0px 1px rgba(33, 37, 41, 0.32);
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Avatar / Square / Large */
+
+width: 32px;
+height: 32px;
+
+/* Neutral / 900 */
+background: #212529;
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* git-fork */
+
+position: absolute;
+height: 24px;
+left: 12.5%;
+right: 12.5%;
+top: 4px;
+
+
+
+/* Group */
+
+position: absolute;
+left: 12.5%;
+right: 12.5%;
+top: 12.5%;
+bottom: 12.5%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 37.5%;
+right: 37.5%;
+top: 62.5%;
+bottom: 12.5%;
+
+/* Neutral/100 */
+border: 2px solid #F8F9FA;
+
+
+/* Vector */
+
+position: absolute;
+left: 12.5%;
+right: 62.5%;
+top: 12.5%;
+bottom: 62.5%;
+
+/* Neutral/100 */
+border: 2px solid #F8F9FA;
+
+
+/* Vector */
+
+position: absolute;
+left: 62.5%;
+right: 12.5%;
+top: 12.5%;
+bottom: 62.5%;
+
+/* Neutral/100 */
+border: 2px solid #F8F9FA;
+
+
+/* Vector */
+
+position: absolute;
+left: 25%;
+right: 25%;
+top: 37.5%;
+bottom: 37.5%;
+
+/* Neutral/100 */
+border: 2px solid #F8F9FA;
+
+
+/* Details */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 8px;
+
+width: 153px;
+height: 28px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 153px;
+height: 28px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 153px;
+height: 28px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Live visualization */
+
+width: 153px;
+height: 28px;
+
+/* Body 1/SemiBold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 700;
+font-size: 18px;
+line-height: 28px;
+/* identical to box height, or 156% */
+
+/* Neutral/Black */
+color: #000000;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* hypertension181 */
+
+display: none;
+width: 110px;
+height: 24px;
+
+/* Body 3/Medium */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 500 */
+color: #ADB5BD;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+margin: -4px 0px;
+
+
+/* Caption */
+
+display: none;
+width: 52px;
+height: 24px;
+
+/* Body 3/Regular */
+font-family: 'Inter';
+font-style: italic;
+font-weight: 400;
+font-size: 14px;
+line-height: 24px;
+/* identical to box height, or 171% */
+
+/* Neutral / 600 */
+color: #6C757D;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;

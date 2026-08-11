@@ -1358,36 +1358,36 @@ def evidence_pages_for_tree(tree_id: str, bundle: dict[str, Any]) -> set[int]:
 
 
 def source_ids_for_tree(tree_id: str, bundle: dict[str, Any]) -> set[str]:
-    """Return only sources belonging to the target tree and its linked trees."""
+    """Return the evidence sources owned directly by the target tree.
+
+    A LINK transfers execution to another tree; it does not transfer that
+    tree's evidence into the current candidate.  Keeping provenance scoped to
+    the candidate's own tree prevents a draft for an upstream tree from
+    silently citing a downstream image merely because the trees are connected.
+    The linked tree is validated separately when it is generated/verified.
+    """
     tree_map = {
         item.get("id"): item
         for item in bundle.get("trees", [])
         if isinstance(item, dict) and isinstance(item.get("id"), str)
     }
-    source_ids: set[str] = set()
-    visited: set[str] = set()
+    tree = tree_map.get(tree_id)
+    if not isinstance(tree, dict):
+        return set()
 
-    def visit(current_tree_id: str) -> None:
-        if current_tree_id in visited:
-            return
-        visited.add(current_tree_id)
-        current = tree_map.get(current_tree_id)
-        if not isinstance(current, dict):
-            return
-        for ref in current.get("sourceRefs", []):
+    source_ids: set[str] = set()
+    references = [tree.get("sourceRefs", [])]
+    references.extend(
+        node_item.get("sourceRefs", [])
+        for node_item in tree.get("nodes", [])
+        if isinstance(node_item, dict)
+    )
+    for refs in references:
+        if not isinstance(refs, list):
+            continue
+        for ref in refs:
             if isinstance(ref, dict) and isinstance(ref.get("sourceId"), str):
                 source_ids.add(ref["sourceId"])
-        for node_item in current.get("nodes", []):
-            if not isinstance(node_item, dict):
-                continue
-            for ref in node_item.get("sourceRefs", []):
-                if isinstance(ref, dict) and isinstance(ref.get("sourceId"), str):
-                    source_ids.add(ref["sourceId"])
-            data = node_item.get("data")
-            if node_item.get("type") == "link" and isinstance(data, dict) and isinstance(data.get("targetTreeId"), str):
-                visit(data["targetTreeId"])
-
-    visit(tree_id)
     return source_ids
 
 
