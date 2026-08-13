@@ -1,0 +1,136 @@
+{
+  "formatVersion": "decision-tree.v1",
+  "tree": {
+    "id": "bp_age_thresholds_targets",
+    "name": "Cây 2_new — Ngưỡng và mục tiêu theo tuổi",
+    "purpose": "Xác định ngưỡng bắt đầu điều trị và mục tiêu huyết áp theo nhóm tuổi và bệnh đồng mắc dựa trên Bảng 6 và Bảng 7.",
+    "clinicalStatus": "draft",
+    "entryNodeId": "age_target_start",
+    "inputVariables": [
+      "patient.ageYears",
+      "hypertension.diagnosisCategory",
+      "condition.hasDiabetesMellitus",
+      "condition.hasType2DiabetesMellitus",
+      "condition.hasCoronaryArteryDisease",
+      "condition.hasHeartFailure",
+      "condition.hasChronicKidneyDisease",
+      "condition.hasStroke",
+      "cardiovascular.hasEstablishedCvd",
+      "risk.hasTargetOrganDamage"
+    ],
+    "outputVariables": [
+      "treatment.medicationStartSystolicBpMmHg",
+      "treatment.medicationStartDiastolicBpMmHg",
+      "treatment.targetSystolicBpMmHg",
+      "treatment.targetDiastolicBpMmHg"
+    ],
+    "linksTo": ["optimized_hypertension_treatment"],
+    "nodes": [
+      {
+        "id": "age_target_start", "type": "start",
+        "display": { "title": "Bắt đầu xác định ngưỡng và mục tiêu huyết áp theo tuổi" },
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "Bảng người dùng cung cấp" }]
+      },
+      {
+        "id": "age_group_gate", "type": "branch",
+        "display": { "title": "Xác định nhóm tuổi", "shortLabel": "Nhóm tuổi" },
+        "logic": { "cases": [
+          { "id": "age_18_69", "label": "18–69 tuổi", "predicate": { "all": [{ "field": "patient.ageYears", "op": "gte", "value": 18 }, { "field": "patient.ageYears", "op": "lte", "value": 69 }] } },
+          { "id": "age_70_79", "label": "70–79 tuổi", "predicate": { "all": [{ "field": "patient.ageYears", "op": "gte", "value": 70 }, { "field": "patient.ageYears", "op": "lte", "value": 79 }] } },
+          { "id": "age_80_plus", "label": "Từ 80 tuổi trở lên", "predicate": { "field": "patient.ageYears", "op": "gte", "value": 80 } }
+        ] },
+        "onMissingData": "stop",
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "Phân nhóm 18–69, 70–79 và ≥80 tuổi" }]
+      },
+      {
+        "id": "age_18_69_comorbidity_gate", "type": "condition",
+        "display": { "title": "Người bệnh 18–69 tuổi có bệnh đồng mắc?", "shortLabel": "18–69 tuổi" },
+        "logic": { "predicate": { "any": [
+          { "field": "condition.hasDiabetesMellitus", "op": "eq", "value": true }, { "field": "condition.hasType2DiabetesMellitus", "op": "eq", "value": true },
+          { "field": "condition.hasCoronaryArteryDisease", "op": "eq", "value": true }, { "field": "condition.hasHeartFailure", "op": "eq", "value": true },
+          { "field": "condition.hasChronicKidneyDisease", "op": "eq", "value": true }, { "field": "condition.hasStroke", "op": "eq", "value": true },
+          { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true }, { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true }
+        ] } },
+        "onMissingData": "stop",
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "18–69 tuổi: tách THA có và không có bệnh đồng mắc" }]
+      },
+      {
+        "id": "age_70_79_comorbidity_gate", "type": "condition",
+        "display": { "title": "Người bệnh 70–79 tuổi có bệnh đồng mắc?", "shortLabel": "70–79 tuổi" },
+        "logic": { "predicate": { "any": [
+          { "field": "condition.hasDiabetesMellitus", "op": "eq", "value": true }, { "field": "condition.hasType2DiabetesMellitus", "op": "eq", "value": true },
+          { "field": "condition.hasCoronaryArteryDisease", "op": "eq", "value": true }, { "field": "condition.hasHeartFailure", "op": "eq", "value": true },
+          { "field": "condition.hasChronicKidneyDisease", "op": "eq", "value": true }, { "field": "condition.hasStroke", "op": "eq", "value": true },
+          { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true }, { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true }
+        ] } },
+        "onMissingData": "stop",
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "70–79 tuổi: ngưỡng điều trị giống nhau có hoặc không có bệnh đồng mắc" }]
+      },
+      {
+        "id": "age_80_plus_comorbidity_gate", "type": "condition",
+        "display": { "title": "Người bệnh từ 80 tuổi có bệnh đồng mắc?", "shortLabel": "≥80 tuổi" },
+        "logic": { "predicate": { "any": [
+          { "field": "condition.hasDiabetesMellitus", "op": "eq", "value": true }, { "field": "condition.hasType2DiabetesMellitus", "op": "eq", "value": true },
+          { "field": "condition.hasCoronaryArteryDisease", "op": "eq", "value": true }, { "field": "condition.hasHeartFailure", "op": "eq", "value": true },
+          { "field": "condition.hasChronicKidneyDisease", "op": "eq", "value": true }, { "field": "condition.hasStroke", "op": "eq", "value": true },
+          { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true }, { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true }
+        ] } },
+        "onMissingData": "stop",
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "≥80 tuổi: ngưỡng điều trị giống nhau có hoặc không có bệnh đồng mắc" }]
+      },
+      {
+        "id": "age_18_69_without_comorbidity", "type": "end",
+        "display": { "title": "18–69 tuổi — không BĐM: ≥140/90 → đích 120–<140/<80", "detail": "Bắt đầu điều trị khi HATT ≥140 hoặc HATTr ≥90. Mục tiêu HATT 120–<140 và HATTr <80.", "shortLabel": "18–69, không BĐM" },
+        "data": { "outcomeCode": "age_18_69_without_comorbidity", "sets": { "treatment.medicationStartSystolicBpMmHg": 140, "treatment.medicationStartDiastolicBpMmHg": 90, "treatment.targetSystolicBpMmHg": 140, "treatment.targetDiastolicBpMmHg": 80 } },
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "18–69 không BĐM: Bảng 6 ≥140/≥90; Bảng 7 120–<140 và <80" }]
+      },
+      {
+        "id": "age_18_69_with_comorbidity", "type": "end",
+        "display": { "title": "18–69 tuổi — có BĐM: ≥130/90 → đích 120–<130/<80", "detail": "Bắt đầu điều trị khi HATT ≥130 hoặc HATTr ≥90. Mục tiêu HATT 120–<130 và HATTr <80.", "shortLabel": "18–69, có BĐM" },
+        "data": { "outcomeCode": "age_18_69_with_comorbidity", "sets": { "treatment.medicationStartSystolicBpMmHg": 130, "treatment.medicationStartDiastolicBpMmHg": 90, "treatment.targetSystolicBpMmHg": 130, "treatment.targetDiastolicBpMmHg": 80 } },
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "18–69 có BĐM: Bảng 6 ≥130/≥90; Bảng 7 120–<130 và <80" }]
+      },
+      {
+        "id": "age_70_79_target", "type": "end",
+        "display": { "title": "70–79 tuổi: ≥140/90 → đích <140/<80", "detail": "Bắt đầu điều trị khi HATT ≥140 hoặc HATTr ≥90. Có thể hạ HATT đến 130 mmHg nếu dung nạp.", "shortLabel": "70–79 tuổi" },
+        "data": { "outcomeCode": "age_70_79", "sets": { "treatment.medicationStartSystolicBpMmHg": 140, "treatment.medicationStartDiastolicBpMmHg": 90, "treatment.targetSystolicBpMmHg": 140, "treatment.targetDiastolicBpMmHg": 80 } },
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "70–79 tuổi: ≥140/≥90; mục tiêu HATT <140, có thể hạ đến 130" }]
+      },
+      {
+        "id": "age_80_plus_target", "type": "end",
+        "display": { "title": "≥80 tuổi: ≥160/90 → đích <140/<80", "detail": "Bắt đầu điều trị khi HATT ≥160 hoặc HATTr ≥90. Mục tiêu HATT <140 và HATTr <80.", "shortLabel": "≥80 tuổi" },
+        "data": { "outcomeCode": "age_80_plus", "sets": { "treatment.medicationStartSystolicBpMmHg": 160, "treatment.medicationStartDiastolicBpMmHg": 90, "treatment.targetSystolicBpMmHg": 140, "treatment.targetDiastolicBpMmHg": 80 } },
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "≥80 tuổi: ≥160/≥90; mục tiêu HATT <140" }]
+      },
+      {
+        "id": "age_target_link_treatment", "type": "link",
+        "display": { "title": "Chuyển sang đánh giá phác đồ điều trị", "shortLabel": "Cây tiếp theo" },
+        "data": { "targetTreeId": "optimized_hypertension_treatment", "callMode": "navigate_only" },
+        "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "Chuyển mục tiêu sang cây điều trị" }]
+      }
+    ],
+    "edges": [
+      { "from": "age_target_start", "to": "age_group_gate", "when": "default" },
+      { "from": "age_group_gate", "to": "age_18_69_comorbidity_gate", "when": "age_18_69", "label": "18–69 tuổi" },
+      { "from": "age_group_gate", "to": "age_70_79_comorbidity_gate", "when": "age_70_79", "label": "70–79 tuổi" },
+      { "from": "age_group_gate", "to": "age_80_plus_comorbidity_gate", "when": "age_80_plus", "label": "Từ 80 tuổi trở lên" },
+      { "from": "age_18_69_comorbidity_gate", "to": "age_18_69_with_comorbidity", "when": "true", "label": "Có bệnh đồng mắc" },
+      { "from": "age_18_69_comorbidity_gate", "to": "age_18_69_without_comorbidity", "when": "false", "label": "Không có bệnh đồng mắc" },
+      { "from": "age_70_79_comorbidity_gate", "to": "age_70_79_target", "when": "true", "label": "Có bệnh đồng mắc" },
+      { "from": "age_70_79_comorbidity_gate", "to": "age_70_79_target", "when": "false", "label": "Không có bệnh đồng mắc" },
+      { "from": "age_80_plus_comorbidity_gate", "to": "age_80_plus_target", "when": "true", "label": "Có bệnh đồng mắc" },
+      { "from": "age_80_plus_comorbidity_gate", "to": "age_80_plus_target", "when": "false", "label": "Không có bệnh đồng mắc" },
+      { "from": "age_18_69_without_comorbidity", "to": "age_target_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "age_18_69_with_comorbidity", "to": "age_target_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "age_70_79_target", "to": "age_target_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "age_80_plus_target", "to": "age_target_link_treatment", "when": "default", "label": "Tiếp tục" }
+    ],
+    "sourceRefs": [{ "sourceId": "image_02_bp_thresholds_targets", "page": 1, "section": "Bảng 6 và Bảng 7", "tableOrFigure": "Bảng 6 và Bảng 7", "note": "Bảng người dùng cung cấp" }],
+    "notes": [
+      "Bảng 6 dùng để xác định ngưỡng HATT/HATTr bắt đầu điều trị thuốc.",
+      "Bảng 7 dùng để xác định mục tiêu HATT/HATTr; HATTr mục tiêu <80 mmHg cho tất cả người bệnh.",
+      "Ở nhóm 70–79 tuổi, mục tiêu HATT mặc định là 140 mmHg để đánh giá kiểm soát; có thể hạ đến 130 mmHg nếu dung nạp.",
+      "Cây đang ở trạng thái draft và cần clinical review trước khi dùng lâm sàng."
+    ]
+  }
+}

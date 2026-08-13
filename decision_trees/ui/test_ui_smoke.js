@@ -28,7 +28,7 @@ function request(port, method, pathname, payload) {
 
 async function main() {
   const bundle = loadBundle();
-  assert.equal(bundle.trees.length, 5);
+  assert.equal(bundle.trees.length, 6);
   const bp = bundle.trees.find((item) => item.id === "bp_diagnosis");
   assert.ok(bp);
   assert.ok(bundle.trees.find((item) => item.id === "hypertension_risk_stratification"));
