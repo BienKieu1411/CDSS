@@ -91,9 +91,10 @@ def derive_patient_problem_variables(context: dict[str, Any]) -> dict[str, Any]:
     stable boolean variables, so the mapping is kept deterministic here and
     cannot be overridden by a manually supplied boolean.
     """
-    if "patient.diagnosisCodes" not in context or context["patient.diagnosisCodes"] is None:
+    raw_codes = context.get("patient.conditionCodes", context.get("patient.diagnosisCodes"))
+    if raw_codes is None:
         return {}
-    codes = normalize_diagnosis_codes(context.get("patient.diagnosisCodes"))
+    codes = normalize_diagnosis_codes(raw_codes)
 
     def has_exact(*values: str) -> bool:
         return any(value in codes for value in values)
@@ -164,9 +165,17 @@ def derive_patient_measurement_variables(context: dict[str, Any]) -> dict[str, A
     # Latest clinic BP is derived, never manually entered. Prefer the most
     # recent complete pair: visit 3, then visit 2, then visit 1.
     for encounter in (3, 2, 1):
-        systolic = context.get(f"bp.office{encounter}.systolicMmHg")
-        diastolic = context.get(f"bp.office{encounter}.diastolicMmHg")
+        # The registry uses bp.office.measurementN.*. Keep the legacy
+        # bp.officeN.* spelling as a read-only compatibility fallback.
+        systolic = context.get(f"bp.office.measurement{encounter}.systolicMmHg")
+        diastolic = context.get(f"bp.office.measurement{encounter}.diastolicMmHg")
+        if systolic is None or diastolic is None:
+            systolic = context.get(f"bp.office{encounter}.systolicMmHg")
+            diastolic = context.get(f"bp.office{encounter}.diastolicMmHg")
         if all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in (systolic, diastolic)):
+            derived["bp.latestSystolicMmHg"] = systolic
+            derived["bp.latestDiastolicMmHg"] = diastolic
+            # Compatibility aliases for older callers/tests.
             derived["bp.latest.systolicMmHg"] = systolic
             derived["bp.latest.diastolicMmHg"] = diastolic
             break
@@ -333,11 +342,20 @@ def derive_medication_variables(context: dict[str, Any]) -> dict[str, Any]:
     regimen_start = _parse_date(context.get("medication.regimenStartDate"))
     reference = _reference_date(context)
     if regimen_start is not None and regimen_start <= reference:
-        derived["medication.regimenStableWeeks"] = (reference - regimen_start).days // 7
-    current_codes, current_unknown = map_classes(context.get("medication.currentDrugNames"))
+        stable_weeks = (reference - regimen_start).days // 7
+        derived["medication.regimenStableWeeks"] = stable_weeks
+        derived["medication.regimenAtLeastFourWeeks"] = stable_weeks >= 4
+    raw_current = context.get("medication.antihypertensiveDrugClasses")
+    if isinstance(raw_current, list) and all(str(value).upper() in {"A", "B", "C", "D"} for value in raw_current):
+        current_codes, current_unknown = [str(value).upper() for value in raw_current], []
+    else:
+        current_codes, current_unknown = map_classes(context.get("medication.currentDrugNames"))
     if current_codes or current_unknown:
         # Keep one canonical representation.  Count and membership checks are
         # evaluated directly against this list by the decision-tree engine.
+        derived["medication.antihypertensiveDrugClasses"] = current_codes
+        derived["medication.antihypertensiveDrugClassCount"] = len(current_codes)
+        # Compatibility aliases for older callers/tests.
         derived["medication.currentDrugClassList"] = current_codes
 
     previous_codes, previous_unknown = map_classes(context.get("medication.previousEncounterDrugNames"))
@@ -391,15 +409,17 @@ def derive_bp_control_variables(context: dict[str, Any]) -> dict[str, Any]:
     the patient-specific target from Tree 2. The three stage flags therefore
     intentionally share the same deterministic comparison.
     """
-    systolic = context.get("bp.latest.systolicMmHg")
-    diastolic = context.get("bp.latest.diastolicMmHg")
-    target_systolic = context.get("treatment.targetSystolicMmHg")
-    target_diastolic = context.get("treatment.targetDiastolicMmHg")
+    systolic = context.get("bp.latestSystolicMmHg", context.get("bp.latest.systolicMmHg"))
+    diastolic = context.get("bp.latestDiastolicMmHg", context.get("bp.latest.diastolicMmHg"))
+    target_systolic = context.get("treatment.targetSystolicBpMmHg", context.get("treatment.targetSystolicMmHg"))
+    target_diastolic = context.get("treatment.targetDiastolicBpMmHg", context.get("treatment.targetDiastolicMmHg"))
     values = (systolic, diastolic, target_systolic, target_diastolic)
     if not all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in values):
         return {}
     controlled = systolic < target_systolic and diastolic < target_diastolic
     return {
+        "bp.isControlled": controlled,
+        # Compatibility aliases for older trees/tests.
         "bp.controlledAfterTwoDrugs": controlled,
         "bp.controlledAfterThreeDrugs": controlled,
         "bp.controlledAfterFourDrugs": controlled,
@@ -680,11 +700,14 @@ def run(bundle_path: Path, tree_id: str, context: dict[str, Any]) -> dict[str, A
     bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
     initial_context = normalize_medication_list_inputs(context)
     # Do not allow a JSON/API caller to override the derived latest BP.
+    initial_context.pop("bp.latestSystolicMmHg", None)
+    initial_context.pop("bp.latestDiastolicMmHg", None)
     initial_context.pop("bp.latest.systolicMmHg", None)
     initial_context.pop("bp.latest.diastolicMmHg", None)
     # These values are calculated from the current encounter BP and the two
     # target values produced by Tree 2.  They are not user-entered switches.
     for field in (
+        "bp.isControlled",
         "bp.controlledAfterTwoDrugs",
         "bp.controlledAfterThreeDrugs",
         "bp.controlledAfterFourDrugs",
@@ -695,6 +718,8 @@ def run(bundle_path: Path, tree_id: str, context: dict[str, Any]) -> dict[str, A
     # Drug-class lists are calculated from the human-readable medication
     # names and the persisted VN medication catalog.
     for field in (
+        "medication.antihypertensiveDrugClasses",
+        "medication.antihypertensiveDrugClassCount",
         "medication.currentDrugClassList",
         "medication.previousEncounterDrugClassList",
     ):

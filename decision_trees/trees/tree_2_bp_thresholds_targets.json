@@ -2,416 +2,355 @@
   "formatVersion": "decision-tree.v1",
   "tree": {
     "id": "bp_thresholds_targets",
-    "name": "BP Thresholds and Targets Tree",
-    "purpose": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng.",
-    "clinicalStatus": "under_review",
-    "entryNodeId": "threshold_start",
+    "name": "Cây 2 — Ngưỡng huyết áp mục tiêu",
+    "purpose": "Xác định xử trí ban đầu và mục tiêu huyết áp theo chẩn đoán Cây 1, lần khám đầu hay không, và tình trạng bệnh đồng mắc.",
+    "clinicalStatus": "draft",
+    "entryNodeId": "bp_target_start",
     "inputVariables": [
-      "bp.category",
+      "hypertension.diagnosisCategory",
       "encounter.number",
-      "comorbidity.targetOrganDamageOrCvd"
+      "condition.hasEarlyMenopause",
+      "condition.hasDiabetesMellitus",
+      "condition.hasType2DiabetesMellitus",
+      "condition.hasLeftVentricularHypertrophy",
+      "condition.hasCoronaryArteryDisease",
+      "condition.hasHeartFailure",
+      "condition.hasHeartFailureWithReducedEjectionFraction",
+      "condition.hasStroke",
+      "condition.hasPeripheralArteryDisease",
+      "condition.hasAtrialFibrillation",
+      "condition.hasChronicKidneyDisease",
+      "cardiovascular.hasEstablishedCvd",
+      "risk.hasTargetOrganDamage"
     ],
     "outputVariables": [
-      "treatment.recommendation",
-      "treatment.targetSystolicMmHg",
-      "treatment.targetDiastolicMmHg"
+      "treatment.targetSystolicBpMmHg",
+      "treatment.targetDiastolicBpMmHg"
     ],
-    "linksTo": [
-      "optimized_hypertension_treatment"
-    ],
+    "linksTo": ["optimized_hypertension_treatment"],
     "nodes": [
       {
-        "id": "threshold_start",
+        "id": "bp_target_start",
         "type": "start",
         "display": {
-          "title": "Ngưỡng HA và đích điều trị",
-          "detail": "Phân biệt HA bình thường-cao và THA ở người lớn."
+          "title": "Bắt đầu xác định mục tiêu huyết áp",
+          "detail": "Nhận kết quả chẩn đoán từ Cây 1 và thông tin lần khám/bệnh đồng mắc."
         },
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Ngưỡng HA và đích điều trị"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "Sơ đồ người dùng cung cấp"
           }
         ]
       },
       {
-        "id": "threshold_high_normal",
+        "id": "bp_target_diagnosis_gate",
         "type": "condition",
         "display": {
-          "title": "Người bệnh có huyết áp bình thường-cao?"
+          "title": "Chẩn đoán từ Cây 1 là HABTC hay THA?",
+          "shortLabel": "Phân nhánh chẩn đoán"
         },
+        "logic": {
+          "predicate": {
+            "all": [
+              {
+                "field": "hypertension.diagnosisCategory",
+                "op": "in",
+                "value": ["hypertension", "high_normal_bp"]
+              }
+            ]
+          }
+        },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Người bệnh có huyết áp bình thường-cao?"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "Chẩn đoán THA (cây 1) gồm nhánh HABTC và THA"
           }
-        ],
-        "logic": {
-          "predicate": {
-            "field": "bp.category",
-            "op": "eq",
-            "value": "high_normal"
-          }
-        }
+        ]
       },
       {
-        "id": "threshold_high_normal_encounter",
+        "id": "bp_target_is_hypertension_gate",
         "type": "condition",
         "display": {
-          "title": "Đây có phải lần khám đầu tiên không?"
+          "title": "Chẩn đoán là THA?",
+          "shortLabel": "THA"
         },
-        "sourceRefs": [
-          {
-            "sourceId": "image_02_bp_thresholds_targets",
-            "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Đây có phải lần khám đầu tiên không?"
-          }
-        ],
         "logic": {
           "predicate": {
-            "field": "encounter.number",
+            "field": "hypertension.diagnosisCategory",
             "op": "eq",
-            "value": 1
+            "value": "hypertension"
           }
-        }
-      },
-      {
-        "id": "threshold_high_normal_lifestyle",
-        "type": "inference",
-        "display": {
-          "title": "Thay đổi lối sống và hẹn khám lại",
-          "detail": "treatment.recommendation = lifestyle_first"
         },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Thay đổi lối sống và hẹn khám lại"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "Nhánh THA"
           }
-        ],
+        ]
+      },
+      {
+        "id": "bp_target_not_applicable",
+        "type": "end",
+        "display": {
+          "title": "Không thuộc nhánh HABTC/THA của Cây 2",
+          "shortLabel": "Không áp dụng"
+        },
         "data": {
-          "resultCode": "high_normal_lifestyle_recheck",
-          "outcomeCode": "high_normal_lifestyle_recheck",
-          "severity": "low",
-          "sets": {
-            "treatment.recommendation": "lifestyle_first"
-          }
-        }
-      },
-      {
-        "id": "threshold_hypertension_encounter",
-        "type": "condition",
-        "display": {
-          "title": "Đây có phải lần khám đầu tiên không?"
+          "outcomeCode": "bp_target_tree_not_applicable"
         },
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Đây có phải lần khám đầu tiên không?"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "Cây 2 chỉ áp dụng cho HABTC hoặc THA"
           }
-        ],
+        ]
+      },
+      {
+        "id": "bp_target_habtc_first_visit_gate",
+        "type": "condition",
+        "display": {
+          "title": "Đây có phải là lần khám đầu tiên của người bệnh HABTC không?",
+          "shortLabel": "HABTC — lần đầu"
+        },
         "logic": {
           "predicate": {
             "field": "encounter.number",
             "op": "eq",
-            "value": 1
+            "value": "1"
           }
-        }
-      },
-      {
-        "id": "threshold_hypertension_lifestyle",
-        "type": "inference",
-        "display": {
-          "title": "Thay đổi lối sống và hẹn khám lại",
-          "detail": "treatment.recommendation = lifestyle_first"
         },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Thay đổi lối sống và hẹn khám lại"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "HABTC → lần khám đầu tiên → TĐLS và hẹn tái khám"
           }
-        ],
-        "data": {
-          "resultCode": "hypertension_lifestyle_recheck",
-          "outcomeCode": "hypertension_lifestyle_recheck",
-          "severity": "low",
-          "sets": {
-            "treatment.recommendation": "lifestyle_first"
-          }
-        }
+        ]
       },
       {
-        "id": "threshold_comorbidity",
+        "id": "bp_target_hypertension_first_visit_gate",
         "type": "condition",
         "display": {
-          "title": "Người bệnh có bệnh đồng mắc?"
+          "title": "Đây có phải là lần khám đầu tiên của người bệnh THA không?",
+          "shortLabel": "THA — lần đầu"
         },
-        "sourceRefs": [
-          {
-            "sourceId": "image_02_bp_thresholds_targets",
-            "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Người bệnh có bệnh đồng mắc?"
-          }
-        ],
         "logic": {
           "predicate": {
-            "field": "comorbidity.targetOrganDamageOrCvd",
+            "field": "encounter.number",
             "op": "eq",
-            "value": true
+            "value": "1"
           }
-        }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_02_bp_thresholds_targets",
+            "page": 1,
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "THA → lần khám đầu tiên → TĐLS và hẹn tái khám"
+          }
+        ]
       },
       {
-        "id": "threshold_comorbidity_target",
-        "type": "inference",
+        "id": "bp_target_comorbidity_gate",
+        "type": "condition",
         "display": {
-          "title": "Đích điều trị khi có bệnh đồng mắc: <130/80 mmHg",
-          "detail": "treatment.recommendation = medication_now_high_risk\ntreatment.targetSystolicMmHg = 130\ntreatment.targetDiastolicMmHg = 80"
+          "title": "Có bệnh đồng mắc không?",
+          "shortLabel": "Kiểm tra BĐM"
+        },
+        "logic": {
+          "predicate": {
+            "any": [
+              { "field": "condition.hasEarlyMenopause", "op": "eq", "value": true },
+              { "field": "condition.hasDiabetesMellitus", "op": "eq", "value": true },
+              { "field": "condition.hasType2DiabetesMellitus", "op": "eq", "value": true },
+              { "field": "condition.hasLeftVentricularHypertrophy", "op": "eq", "value": true },
+              { "field": "condition.hasCoronaryArteryDisease", "op": "eq", "value": true },
+              { "field": "condition.hasHeartFailure", "op": "eq", "value": true },
+              { "field": "condition.hasHeartFailureWithReducedEjectionFraction", "op": "eq", "value": true },
+              { "field": "condition.hasStroke", "op": "eq", "value": true },
+              { "field": "condition.hasPeripheralArteryDisease", "op": "eq", "value": true },
+              { "field": "condition.hasAtrialFibrillation", "op": "eq", "value": true },
+              { "field": "condition.hasChronicKidneyDisease", "op": "eq", "value": true },
+              { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true },
+              { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true }
+            ]
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_02_bp_thresholds_targets",
+            "page": 1,
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "Nếu đã từng khám, kiểm tra bệnh đồng mắc"
+          }
+        ]
+      },
+      {
+        "id": "bp_target_lifestyle_recheck",
+        "type": "end",
+        "display": {
+          "title": "Thay đổi lối sống và hẹn tái khám",
+          "shortLabel": "TĐLS + tái khám"
+        },
+        "data": {
+          "outcomeCode": "lifestyle_change_and_recheck",
+          "actions": ["Cho bệnh nhân thay đổi lối sống (TĐLS)", "Hẹn tái khám"]
         },
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Đích điều trị khi có bệnh đồng mắc: <130/80 mmHg"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "Encounter = 1"
           }
-        ],
+        ]
+      },
+      {
+        "id": "bp_target_habtc_followup",
+        "type": "end",
+        "display": {
+          "title": "Mục tiêu huyết áp <130/80 mmHg",
+          "shortLabel": "HABTC — đã khám trước"
+        },
         "data": {
-          "resultCode": "hypertension_comorbidity_medication",
-          "outcomeCode": "hypertension_comorbidity_treatment_started",
-          "severity": "high",
+          "outcomeCode": "high_normal_bp_target",
           "sets": {
-            "treatment.recommendation": "medication_now_high_risk",
-            "treatment.targetSystolicMmHg": 130,
-            "treatment.targetDiastolicMmHg": 80
+            "treatment.targetSystolicBpMmHg": 130,
+            "treatment.targetDiastolicBpMmHg": 80
           }
-        }
-      },
-      {
-        "id": "threshold_standard_target",
-        "type": "inference",
-        "display": {
-          "title": "Đích điều trị khi không có bệnh đồng mắc: <140/80 mmHg",
-          "detail": "treatment.recommendation = medication_now\ntreatment.targetSystolicMmHg = 140\ntreatment.targetDiastolicMmHg = 80"
         },
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Đích điều trị khi không có bệnh đồng mắc: <140/80 mmHg"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "HABTC và đã từng khám"
           }
-        ],
+        ]
+      },
+      {
+        "id": "bp_target_hypertension_no_comorbidity",
+        "type": "end",
+        "display": {
+          "title": "Mục tiêu huyết áp <140/80 mmHg",
+          "shortLabel": "THA — không BĐM"
+        },
         "data": {
-          "resultCode": "hypertension_medication_start",
-          "outcomeCode": "hypertension_treatment_started",
-          "severity": "high",
+          "outcomeCode": "hypertension_target_without_comorbidity",
           "sets": {
-            "treatment.recommendation": "medication_now",
-            "treatment.targetSystolicMmHg": 140,
-            "treatment.targetDiastolicMmHg": 80
+            "treatment.targetSystolicBpMmHg": 140,
+            "treatment.targetDiastolicBpMmHg": 80
           }
-        }
-      },
-      {
-        "id": "threshold_link_treatment_high_normal_lifestyle",
-        "type": "link",
-        "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
         },
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "THA, đã từng khám, không BĐM"
           }
-        ],
-        "data": {
-          "targetTreeId": "optimized_hypertension_treatment",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
+        ]
       },
       {
-        "id": "threshold_link_treatment_hypertension_lifestyle",
-        "type": "link",
+        "id": "bp_target_hypertension_with_comorbidity",
+        "type": "end",
         "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
+          "title": "Mục tiêu huyết áp <130/80 mmHg",
+          "shortLabel": "THA — có BĐM"
+        },
+        "data": {
+          "outcomeCode": "hypertension_target_with_comorbidity",
+          "sets": {
+            "treatment.targetSystolicBpMmHg": 130,
+            "treatment.targetDiastolicBpMmHg": 80
+          }
         },
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "THA, đã từng khám, có BĐM"
           }
-        ],
-        "data": {
-          "targetTreeId": "optimized_hypertension_treatment",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
+        ]
       },
       {
-        "id": "threshold_link_treatment_comorbidity",
+        "id": "bp_link_treatment",
         "type": "link",
         "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
+          "title": "Chuyển sang đánh giá phác đồ điều trị",
+          "shortLabel": "Cây tiếp theo"
+        },
+        "data": {
+          "targetTreeId": "optimized_hypertension_treatment"
         },
         "sourceRefs": [
           {
             "sourceId": "image_02_bp_thresholds_targets",
             "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
+            "section": "Ngưỡng huyết áp mục tiêu",
+            "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+            "note": "Chuyển mục tiêu điều trị sang Cây 4"
           }
-        ],
-        "data": {
-          "targetTreeId": "optimized_hypertension_treatment",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
-      },
-      {
-        "id": "threshold_link_treatment_standard",
-        "type": "link",
-        "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
-        },
-        "sourceRefs": [
-          {
-            "sourceId": "image_02_bp_thresholds_targets",
-            "page": 1,
-            "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-            "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
-          }
-        ],
-        "data": {
-          "targetTreeId": "optimized_hypertension_treatment",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
+        ]
       }
     ],
     "edges": [
-      {
-        "from": "threshold_start",
-        "to": "threshold_high_normal",
-        "when": "default"
-      },
-      {
-        "from": "threshold_high_normal",
-        "to": "threshold_high_normal_encounter",
-        "when": "true",
-        "label": "Huyết áp bình thường-cao"
-      },
-      {
-        "from": "threshold_high_normal_encounter",
-        "to": "threshold_high_normal_lifestyle",
-        "when": "true",
-        "label": "Lần khám =1"
-      },
-      {
-        "from": "threshold_high_normal_lifestyle",
-        "to": "threshold_link_treatment_high_normal_lifestyle",
-        "when": "default"
-      },
-      {
-        "from": "threshold_hypertension_encounter",
-        "to": "threshold_hypertension_lifestyle",
-        "when": "true",
-        "label": "Lần khám =1"
-      },
-      {
-        "from": "threshold_hypertension_lifestyle",
-        "to": "threshold_link_treatment_hypertension_lifestyle",
-        "when": "default"
-      },
-      {
-        "from": "threshold_comorbidity",
-        "to": "threshold_comorbidity_target",
-        "when": "true",
-        "label": "Có bệnh đồng mắc/TOD/CVD"
-      },
-      {
-        "from": "threshold_comorbidity_target",
-        "to": "threshold_link_treatment_comorbidity",
-        "when": "default"
-      },
-      {
-        "from": "threshold_comorbidity",
-        "to": "threshold_standard_target",
-        "when": "false",
-        "label": "Không có bệnh đồng mắc/TOD/CVD"
-      },
-      {
-        "from": "threshold_standard_target",
-        "to": "threshold_link_treatment_standard",
-        "when": "default"
-      },
-      {
-        "from": "threshold_high_normal",
-        "to": "threshold_hypertension_encounter",
-        "when": "false",
-        "label": "Huyết áp không thuộc nhóm bình thường-cao"
-      },
-      {
-        "from": "threshold_high_normal_encounter",
-        "to": "threshold_comorbidity",
-        "when": "false",
-        "label": "Lần khám >1"
-      },
-      {
-        "from": "threshold_hypertension_encounter",
-        "to": "threshold_comorbidity",
-        "when": "false",
-        "label": "Lần khám >1"
-      }
+      { "from": "bp_target_start", "to": "bp_target_diagnosis_gate", "when": "default" },
+      { "from": "bp_target_diagnosis_gate", "to": "bp_target_is_hypertension_gate", "when": "true", "label": "HABTC hoặc THA" },
+      { "from": "bp_target_diagnosis_gate", "to": "bp_target_not_applicable", "when": "false", "label": "Khác" },
+      { "from": "bp_target_is_hypertension_gate", "to": "bp_target_hypertension_first_visit_gate", "when": "true", "label": "THA" },
+      { "from": "bp_target_is_hypertension_gate", "to": "bp_target_habtc_first_visit_gate", "when": "false", "label": "HABTC" },
+      { "from": "bp_target_habtc_first_visit_gate", "to": "bp_target_lifestyle_recheck", "when": "true", "label": "Lần khám đầu tiên" },
+      { "from": "bp_target_habtc_first_visit_gate", "to": "bp_target_habtc_followup", "when": "false", "label": "Đã từng khám" },
+      { "from": "bp_target_hypertension_first_visit_gate", "to": "bp_target_lifestyle_recheck", "when": "true", "label": "Lần khám đầu tiên" },
+      { "from": "bp_target_hypertension_first_visit_gate", "to": "bp_target_comorbidity_gate", "when": "false", "label": "Đã từng khám" },
+      { "from": "bp_target_comorbidity_gate", "to": "bp_target_hypertension_with_comorbidity", "when": "true", "label": "Có BĐM" },
+      { "from": "bp_target_comorbidity_gate", "to": "bp_target_hypertension_no_comorbidity", "when": "false", "label": "Không BĐM" },
+      { "from": "bp_target_habtc_followup", "to": "bp_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "bp_target_hypertension_no_comorbidity", "to": "bp_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "bp_target_hypertension_with_comorbidity", "to": "bp_link_treatment", "when": "default", "label": "Tiếp tục" }
     ],
     "sourceRefs": [
       {
         "sourceId": "image_02_bp_thresholds_targets",
         "page": 1,
-        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
-        "tableOrFigure": "02_bp_thresholds_and_targets.png",
-        "note": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng."
+        "section": "Ngưỡng huyết áp mục tiêu",
+        "tableOrFigure": "codex-clipboard-b3cb5c5e-7c4c-4bb6-ba1e-ba714c66d054.png",
+        "note": "Ảnh sơ đồ do người dùng cung cấp"
       }
     ],
     "notes": [
-      "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+      "Các ID biến lấy từ sheet Variable Registry trong variables_registry_cleaned_fhir_mapping.xlsx.",
+      "Số lần khám hiện tại: 1 = lần đầu, lớn hơn 1 = đã từng khám.",
+      "Bệnh đồng mắc được biểu diễn bằng OR trên các condition.has* canonical flags, cardiovascular.hasEstablishedCvd và risk.hasTargetOrganDamage.",
+      "Các giá trị mục tiêu <130/80 và <140/80 được lấy trực tiếp từ sơ đồ; trạng thái draft cần clinical review."
     ]
   }
 }

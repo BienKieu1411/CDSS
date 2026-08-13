@@ -2,386 +2,631 @@
   "formatVersion": "decision-tree.v1",
   "tree": {
     "id": "uncontrolled_resistant_hypertension",
-    "name": "Hypertension General — Phân loại THA",
-    "purpose": "Phân loại đến nhánh không kiểm soát hoặc kháng trị bằng danh sách nhóm thuốc đã chuẩn hóa.",
-    "clinicalStatus": "under_review",
-    "entryNodeId": "resistant_start",
+    "name": "Cây 5 — Chiến lược điều trị tăng huyết áp",
+    "purpose": "Xác định chiến lược điều trị sau Cây 1–3: lần khám đầu, bệnh đồng mắc cần cây chuyên biệt, đơn trị liệu, phối hợp thuốc, tăng huyết áp kháng trị và tham khảo chuyên gia.",
+    "clinicalStatus": "draft",
+    "entryNodeId": "strategy_start",
     "inputVariables": [
-      "bp.latest.systolicMmHg",
-      "medication.regimenStartDate",
-      "medication.regimenStableWeeks",
-      "medication.currentDrugNames",
-      "medication.currentDrugClassList"
+      "patient.ageYears",
+      "hypertension.diagnosisCategory",
+      "encounter.number",
+      "risk.cardiovascularRiskClass",
+      "risk.hasTargetOrganDamage",
+      "renal.hasCkdStage3OrHigher",
+      "condition.hasChronicKidneyDisease",
+      "condition.hasDiabetesMellitus",
+      "condition.hasType2DiabetesMellitus",
+      "cardiovascular.hasEstablishedCvd",
+      "condition.hasCoronaryArteryDisease",
+      "condition.hasHeartFailure",
+      "condition.hasHeartFailureWithReducedEjectionFraction",
+      "condition.hasStroke",
+      "condition.hasPeripheralArteryDisease",
+      "condition.hasAtrialFibrillation",
+      "treatment.targetSystolicBpMmHg",
+      "treatment.targetDiastolicBpMmHg",
+      "bp.isControlled"
     ],
-    "outputVariables": [
-      "resistant.classification"
+    "outputVariables": [],
+    "linksTo": [
+      "hypertension_ckd_strategy",
+      "hypertension_diabetes_strategy",
+      "hypertension_cvd_strategy",
+      "hypertension_target_organ_damage_strategy",
+      "hypertension_heart_failure_strategy"
     ],
-    "linksTo": [],
     "nodes": [
       {
-        "id": "resistant_start",
+        "id": "strategy_start",
         "type": "start",
         "display": {
-          "title": "Hypertension General — Phân loại THA"
+          "title": "Bắt đầu lựa chọn chiến lược điều trị",
+          "detail": "Bắt đầu từ tuổi, kết quả chẩn đoán, lần khám, bệnh đồng mắc và mục tiêu huyết áp."
         },
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Hypertension General — Phân loại THA"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Sơ đồ người dùng cung cấp"
+          },
+          {
+            "sourceId": "pdf_clinical_review",
+            "page": 9,
+            "section": "Cây 5: Cây chiến lược điều trị tối ưu",
+            "tableOrFigure": "Hình 4",
+            "note": "Sơ đồ tham khảo"
           }
         ]
       },
       {
-        "id": "resistant_range",
+        "id": "strategy_adult_gate",
         "type": "condition",
         "display": {
-          "title": "HATT lần đo gần nhất 140–169 mmHg?",
-          "detail": "HATT lần đo gần nhất được tự động lấy từ lần 3, nếu thiếu thì lần 2 hoặc lần 1."
+          "title": "Người bệnh từ 18 tuổi trở lên?",
+          "shortLabel": "Kiểm tra độ tuổi"
+        },
+        "logic": {
+          "predicate": { "field": "patient.ageYears", "op": "gte", "value": 18 }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Age >18"
+          }
+        ]
+      },
+      {
+        "id": "strategy_not_adult",
+        "type": "end",
+        "display": {
+          "title": "Chuyển đánh giá theo phác đồ người dưới 18 tuổi",
+          "shortLabel": "Ngoài phạm vi cây người lớn"
+        },
+        "data": { "outcomeCode": "pediatric_hypertension_review" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Người bệnh chưa đủ 18 tuổi"
+          }
+        ]
+      },
+      {
+        "id": "strategy_diagnosis_gate",
+        "type": "condition",
+        "display": {
+          "title": "Kết quả chẩn đoán là huyết áp bình thường cao hoặc tăng huyết áp?",
+          "shortLabel": "Kết quả chẩn đoán"
+        },
+        "logic": {
+          "predicate": {
+            "field": "hypertension.diagnosisCategory",
+            "op": "in",
+            "value": ["high_normal_bp", "hypertension"]
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Lấy kết quả chẩn đoán từ Cây 1"
+          }
+        ]
+      },
+      {
+        "id": "strategy_not_habtc_or_hypertension",
+        "type": "end",
+        "display": {
+          "title": "Kết thúc đánh giá điều trị theo Cây 5",
+          "shortLabel": "Không thuộc nhánh HABTC/THA"
+        },
+        "data": { "outcomeCode": "strategy_not_applicable" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Chỉ xử lý HABTC hoặc THA"
+          }
+        ]
+      },
+      {
+        "id": "strategy_first_visit_gate",
+        "type": "condition",
+        "display": {
+          "title": "Đây có phải là lần khám đầu tiên không?",
+          "shortLabel": "Lần khám"
+        },
+        "logic": {
+          "predicate": { "field": "encounter.number", "op": "eq", "value": 1 }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Lần đầu → thay đổi lối sống và tái khám"
+          }
+        ]
+      },
+      {
+        "id": "strategy_lifestyle_recheck",
+        "type": "end",
+        "display": {
+          "title": "Thay đổi lối sống và hẹn tái khám",
+          "shortLabel": "TĐLS + tái khám"
+        },
+        "data": {
+          "outcomeCode": "lifestyle_change_and_recheck",
+          "actions": ["Thay đổi lối sống", "Hẹn tái khám"]
         },
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "HATT lần đo gần nhất 140–169 mmHg?"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Lần khám đầu"
           }
-        ],
+        ]
+      },
+      {
+        "id": "strategy_comorbidity_gate",
+        "type": "condition",
+        "display": {
+          "title": "Kiểm tra bệnh đồng mắc",
+          "shortLabel": "Có bệnh đồng mắc không?"
+        },
         "logic": {
           "predicate": {
-            "all": [
-              {
-                "field": "bp.latest.systolicMmHg",
-                "op": "gte",
-                "value": 140
-              },
-              {
-                "field": "bp.latest.systolicMmHg",
-                "op": "lte",
-                "value": 169
-              }
+            "any": [
+              { "field": "renal.hasCkdStage3OrHigher", "op": "eq", "value": true },
+              { "field": "condition.hasChronicKidneyDisease", "op": "eq", "value": true },
+              { "field": "condition.hasDiabetesMellitus", "op": "eq", "value": true },
+              { "field": "condition.hasType2DiabetesMellitus", "op": "eq", "value": true },
+              { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true },
+              { "field": "condition.hasCoronaryArteryDisease", "op": "eq", "value": true },
+              { "field": "condition.hasStroke", "op": "eq", "value": true },
+              { "field": "condition.hasPeripheralArteryDisease", "op": "eq", "value": true },
+              { "field": "condition.hasAtrialFibrillation", "op": "eq", "value": true },
+              { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true },
+              { "field": "condition.hasHeartFailure", "op": "eq", "value": true },
+              { "field": "condition.hasHeartFailureWithReducedEjectionFraction", "op": "eq", "value": true }
             ]
           }
-        }
-      },
-      {
-        "id": "resistant_end_out_of_range",
-        "type": "end",
-        "display": {
-          "title": "Ngoài khoảng — Cần đánh giá thêm",
-          "detail": "Ưu tiên xử trí nguyên nhân trước"
         },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Ngoài khoảng — Cần đánh giá thêm"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Có ít nhất một bệnh đồng mắc hoặc không có bệnh đồng mắc"
           }
-        ],
-        "data": {
-          "resultCode": "resistant_out_of_range",
-          "outcomeCode": "resistant_out_of_range_manage_first"
-        }
+        ]
       },
       {
-        "id": "resistant_stable",
+        "id": "strategy_mandatory_indication",
+        "type": "branch",
+        "display": {
+          "title": "Chỉ định bắt buộc theo bệnh đồng mắc",
+          "shortLabel": "Chỉ định bắt buộc"
+        },
+        "logic": {
+          "cases": [
+            { "id": "ckd", "label": "Bệnh thận mạn", "predicate": { "any": [
+              { "field": "renal.hasCkdStage3OrHigher", "op": "eq", "value": true },
+              { "field": "condition.hasChronicKidneyDisease", "op": "eq", "value": true }
+            ] } },
+            { "id": "diabetes", "label": "Đái tháo đường", "predicate": { "any": [
+              { "field": "condition.hasDiabetesMellitus", "op": "eq", "value": true },
+              { "field": "condition.hasType2DiabetesMellitus", "op": "eq", "value": true }
+            ] } },
+            { "id": "cvd", "label": "Bệnh tim mạch", "predicate": { "any": [
+              { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true },
+              { "field": "condition.hasCoronaryArteryDisease", "op": "eq", "value": true },
+              { "field": "condition.hasStroke", "op": "eq", "value": true },
+              { "field": "condition.hasPeripheralArteryDisease", "op": "eq", "value": true },
+              { "field": "condition.hasAtrialFibrillation", "op": "eq", "value": true }
+            ] } },
+            { "id": "target_organ_damage", "label": "Tổn thương cơ quan đích", "predicate": { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true } },
+            { "id": "heart_failure", "label": "Suy tim", "predicate": { "any": [
+              { "field": "condition.hasHeartFailure", "op": "eq", "value": true },
+              { "field": "condition.hasHeartFailureWithReducedEjectionFraction", "op": "eq", "value": true }
+            ] } }
+          ]
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Node trung gian trước 5 nhánh chỉ định bắt buộc"
+          }
+        ]
+      },
+      {
+        "id": "strategy_habtc_tha_gate",
         "type": "condition",
         "display": {
-          "title": "Phác đồ đã ổn định ≥4 tuần?",
-          "detail": "Tự tính từ ngày bắt đầu/chỉnh phác đồ và ngày khám; không nhập số tuần."
+          "title": "Kết quả chẩn đoán là huyết áp bình thường cao?",
+          "shortLabel": "HABTC hay THA"
         },
-        "sourceRefs": [
-          {
-            "sourceId": "image_05_uncontrolled_resistant",
-            "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Phác đồ ổn định ≥ 4 tuần?"
-          }
-        ],
         "logic": {
-          "predicate": {
-            "field": "medication.regimenStableWeeks",
-            "op": "gte",
-            "value": 4
-          }
-        }
-      },
-      {
-        "id": "resistant_end_defer",
-        "type": "end",
-        "display": {
-          "title": "Tạm hoãn — Đánh giá lại sau",
-          "detail": "Đánh giá lại sau"
+          "predicate": { "field": "hypertension.diagnosisCategory", "op": "eq", "value": "high_normal_bp" }
         },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Tạm hoãn — Đánh giá lại sau"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Sau khi không có bệnh đồng mắc, tách HABTC và THA"
           }
-        ],
-        "data": {
-          "resultCode": "resistant_defer",
-          "outcomeCode": "resistant_defer_reassess"
-        }
+        ]
       },
       {
-        "id": "resistant_agent_count",
+        "id": "strategy_habtc_risk_gate",
         "type": "condition",
         "display": {
-          "title": "Đang sử dụng đúng 2 nhóm thuốc?",
-          "detail": "Engine chuẩn hóa danh sách hoạt chất thành các nhóm thuốc duy nhất rồi kiểm tra độ dài danh sách."
+          "title": "Nguy cơ tim mạch thấp hoặc trung bình?",
+          "shortLabel": "Nguy cơ HABTC"
+        },
+        "logic": {
+          "predicate": {
+            "field": "risk.cardiovascularRiskClass",
+            "op": "in",
+            "value": ["low", "low_medium", "medium", "medium_high"]
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "HABTC: dùng nguy cơ từ kết quả cây trước"
+          }
+        ]
+      },
+      {
+        "id": "strategy_monotherapy",
+        "type": "inference",
+        "display": {
+          "title": "Dùng một trong bốn nhóm thuốc A, B, C hoặc D",
+          "shortLabel": "Đơn trị liệu"
+        },
+        "data": {
+          "resultCode": "single_drug_class",
+          "actions": ["Dùng một trong bốn nhóm thuốc A, B, C hoặc D"]
         },
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Đang sử dụng đúng 2 nhóm thuốc?"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "HABTC nguy cơ thấp/trung bình → A, B, C hoặc D"
           }
-        ],
-        "logic": {
-          "predicate": {
-            "field": "medication.currentDrugClassList",
-            "op": "lengthEq",
-            "value": 2
-          }
-        }
+        ]
       },
       {
-        "id": "resistant_agent_count_ge3",
+        "id": "strategy_combo2",
+        "type": "inference",
+        "display": {
+          "title": "Dùng phối hợp hai nhóm thuốc A+C hoặc A+D",
+          "shortLabel": "Phối hợp 2 thuốc"
+        },
+        "data": {
+          "resultCode": "two_drug_classes",
+          "actions": ["Dùng phối hợp A+C hoặc A+D"]
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "HABTC nguy cơ cao hoặc THA → A+C hoặc A+D"
+          }
+        ]
+      },
+      {
+        "id": "strategy_monotherapy_control_gate",
         "type": "condition",
         "display": {
-          "title": "Đang sử dụng từ 3 nhóm thuốc trở lên?",
-          "detail": "Kiểm tra trực tiếp độ dài danh sách nhóm thuốc đã chuẩn hóa."
+          "title": "Huyết áp đã được kiểm soát theo mục tiêu?",
+          "shortLabel": "Kiểm soát sau đơn trị liệu"
         },
+        "logic": { "predicate": { "field": "bp.isControlled", "op": "eq", "value": true } },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Đang sử dụng từ 3 nhóm thuốc trở lên?"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Đánh giá theo mục tiêu từ Cây 2"
           }
-        ],
-        "logic": {
-          "predicate": {
-            "field": "medication.currentDrugClassList",
-            "op": "lengthGte",
-            "value": 3
-          }
-        }
+        ]
       },
       {
-        "id": "resistant_end_agent_count_review",
-        "type": "end",
-        "display": {
-          "title": "Cần rà soát số nhóm thuốc",
-          "detail": "resistant.classification = review_required"
-        },
-        "sourceRefs": [
-          {
-            "sourceId": "image_05_uncontrolled_resistant",
-            "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Cần rà soát số nhóm thuốc"
-          }
-        ],
-        "data": {
-          "resultCode": "resistant_agent_count_review_required",
-          "outcomeCode": "resistant_agent_count_review_required",
-          "sets": {
-            "resistant.classification": "review_required"
-          }
-        }
-      },
-      {
-        "id": "resistant_infer_uncontrolled",
-        "type": "end",
-        "display": {
-          "title": "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc",
-          "detail": "resistant.classification = uncontrolled_two_drug"
-        },
-        "sourceRefs": [
-          {
-            "sourceId": "image_05_uncontrolled_resistant",
-            "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc"
-          }
-        ],
-        "data": {
-          "resultCode": "uncontrolled_htn_arm",
-          "severity": "high",
-          "sets": {
-            "resistant.classification": "uncontrolled_two_drug"
-          },
-          "outcomeCode": "uncontrolled_two_drug_classified"
-        }
-      },
-      {
-        "id": "resistant_diuretic",
+        "id": "strategy_combo2_control_gate",
         "type": "condition",
         "display": {
-          "title": "Danh sách thuốc có nhóm lợi tiểu?",
-          "detail": "Danh sách nhóm thuốc có chứa lợi tiểu thiazide, lợi tiểu quai hoặc MRA."
+          "title": "Huyết áp đã được kiểm soát theo mục tiêu?",
+          "shortLabel": "Kiểm soát sau phối hợp 2 thuốc"
         },
+        "logic": { "predicate": { "field": "bp.isControlled", "op": "eq", "value": true } },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Danh sách thuốc có nhóm lợi tiểu?"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Đánh giá theo mục tiêu từ Cây 2"
           }
-        ],
-        "logic": {
-          "predicate": {
-            "field": "medication.currentDrugClassList",
-            "op": "contains",
-            "value": "diuretic"
-          }
-        }
+        ]
       },
       {
-        "id": "resistant_infer_resistant",
-        "type": "end",
+        "id": "strategy_combo3",
+        "type": "inference",
         "display": {
-          "title": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu",
-          "detail": "resistant.classification = resistant_three_or_more_with_diuretic"
+          "title": "Dùng phối hợp ba nhóm thuốc A+C+D",
+          "shortLabel": "Phối hợp 3 thuốc"
+        },
+        "data": {
+          "resultCode": "three_drug_classes",
+          "actions": ["Dùng phối hợp A+C+D"]
         },
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Chưa kiểm soát sau A+C hoặc A+D → A+C+D"
           }
-        ],
-        "data": {
-          "resultCode": "resistant_htn_arm",
-          "severity": "critical",
-          "sets": {
-            "resistant.classification": "resistant_three_or_more_with_diuretic"
-          },
-          "outcomeCode": "resistant_three_or_more_with_diuretic_classified"
-        }
+        ]
       },
       {
-        "id": "resistant_end_add_diuretic",
-        "type": "end",
+        "id": "strategy_combo3_control_gate",
+        "type": "condition",
         "display": {
-          "title": "Thêm lợi tiểu — Phân loại lại sau",
-          "detail": "resistant.classification = add_diuretic_and_reclassify"
+          "title": "Huyết áp đã được kiểm soát theo mục tiêu?",
+          "shortLabel": "Kiểm soát sau phối hợp 3 thuốc"
+        },
+        "logic": { "predicate": { "field": "bp.isControlled", "op": "eq", "value": true } },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Đánh giá theo mục tiêu từ Cây 2"
+          }
+        ]
+      },
+      {
+        "id": "strategy_resistant",
+        "type": "inference",
+        "display": {
+          "title": "Tăng huyết áp kháng trị",
+          "shortLabel": "THA kháng trị"
+        },
+        "data": {
+          "resultCode": "resistant_hypertension",
+          "actions": ["Đánh giá tăng huyết áp kháng trị"]
         },
         "sourceRefs": [
           {
-            "sourceId": "image_05_uncontrolled_resistant",
+            "sourceId": "image_05_strategy",
             "page": 1,
-            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-            "note": "Thêm lợi tiểu — Phân loại lại sau"
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Chưa kiểm soát sau A+C+D → THA kháng trị"
           }
-        ],
-        "data": {
-          "resultCode": "add_diuretic",
-          "outcomeCode": "add_diuretic_reclassify",
-          "sets": {
-            "resistant.classification": "add_diuretic_and_reclassify"
+        ]
+      },
+      {
+        "id": "strategy_resistant_control_gate",
+        "type": "condition",
+        "display": {
+          "title": "Huyết áp đã được kiểm soát theo mục tiêu?",
+          "shortLabel": "Kiểm soát sau đánh giá kháng trị"
+        },
+        "logic": { "predicate": { "field": "bp.isControlled", "op": "eq", "value": true } },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Nếu chưa kiểm soát, tham khảo chuyên gia"
           }
-        }
+        ]
+      },
+      {
+        "id": "strategy_continue",
+        "type": "end",
+        "display": {
+          "title": "Tiếp tục phác đồ hiện tại",
+          "shortLabel": "Tiếp tục"
+        },
+        "data": { "outcomeCode": "continue_current_regimen" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Đã kiểm soát → tiếp tục phác đồ"
+          }
+        ]
+      },
+      {
+        "id": "strategy_expert_review",
+        "type": "end",
+        "display": {
+          "title": "Tham khảo chuyên gia",
+          "shortLabel": "Chuyển chuyên gia"
+        },
+        "data": { "outcomeCode": "expert_review_required" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chiến lược điều trị tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Không kiểm soát sau đánh giá kháng trị"
+          }
+        ]
+      },
+      {
+        "id": "strategy_link_ckd",
+        "type": "link",
+        "display": { "title": "Chuyển sang cây điều trị bệnh thận mạn", "shortLabel": "Bệnh thận mạn" },
+        "data": { "targetTreeId": "hypertension_ckd_strategy" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chỉ định bắt buộc theo bệnh đồng mắc",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Nhánh bệnh đồng mắc 1/5"
+          }
+        ]
+      },
+      {
+        "id": "strategy_link_diabetes",
+        "type": "link",
+        "display": { "title": "Chuyển sang cây điều trị đái tháo đường", "shortLabel": "Đái tháo đường" },
+        "data": { "targetTreeId": "hypertension_diabetes_strategy" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chỉ định bắt buộc theo bệnh đồng mắc",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Nhánh bệnh đồng mắc 2/5"
+          }
+        ]
+      },
+      {
+        "id": "strategy_link_cvd",
+        "type": "link",
+        "display": { "title": "Chuyển sang cây điều trị bệnh tim mạch", "shortLabel": "Bệnh tim mạch" },
+        "data": { "targetTreeId": "hypertension_cvd_strategy" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chỉ định bắt buộc theo bệnh đồng mắc",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Nhánh bệnh đồng mắc 3/5"
+          }
+        ]
+      },
+      {
+        "id": "strategy_link_target_organ",
+        "type": "link",
+        "display": { "title": "Chuyển sang cây điều trị tổn thương cơ quan đích", "shortLabel": "Tổn thương cơ quan đích" },
+        "data": { "targetTreeId": "hypertension_target_organ_damage_strategy" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chỉ định bắt buộc theo bệnh đồng mắc",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Nhánh bệnh đồng mắc 4/5"
+          }
+        ]
+      },
+      {
+        "id": "strategy_link_heart_failure",
+        "type": "link",
+        "display": { "title": "Chuyển sang cây điều trị suy tim", "shortLabel": "Suy tim" },
+        "data": { "targetTreeId": "hypertension_heart_failure_strategy" },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_strategy",
+            "page": 1,
+            "section": "Chỉ định bắt buộc theo bệnh đồng mắc",
+            "tableOrFigure": "codex-clipboard-9f660499-eb7e-4dcb-bc73-3b3cd37ff97d.png",
+            "note": "Nhánh bệnh đồng mắc 5/5"
+          }
+        ]
       }
     ],
     "edges": [
-      {
-        "from": "resistant_start",
-        "to": "resistant_range",
-        "when": "default"
-      },
-      {
-        "from": "resistant_agent_count",
-        "to": "resistant_infer_uncontrolled",
-        "when": "true",
-        "label": "Đúng 2 nhóm thuốc"
-      },
-      {
-        "from": "resistant_agent_count",
-        "to": "resistant_agent_count_ge3",
-        "when": "false",
-        "label": "Số nhóm thuốc khác 2"
-      },
-      {
-        "from": "resistant_agent_count_ge3",
-        "to": "resistant_diuretic",
-        "when": "true",
-        "label": "Từ 3 nhóm thuốc"
-      },
-      {
-        "from": "resistant_agent_count_ge3",
-        "to": "resistant_end_agent_count_review",
-        "when": "false",
-        "label": "Số nhóm thuốc <3"
-      },
-      {
-        "from": "resistant_diuretic",
-        "to": "resistant_infer_resistant",
-        "when": "true",
-        "label": "Có thuốc lợi tiểu"
-      },
-      {
-        "from": "resistant_diuretic",
-        "to": "resistant_end_add_diuretic",
-        "when": "false",
-        "label": "Không có thuốc lợi tiểu"
-      },
-      {
-        "from": "resistant_range",
-        "to": "resistant_stable",
-        "when": "true",
-        "label": "HATT lần gần nhất 140–169 mmHg"
-      },
-      {
-        "from": "resistant_stable",
-        "to": "resistant_agent_count",
-        "when": "true",
-        "label": "Phác đồ ổn định ≥4 tuần"
-      },
-      {
-        "from": "resistant_stable",
-        "to": "resistant_end_defer",
-        "when": "false",
-        "label": "Phác đồ ổn định <4 tuần"
-      },
-      {
-        "from": "resistant_range",
-        "to": "resistant_end_out_of_range",
-        "when": "false",
-        "label": "HATT ngoài khoảng 140–169 mmHg"
-      }
+      { "from": "strategy_start", "to": "strategy_adult_gate", "when": "default" },
+      { "from": "strategy_adult_gate", "to": "strategy_diagnosis_gate", "when": "true", "label": "Từ 18 tuổi" },
+      { "from": "strategy_adult_gate", "to": "strategy_not_adult", "when": "false", "label": "Dưới 18 tuổi" },
+      { "from": "strategy_diagnosis_gate", "to": "strategy_first_visit_gate", "when": "true", "label": "HABTC hoặc THA" },
+      { "from": "strategy_diagnosis_gate", "to": "strategy_not_habtc_or_hypertension", "when": "false", "label": "Kết quả khác" },
+      { "from": "strategy_first_visit_gate", "to": "strategy_lifestyle_recheck", "when": "true", "label": "Lần khám đầu tiên" },
+      { "from": "strategy_first_visit_gate", "to": "strategy_comorbidity_gate", "when": "false", "label": "Lần tái khám" },
+      { "from": "strategy_comorbidity_gate", "to": "strategy_mandatory_indication", "when": "true", "label": "Có bệnh đồng mắc" },
+      { "from": "strategy_comorbidity_gate", "to": "strategy_habtc_tha_gate", "when": "false", "label": "Không có bệnh đồng mắc" },
+      { "from": "strategy_mandatory_indication", "to": "strategy_link_ckd", "when": "ckd", "label": "Bệnh thận mạn" },
+      { "from": "strategy_mandatory_indication", "to": "strategy_link_diabetes", "when": "diabetes", "label": "Đái tháo đường" },
+      { "from": "strategy_mandatory_indication", "to": "strategy_link_cvd", "when": "cvd", "label": "Bệnh tim mạch" },
+      { "from": "strategy_mandatory_indication", "to": "strategy_link_target_organ", "when": "target_organ_damage", "label": "Tổn thương cơ quan đích" },
+      { "from": "strategy_mandatory_indication", "to": "strategy_link_heart_failure", "when": "heart_failure", "label": "Suy tim" },
+      { "from": "strategy_habtc_tha_gate", "to": "strategy_habtc_risk_gate", "when": "true", "label": "HABTC" },
+      { "from": "strategy_habtc_tha_gate", "to": "strategy_combo2", "when": "false", "label": "Tăng huyết áp" },
+      { "from": "strategy_habtc_risk_gate", "to": "strategy_monotherapy", "when": "true", "label": "Nguy cơ thấp/trung bình" },
+      { "from": "strategy_habtc_risk_gate", "to": "strategy_combo2", "when": "false", "label": "Nguy cơ cao" },
+      { "from": "strategy_monotherapy", "to": "strategy_monotherapy_control_gate", "when": "default" },
+      { "from": "strategy_monotherapy_control_gate", "to": "strategy_continue", "when": "true", "label": "Đã kiểm soát" },
+      { "from": "strategy_monotherapy_control_gate", "to": "strategy_combo2", "when": "false", "label": "Chưa kiểm soát" },
+      { "from": "strategy_combo2", "to": "strategy_combo2_control_gate", "when": "default" },
+      { "from": "strategy_combo2_control_gate", "to": "strategy_continue", "when": "true", "label": "Đã kiểm soát" },
+      { "from": "strategy_combo2_control_gate", "to": "strategy_combo3", "when": "false", "label": "Chưa kiểm soát" },
+      { "from": "strategy_combo3", "to": "strategy_combo3_control_gate", "when": "default" },
+      { "from": "strategy_combo3_control_gate", "to": "strategy_continue", "when": "true", "label": "Đã kiểm soát" },
+      { "from": "strategy_combo3_control_gate", "to": "strategy_resistant", "when": "false", "label": "Chưa kiểm soát" },
+      { "from": "strategy_resistant", "to": "strategy_resistant_control_gate", "when": "default" },
+      { "from": "strategy_resistant_control_gate", "to": "strategy_continue", "when": "true", "label": "Đã kiểm soát" },
+      { "from": "strategy_resistant_control_gate", "to": "strategy_expert_review", "when": "false", "label": "Chưa kiểm soát" }
     ],
     "sourceRefs": [
       {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Phân loại đến nhánh không kiểm soát hoặc kháng trị bằng danh sách nhóm thuốc đã chuẩn hóa."
+        "sourceId": "pdf_clinical_review",
+        "page": 9,
+        "section": "Cây 5: Cây chiến lược điều trị tối ưu",
+        "tableOrFigure": "Hình 4",
+        "note": "Cây 5 được xây theo flow người dùng xác nhận"
       }
     ],
     "notes": [
-      "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+      "Thứ tự chính: tuổi ≥18 → kết quả chẩn đoán → lần khám → bệnh đồng mắc → chiến lược thuốc.",
+      "Năm nhánh bệnh đồng mắc được tách thành năm link node: bệnh thận mạn, đái tháo đường, bệnh tim mạch, tổn thương cơ quan đích và suy tim.",
+      "Các targetTreeId của năm cây chuyên biệt là điểm liên kết chờ xây nội dung chi tiết.",
+      "bp.isControlled phải được tính dựa trên HATT/HATTr gần nhất và treatment.targetSystolicBpMmHg/treatment.targetDiastolicBpMmHg từ các cây trước.",
+      "Không có biến hội chứng lão hóa trong Variable Registry hiện tại nên không thêm điều kiện đó vào cây."
     ]
   }
 }

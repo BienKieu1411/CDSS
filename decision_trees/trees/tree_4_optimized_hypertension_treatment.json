@@ -1,0 +1,297 @@
+{
+  "formatVersion": "decision-tree.v1",
+  "tree": {
+    "id": "optimized_hypertension_treatment",
+    "name": "Cây 4 — Tối ưu phác đồ điều trị tăng huyết áp",
+    "purpose": "Đánh giá huyết áp gần nhất, thời gian sử dụng phác đồ và số nhóm thuốc để xác định chưa kiểm soát, bổ sung nhóm D hoặc chuyển đánh giá tăng huyết áp kháng trị.",
+    "clinicalStatus": "draft",
+    "entryNodeId": "treatment_start",
+    "inputVariables": [
+      "bp.latestSystolicMmHg",
+      "bp.latestDiastolicMmHg",
+      "medication.regimenAtLeastFourWeeks",
+      "medication.regimenStartDate",
+      "medication.antihypertensiveDrugClasses",
+      "medication.antihypertensiveDrugClassCount"
+    ],
+    "outputVariables": [],
+    "linksTo": [
+      "uncontrolled_resistant_hypertension"
+    ],
+    "nodes": [
+      {
+        "id": "treatment_start",
+        "type": "start",
+        "display": {
+          "title": "Bắt đầu đánh giá phác đồ điều trị",
+          "detail": "Dùng HATT/HATTr gần nhất, thời gian dùng phác đồ và danh sách nhóm thuốc A/B/C/D."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "Sơ đồ người dùng cung cấp"
+          }
+        ]
+      },
+      {
+        "id": "treatment_bp_range_gate",
+        "type": "condition",
+        "display": {
+          "title": "HATT gần nhất 140–169 và HATTr gần nhất 90–99?",
+          "shortLabel": "Kiểm tra khoảng huyết áp"
+        },
+        "logic": {
+          "predicate": {
+            "all": [
+              { "field": "bp.latestSystolicMmHg", "op": "gte", "value": 140 },
+              { "field": "bp.latestSystolicMmHg", "op": "lte", "value": 169 },
+              { "field": "bp.latestDiastolicMmHg", "op": "gte", "value": 90 },
+              { "field": "bp.latestDiastolicMmHg", "op": "lte", "value": 99 }
+            ]
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "HATT/HATTr gần nhất; ngoài khoảng → defer"
+          }
+        ]
+      },
+      {
+        "id": "treatment_defer_bp_out_of_range",
+        "type": "end",
+        "display": {
+          "title": "Defer — huyết áp ngoài khoảng xử lý",
+          "shortLabel": "Defer"
+        },
+        "data": {
+          "outcomeCode": "defer_bp_out_of_range"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "Nhánh out of range"
+          }
+        ]
+      },
+      {
+        "id": "treatment_four_week_gate",
+        "type": "condition",
+        "display": {
+          "title": "Phác đồ đã được sử dụng ≥4 tuần?",
+          "shortLabel": "Đủ 4 tuần"
+        },
+        "logic": {
+          "predicate": {
+            "field": "medication.regimenAtLeastFourWeeks",
+            "op": "eq",
+            "value": true
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "data_cf_latest_encounter: kiểm tra phác đồ đã dùng ≥4 tuần"
+          }
+        ]
+      },
+      {
+        "id": "treatment_defer_less_than_four_weeks",
+        "type": "end",
+        "display": {
+          "title": "Defer — chưa đủ 4 tuần",
+          "shortLabel": "Defer"
+        },
+        "data": {
+          "outcomeCode": "defer_regimen_less_than_four_weeks"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "Nhánh no của kiểm tra thời gian phác đồ"
+          }
+        ]
+      },
+      {
+        "id": "treatment_drug_class_count_gate",
+        "type": "condition",
+        "display": {
+          "title": "Số nhóm thuốc hạ áp = 2?",
+          "shortLabel": "Đếm drug_classes"
+        },
+        "logic": {
+          "predicate": {
+            "field": "medication.antihypertensiveDrugClassCount",
+            "op": "eq",
+            "value": 2
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "drug_classes list có độ dài 2"
+          }
+        ]
+      },
+      {
+        "id": "treatment_uncontrolled_two_classes",
+        "type": "end",
+        "display": {
+          "title": "Tăng huyết áp chưa kiểm soát",
+          "shortLabel": "Uncontrolled"
+        },
+        "data": {
+          "outcomeCode": "uncontrolled_hypertension"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "2 nhóm thuốc → uncontrolled"
+          }
+        ]
+      },
+      {
+        "id": "treatment_three_or_more_gate",
+        "type": "condition",
+        "display": {
+          "title": "Số nhóm thuốc hạ áp ≥3?",
+          "shortLabel": "≥3 drug classes"
+        },
+        "logic": {
+          "predicate": {
+            "field": "medication.antihypertensiveDrugClassCount",
+            "op": "gte",
+            "value": 3
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "drug_classes list có độ dài ≥3"
+          }
+        ]
+      },
+      {
+        "id": "treatment_drug_d_gate",
+        "type": "condition",
+        "display": {
+          "title": "drug_classes có nhóm D?",
+          "shortLabel": "Kiểm tra nhóm D"
+        },
+        "logic": {
+          "predicate": {
+            "field": "medication.antihypertensiveDrugClasses",
+            "op": "contains",
+            "value": "D"
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "drug_classes là list loại thuốc A, B, C, D"
+          }
+        ]
+      },
+      {
+        "id": "treatment_add_d",
+        "type": "end",
+        "display": {
+          "title": "Thêm nhóm thuốc D",
+          "shortLabel": "Thêm D"
+        },
+        "data": {
+          "outcomeCode": "add_drug_class_d"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "≥3 nhóm thuốc nhưng chưa có D → thêm D"
+          }
+        ]
+      },
+      {
+        "id": "treatment_resistant_review",
+        "type": "link",
+        "display": {
+          "title": "Chuyển đánh giá tăng huyết áp kháng trị",
+          "shortLabel": "Kháng trị"
+        },
+        "data": {
+          "targetTreeId": "uncontrolled_resistant_hypertension"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_optimized_hypertension_treatment",
+            "page": 1,
+            "section": "Phân loại thuốc và tối ưu phác đồ",
+            "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+            "note": "≥3 nhóm và có D → đánh giá kháng trị"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      { "from": "treatment_start", "to": "treatment_bp_range_gate", "when": "default" },
+      { "from": "treatment_bp_range_gate", "to": "treatment_four_week_gate", "when": "true", "label": "Trong khoảng" },
+      { "from": "treatment_bp_range_gate", "to": "treatment_defer_bp_out_of_range", "when": "false", "label": "Ngoài khoảng" },
+      { "from": "treatment_four_week_gate", "to": "treatment_drug_class_count_gate", "when": "true", "label": "Có — ≥4 tuần" },
+      { "from": "treatment_four_week_gate", "to": "treatment_defer_less_than_four_weeks", "when": "false", "label": "Không — <4 tuần" },
+      { "from": "treatment_drug_class_count_gate", "to": "treatment_uncontrolled_two_classes", "when": "true", "label": "2" },
+      { "from": "treatment_drug_class_count_gate", "to": "treatment_three_or_more_gate", "when": "false", "label": "Khác 2" },
+      { "from": "treatment_three_or_more_gate", "to": "treatment_drug_d_gate", "when": "true", "label": "≥3" },
+      { "from": "treatment_three_or_more_gate", "to": "treatment_defer_bp_out_of_range", "when": "false", "label": "<2 hoặc chưa xác định" },
+      { "from": "treatment_drug_d_gate", "to": "treatment_resistant_review", "when": "true", "label": "Có D" },
+      { "from": "treatment_drug_d_gate", "to": "treatment_add_d", "when": "false", "label": "Không có D" }
+    ],
+    "sourceRefs": [
+      {
+        "sourceId": "image_04_optimized_hypertension_treatment",
+        "page": 1,
+        "section": "Phân loại thuốc và tối ưu phác đồ",
+        "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
+        "note": "Ảnh sơ đồ do người dùng cung cấp"
+      }
+    ],
+    "notes": [
+      "drug_classes được chuẩn hóa thành medication.antihypertensiveDrugClasses, kiểu array, với phần tử A/B/C/D.",
+      "data_cf_latest_encounter được chuẩn hóa thành medication.regimenAtLeastFourWeeks, kiểu boolean; medication.regimenStartDate là biến độc lập để tạo/kiểm tra biến này.",
+      "medication.regimenStartDate và medication.regimenAtLeastFourWeeks chưa có trong bản Excel hiện tại; cần bổ sung vào Variable Registry khi chốt catalog canonical.",
+      "Khoảng xử lý trong sơ đồ được diễn giải là HATT 140–169 và HATTr 90–99; cần clinical review xác nhận nếu chỉ cần một trong hai chỉ số nằm trong khoảng."
+    ]
+  }
+}

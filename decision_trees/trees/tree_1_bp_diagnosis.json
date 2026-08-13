@@ -2,570 +2,343 @@
   "formatVersion": "decision-tree.v1",
   "tree": {
     "id": "bp_diagnosis",
-    "name": "BP Diagnosis Tree",
-    "purpose": "Chẩn đoán tăng huyết áp bằng ba lần đo phòng khám.",
-    "clinicalStatus": "under_review",
-    "entryNodeId": "bp_start",
+    "name": "Cây 1 — Chẩn đoán tăng huyết áp",
+    "purpose": "Phân loại chẩn đoán tăng huyết áp dựa trên ba lần đo huyết áp phòng khám và bằng chứng tổn thương cơ quan đích/bệnh tim mạch.",
+    "clinicalStatus": "draft",
+    "entryNodeId": "bp_diagnosis_start",
     "inputVariables": [
-      "bp.office1.systolicMmHg",
-      "bp.office1.diastolicMmHg",
-      "bp.office2.systolicMmHg",
-      "bp.office2.diastolicMmHg",
-      "bp.office3.systolicMmHg",
-      "bp.office3.diastolicMmHg",
-      "comorbidity.targetOrganDamageOrCvd"
+      "bp.office.measurement1.systolicMmHg",
+      "bp.office.measurement1.diastolicMmHg",
+      "bp.office.measurement2.systolicMmHg",
+      "bp.office.measurement2.diastolicMmHg",
+      "bp.office.measurement3.systolicMmHg",
+      "bp.office.measurement3.diastolicMmHg",
+      "risk.hasTargetOrganDamage",
+      "cardiovascular.hasEstablishedCvd"
     ],
     "outputVariables": [
-      "bp.category"
+      "hypertension.diagnosisCategory"
     ],
-    "linksTo": [
-      "hypertension_risk_stratification"
-    ],
+    "linksTo": ["bp_thresholds_targets", "hypertension_risk_stratification"],
     "nodes": [
       {
-        "id": "bp_start",
+        "id": "bp_diagnosis_start",
         "type": "start",
         "display": {
-          "title": "Bắt đầu chẩn đoán HA",
-          "detail": "Đo HA phòng khám lần 1 và khai thác tổn thương cơ quan đích/bệnh tim mạch."
+          "title": "Bắt đầu đánh giá huyết áp",
+          "detail": "Đọc ba cặp huyết áp phòng khám và các biến bệnh kèm đã được chuẩn hóa."
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "Bắt đầu chẩn đoán HA"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Sơ đồ người dùng cung cấp"
           }
         ]
       },
       {
-        "id": "bp_crisis_gate",
+        "id": "bp_measurement1_crisis_gate",
         "type": "condition",
         "display": {
-          "title": "HA phòng khám lần 1 ≥180/120 hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
+          "title": "Lần 1: HATT ≥180 hoặc HATTr ≥120 hoặc có tổn thương cơ quan đích/bệnh tim mạch?",
+          "shortLabel": "Lần 1 — ngưỡng cơn THA"
         },
+        "logic": {
+          "predicate": {
+            "any": [
+              { "field": "bp.office.measurement1.systolicMmHg", "op": "gte", "value": 180 },
+              { "field": "bp.office.measurement1.diastolicMmHg", "op": "gte", "value": 120 },
+              { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true },
+              { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true }
+            ]
+          }
+        },
+        "onMissingData": "stop",
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HA phòng khám lần 1 ≥180/120 hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "sys-bp-first ≥180 hoặc dias-bp-first ≥120 hoặc tổn thương cơ quan đích/bệnh tim mạch"
           }
-        ],
-        "logic": {
-          "predicate": {
-            "any": [
-              {
-                "field": "bp.office1.systolicMmHg",
-                "op": "gte",
-                "value": 180
-              },
-              {
-                "field": "bp.office1.diastolicMmHg",
-                "op": "gte",
-                "value": 120
-              },
-              {
-                "field": "comorbidity.targetOrganDamageOrCvd",
-                "op": "eq",
-                "value": true
-              }
-            ]
-          }
-        }
+        ]
       },
       {
-        "id": "bp_infer_crisis",
+        "id": "bp_diagnosis_crisis",
         "type": "end",
         "display": {
           "title": "Cơn tăng huyết áp",
-          "detail": "bp.category = hypertensive_crisis"
+          "detail": "hypertension.diagnosisCategory = hypertensive_crisis"
+        },
+        "data": {
+          "outcomeCode": "hypertensive_crisis",
+          "sets": { "hypertension.diagnosisCategory": "hypertensive_crisis" }
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "Cơn tăng huyết áp"
-          },
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "Cơn THA"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh yes của lần đo thứ nhất"
           }
-        ],
-        "data": {
-          "resultCode": "hypertensive_crisis",
-          "severity": "critical",
-          "sets": {
-            "bp.category": "hypertensive_crisis"
-          },
-          "outcomeCode": "hypertensive_crisis_detected",
-          "actions": [
-            "Đánh giá cấp cứu và tổn thương cơ quan đích ngay"
-          ]
-        }
+        ]
       },
       {
-        "id": "bp_second_gate",
+        "id": "bp_measurement2_hypertension_gate",
         "type": "condition",
         "display": {
-          "title": "HA phòng khám lần 2 140-179/90-119 hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
+          "title": "Lần 2: HATT 140–179 hoặc HATTr 90–119 hoặc có tổn thương cơ quan đích/bệnh tim mạch?",
+          "shortLabel": "Lần 2 — ngưỡng THA"
         },
-        "sourceRefs": [
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HA phòng khám lần 2 140-179/90-119 hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
-          }
-        ],
         "logic": {
           "predicate": {
             "any": [
               {
                 "all": [
-                  {
-                    "field": "bp.office2.systolicMmHg",
-                    "op": "gte",
-                    "value": 140
-                  },
-                  {
-                    "field": "bp.office2.systolicMmHg",
-                    "op": "lte",
-                    "value": 179
-                  }
+                  { "field": "bp.office.measurement2.systolicMmHg", "op": "gte", "value": 140 },
+                  { "field": "bp.office.measurement2.systolicMmHg", "op": "lte", "value": 179 }
                 ]
               },
               {
                 "all": [
-                  {
-                    "field": "bp.office2.diastolicMmHg",
-                    "op": "gte",
-                    "value": 90
-                  },
-                  {
-                    "field": "bp.office2.diastolicMmHg",
-                    "op": "lte",
-                    "value": 119
-                  }
+                  { "field": "bp.office.measurement2.diastolicMmHg", "op": "gte", "value": 90 },
+                  { "field": "bp.office.measurement2.diastolicMmHg", "op": "lte", "value": 119 }
                 ]
               },
-              {
-                "field": "comorbidity.targetOrganDamageOrCvd",
-                "op": "eq",
-                "value": true
-              }
+              { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true },
+              { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true }
             ]
           }
-        }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_01_bp_diagnosis",
+            "page": 1,
+            "section": "Sơ đồ chẩn đoán tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "sys-bp-second 140–179 hoặc dias-bp-second 90–119 hoặc tổn thương cơ quan đích/bệnh tim mạch"
+          }
+        ]
       },
       {
-        "id": "bp_infer_hypertension",
-        "type": "inference",
+        "id": "bp_diagnosis_hypertension_from_measurement2",
+        "type": "end",
         "display": {
           "title": "Tăng huyết áp",
-          "detail": "bp.category = hypertension"
+          "detail": "hypertension.diagnosisCategory = hypertension"
+        },
+        "data": {
+          "outcomeCode": "hypertension",
+          "sets": { "hypertension.diagnosisCategory": "hypertension" }
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "Tăng huyết áp"
-          },
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "THA"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh yes của lần đo thứ hai"
           }
-        ],
-        "data": {
-          "resultCode": "hypertension",
-          "severity": "high",
-          "sets": {
-            "bp.category": "hypertension"
-          },
-          "outcomeCode": "hypertension_detected",
-          "actions": [
-            "Đánh giá nguy cơ và chỉ định điều trị"
-          ]
-        }
+        ]
       },
       {
-        "id": "bp_office3_normal",
+        "id": "bp_measurement3_normal_gate",
         "type": "condition",
         "display": {
-          "title": "HATT <130 và HATTr <85?"
+          "title": "Lần 3: HATT <130 và HATTr <85?",
+          "shortLabel": "Lần 3 — HA bình thường"
         },
-        "sourceRefs": [
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HATT <130 và HATTr <85?"
-          }
-        ],
         "logic": {
           "predicate": {
             "all": [
-              {
-                "field": "bp.office3.systolicMmHg",
-                "op": "lt",
-                "value": 130
-              },
-              {
-                "field": "bp.office3.diastolicMmHg",
-                "op": "lt",
-                "value": 85
-              }
+              { "field": "bp.office.measurement3.systolicMmHg", "op": "lt", "value": 130 },
+              { "field": "bp.office.measurement3.diastolicMmHg", "op": "lt", "value": 85 }
             ]
           }
-        }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_01_bp_diagnosis",
+            "page": 1,
+            "section": "Sơ đồ chẩn đoán tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh cuối: sys-bp-third <130 và dias-bp-third <85"
+          }
+        ]
       },
       {
-        "id": "bp_infer_normal",
-        "type": "inference",
+        "id": "bp_diagnosis_normal",
+        "type": "end",
         "display": {
-          "title": "HA bình thường",
-          "detail": "bp.category = normal"
+          "title": "Huyết áp bình thường",
+          "detail": "hypertension.diagnosisCategory = normal_bp"
+        },
+        "data": {
+          "outcomeCode": "normal_bp",
+          "sets": { "hypertension.diagnosisCategory": "normal_bp" }
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HA bình thường"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh <130/<85"
           }
-        ],
-        "data": {
-          "resultCode": "normal_bp",
-          "severity": "info",
-          "sets": {
-            "bp.category": "normal"
-          },
-          "outcomeCode": "normal_bp"
-        }
+        ]
       },
       {
-        "id": "bp_office3_high_normal",
+        "id": "bp_measurement3_high_normal_gate",
         "type": "condition",
         "display": {
-          "title": "HATT 130-139 hoặc HATTr 85-89?"
+          "title": "Lần 3: HATT 130–139 hoặc HATTr 85–89?",
+          "shortLabel": "Lần 3 — HA bình thường cao"
         },
-        "sourceRefs": [
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HATT 130-139 hoặc HATTr 85-89?"
-          }
-        ],
         "logic": {
           "predicate": {
             "any": [
               {
                 "all": [
-                  {
-                    "field": "bp.office3.systolicMmHg",
-                    "op": "gte",
-                    "value": 130
-                  },
-                  {
-                    "field": "bp.office3.systolicMmHg",
-                    "op": "lt",
-                    "value": 140
-                  }
+                  { "field": "bp.office.measurement3.systolicMmHg", "op": "gte", "value": 130 },
+                  { "field": "bp.office.measurement3.systolicMmHg", "op": "lte", "value": 139 }
                 ]
               },
               {
                 "all": [
-                  {
-                    "field": "bp.office3.diastolicMmHg",
-                    "op": "gte",
-                    "value": 85
-                  },
-                  {
-                    "field": "bp.office3.diastolicMmHg",
-                    "op": "lt",
-                    "value": 90
-                  }
+                  { "field": "bp.office.measurement3.diastolicMmHg", "op": "gte", "value": 85 },
+                  { "field": "bp.office.measurement3.diastolicMmHg", "op": "lte", "value": 89 }
                 ]
               }
             ]
           }
-        }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_01_bp_diagnosis",
+            "page": 1,
+            "section": "Sơ đồ chẩn đoán tăng huyết áp",
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh cuối: sys-bp-third 130–139 hoặc dias-bp-third 85–89"
+          }
+        ]
       },
       {
-        "id": "bp_infer_high_normal",
-        "type": "inference",
+        "id": "bp_diagnosis_high_normal",
+        "type": "end",
         "display": {
-          "title": "HA bình thường-cao",
-          "detail": "bp.category = high_normal"
+          "title": "Huyết áp bình thường cao",
+          "detail": "hypertension.diagnosisCategory = high_normal_bp"
+        },
+        "data": {
+          "outcomeCode": "high_normal_bp",
+          "sets": { "hypertension.diagnosisCategory": "high_normal_bp" }
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HA bình thường-cao"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh 130–139/85–89"
           }
-        ],
-        "data": {
-          "resultCode": "high_normal_bp",
-          "severity": "low",
-          "sets": {
-            "bp.category": "high_normal"
-          },
-          "outcomeCode": "high_normal_bp"
-        }
+        ]
       },
       {
-        "id": "bp_infer_office3_htn",
-        "type": "inference",
+        "id": "bp_diagnosis_hypertension_from_measurement3",
+        "type": "end",
         "display": {
           "title": "Tăng huyết áp",
-          "detail": "bp.category = hypertension"
+          "detail": "hypertension.diagnosisCategory = hypertension"
+        },
+        "data": {
+          "outcomeCode": "hypertension",
+          "sets": { "hypertension.diagnosisCategory": "hypertension" }
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "Tăng huyết áp"
-          },
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "THA"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh còn lại: ≥140/90"
           }
-        ],
-        "data": {
-          "resultCode": "hypertension",
-          "severity": "high",
-          "sets": {
-            "bp.category": "hypertension"
-          },
-          "outcomeCode": "hypertension_detected"
-        }
+        ]
       },
       {
-        "id": "bp_link_risk_normal",
+        "id": "bp_link_risk_stratification",
         "type": "link",
         "display": {
-          "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
-          "detail": "Dùng kết quả chẩn đoán và hồ sơ nguy cơ của người bệnh."
+          "title": "Chuyển sang phân tầng nguy cơ tim mạch",
+          "shortLabel": "Cây tiếp theo"
+        },
+        "data": {
+          "targetTreeId": "hypertension_risk_stratification"
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HA bình thường"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh THA chuyển sang Cây 3"
           }
-        ],
-        "data": {
-          "targetTreeId": "hypertension_risk_stratification",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
+        ]
       },
       {
-        "id": "bp_link_risk_high_normal",
+        "id": "bp_link_thresholds_targets",
         "type": "link",
         "display": {
-          "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
-          "detail": "Dùng kết quả chẩn đoán và hồ sơ nguy cơ của người bệnh."
+          "title": "Chuyển sang xác định mục tiêu huyết áp",
+          "shortLabel": "Cây mục tiêu"
+        },
+        "data": {
+          "targetTreeId": "bp_thresholds_targets"
         },
         "sourceRefs": [
           {
             "sourceId": "image_01_bp_diagnosis",
             "page": 1,
             "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "HA bình thường-cao"
+            "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+            "note": "Nhánh HABTC chuyển sang Cây 2"
           }
-        ],
-        "data": {
-          "targetTreeId": "hypertension_risk_stratification",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
-      },
-      {
-        "id": "bp_link_risk_office3_hypertension",
-        "type": "link",
-        "display": {
-          "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
-          "detail": "Dùng kết quả chẩn đoán và hồ sơ nguy cơ của người bệnh."
-        },
-        "sourceRefs": [
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "Tăng huyết áp"
-          },
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "THA"
-          }
-        ],
-        "data": {
-          "targetTreeId": "hypertension_risk_stratification",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
-      },
-      {
-        "id": "bp_link_risk_hypertension",
-        "type": "link",
-        "display": {
-          "title": "Chuyển sang Cây 4: Phân tầng nguy cơ",
-          "detail": "Dùng kết quả chẩn đoán và hồ sơ nguy cơ của người bệnh."
-        },
-        "sourceRefs": [
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "Tăng huyết áp"
-          },
-          {
-            "sourceId": "image_01_bp_diagnosis",
-            "page": 1,
-            "section": "Sơ đồ chẩn đoán tăng huyết áp",
-            "tableOrFigure": "01_bp_diagnosis.png",
-            "note": "THA"
-          }
-        ],
-        "data": {
-          "targetTreeId": "hypertension_risk_stratification",
-          "callMode": "navigate_only",
-          "passContext": true,
-          "returnPolicy": "merge_context",
-          "sets": {}
-        }
+        ]
       }
     ],
     "edges": [
-      {
-        "from": "bp_start",
-        "to": "bp_crisis_gate",
-        "when": "default"
-      },
-      {
-        "from": "bp_crisis_gate",
-        "to": "bp_infer_crisis",
-        "when": "true",
-        "label": "Có"
-      },
-      {
-        "from": "bp_crisis_gate",
-        "to": "bp_second_gate",
-        "when": "false",
-        "label": "Không"
-      },
-      {
-        "from": "bp_second_gate",
-        "to": "bp_infer_hypertension",
-        "when": "true",
-        "label": "Có"
-      },
-      {
-        "from": "bp_second_gate",
-        "to": "bp_office3_normal",
-        "when": "false",
-        "label": "Không"
-      },
-      {
-        "from": "bp_office3_normal",
-        "to": "bp_infer_normal",
-        "when": "true",
-        "label": "<130/85"
-      },
-      {
-        "from": "bp_office3_normal",
-        "to": "bp_office3_high_normal",
-        "when": "false",
-        "label": "Không"
-      },
-      {
-        "from": "bp_office3_high_normal",
-        "to": "bp_infer_high_normal",
-        "when": "true",
-        "label": "130-139/85-89"
-      },
-      {
-        "from": "bp_office3_high_normal",
-        "to": "bp_infer_office3_htn",
-        "when": "false",
-        "label": "≥140/90"
-      },
-      {
-        "from": "bp_infer_normal",
-        "to": "bp_link_risk_normal",
-        "when": "default",
-        "label": "Đã phân loại huyết áp"
-      },
-      {
-        "from": "bp_infer_high_normal",
-        "to": "bp_link_risk_high_normal",
-        "when": "default",
-        "label": "Đã phân loại huyết áp"
-      },
-      {
-        "from": "bp_infer_office3_htn",
-        "to": "bp_link_risk_office3_hypertension",
-        "when": "default",
-        "label": "Đã phân loại huyết áp"
-      },
-      {
-        "from": "bp_infer_hypertension",
-        "to": "bp_link_risk_hypertension",
-        "when": "default",
-        "label": "Đã phân loại huyết áp"
-      }
+      { "from": "bp_diagnosis_start", "to": "bp_measurement1_crisis_gate", "when": "default" },
+      { "from": "bp_measurement1_crisis_gate", "to": "bp_diagnosis_crisis", "when": "true", "label": "Có" },
+      { "from": "bp_measurement1_crisis_gate", "to": "bp_measurement2_hypertension_gate", "when": "false", "label": "Không" },
+      { "from": "bp_measurement2_hypertension_gate", "to": "bp_diagnosis_hypertension_from_measurement2", "when": "true", "label": "Có" },
+      { "from": "bp_measurement2_hypertension_gate", "to": "bp_measurement3_normal_gate", "when": "false", "label": "Không" },
+      { "from": "bp_measurement3_normal_gate", "to": "bp_diagnosis_normal", "when": "true", "label": "<130/<85" },
+      { "from": "bp_measurement3_normal_gate", "to": "bp_measurement3_high_normal_gate", "when": "false", "label": "Không" },
+      { "from": "bp_measurement3_high_normal_gate", "to": "bp_diagnosis_high_normal", "when": "true", "label": "130–139/85–89" },
+      { "from": "bp_measurement3_high_normal_gate", "to": "bp_diagnosis_hypertension_from_measurement3", "when": "false", "label": "≥140/90" },
+      { "from": "bp_diagnosis_hypertension_from_measurement2", "to": "bp_link_risk_stratification", "when": "default", "label": "THA" },
+      { "from": "bp_diagnosis_hypertension_from_measurement3", "to": "bp_link_risk_stratification", "when": "default", "label": "THA" },
+      { "from": "bp_diagnosis_high_normal", "to": "bp_link_thresholds_targets", "when": "default", "label": "HABTC" }
     ],
     "sourceRefs": [
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
-        "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Chẩn đoán tăng huyết áp bằng ba lần đo phòng khám."
+        "tableOrFigure": "codex-clipboard-18a6b413-7b8f-4c99-9c3c-6367d9872ebc.png",
+        "note": "Ảnh sơ đồ do người dùng cung cấp"
       }
     ],
     "notes": [
-      "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
+      "Các ID biến được lấy từ sheet Variable Registry trong variables_registry_cleaned_fhir_mapping.xlsx.",
+      "Bằng chứng tổn thương cơ quan đích và bệnh tim mạch dùng hai biến dependent canonical risk.hasTargetOrganDamage và cardiovascular.hasEstablishedCvd.",
+      "Cây đang ở trạng thái draft; các giá trị enum đầu ra cần clinical review xác nhận với terminology chính thức."
     ]
   }
 }

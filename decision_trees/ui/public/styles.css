@@ -255,7 +255,7 @@ label {
 }
 
 main {
-  --sidebar-width: 509px;
+  --sidebar-width: 390px;
   width: 100%;
   height: auto;
   min-height: 0;
@@ -1449,6 +1449,7 @@ footer {
 
 .pair-card,
 .section-fields > .input-card:has(input[data-variable-id="patient.diagnosisCodes"]),
+.section-fields > .input-card:has(input[data-variable-id="patient.conditionCodes"]),
 .section-fields > .input-card:has(input[data-variable-id="medication.currentDrugNames"]),
 .section-fields > .input-card:has(input[data-variable-id="medication.previousEncounterDrugNames"]) {
   grid-column: 1 / -1;
@@ -1592,7 +1593,8 @@ footer {
   }
 
   .pair-card,
-  .section-fields > .input-card:has(input[data-variable-id="patient.diagnosisCodes"]),
+    .section-fields > .input-card:has(input[data-variable-id="patient.diagnosisCodes"]),
+    .section-fields > .input-card:has(input[data-variable-id="patient.conditionCodes"]),
   .section-fields > .input-card:has(input[data-variable-id="medication.currentDrugNames"]),
   .section-fields > .input-card:has(input[data-variable-id="medication.previousEncounterDrugNames"]) {
     grid-column: auto;

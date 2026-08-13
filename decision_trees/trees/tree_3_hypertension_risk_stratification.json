@@ -1,0 +1,377 @@
+{
+  "formatVersion": "decision-tree.v1",
+  "tree": {
+    "id": "hypertension_risk_stratification",
+    "name": "Cây 3 — Phân tầng nguy cơ tim mạch",
+    "purpose": "Phân tầng nguy cơ thấp, trung bình, cao hoặc mức giao nhau dựa trên bệnh đồng mắc, chẩn đoán HABTC/THA, huyết áp gần nhất và số lượng yếu tố nguy cơ.",
+    "clinicalStatus": "draft",
+    "entryNodeId": "risk_start",
+    "inputVariables": [
+      "risk.hasTargetOrganDamage",
+      "renal.hasCkdStage3OrHigher",
+      "condition.hasDiabetesMellitus",
+      "condition.hasType2DiabetesMellitus",
+      "cardiovascular.hasEstablishedCvd",
+      "hypertension.diagnosisCategory",
+      "risk.factorCount",
+      "bp.latestSystolicMmHg",
+      "bp.latestDiastolicMmHg"
+    ],
+    "outputVariables": [
+      "risk.cardiovascularRiskClass"
+    ],
+    "linksTo": ["bp_thresholds_targets"],
+    "nodes": [
+      {
+        "id": "risk_start",
+        "type": "start",
+        "display": {
+          "title": "Bắt đầu phân tầng nguy cơ tim mạch",
+          "detail": "Dùng chẩn đoán từ Cây 1, số lượng yếu tố nguy cơ và huyết áp gần nhất."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "Sơ đồ người dùng cung cấp"
+          }
+        ]
+      },
+      {
+        "id": "risk_high_comorbidity_gate",
+        "type": "condition",
+        "display": {
+          "title": "Có tổn thương cơ quan đích, CKD giai đoạn 3 trở lên, đái tháo đường hoặc bệnh tim mạch?",
+          "shortLabel": "Bệnh đồng mắc nguy cơ cao"
+        },
+        "logic": {
+          "predicate": {
+            "any": [
+              { "field": "risk.hasTargetOrganDamage", "op": "eq", "value": true },
+              { "field": "renal.hasCkdStage3OrHigher", "op": "eq", "value": true },
+              { "field": "condition.hasDiabetesMellitus", "op": "eq", "value": true },
+              { "field": "condition.hasType2DiabetesMellitus", "op": "eq", "value": true },
+              { "field": "cardiovascular.hasEstablishedCvd", "op": "eq", "value": true }
+            ]
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "Tổn thương cơ quan đích hoặc CKD vừa-nặng hoặc đái tháo đường hoặc bệnh tim mạch → cao"
+          }
+        ]
+      },
+      {
+        "id": "risk_high_comorbidity",
+        "type": "end",
+        "display": {
+          "title": "Nguy cơ cao",
+          "detail": "risk.cardiovascularRiskClass = high"
+        },
+        "data": {
+          "outcomeCode": "high",
+          "sets": { "risk.cardiovascularRiskClass": "high" }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "Nhánh có bệnh đồng mắc nguy cơ cao"
+          }
+        ]
+      },
+      {
+        "id": "risk_diagnosis_gate",
+        "type": "condition",
+        "display": {
+          "title": "Chẩn đoán là THA hay HABTC?",
+          "shortLabel": "Phân nhánh theo chẩn đoán"
+        },
+        "logic": {
+          "predicate": {
+            "field": "hypertension.diagnosisCategory",
+            "op": "eq",
+            "value": "hypertension"
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "HABTC là huyết áp bình thường cao; THA là tăng huyết áp"
+          }
+        ]
+      },
+      {
+        "id": "risk_habtc_factor_count_gate",
+        "type": "condition",
+        "display": {
+          "title": "Số lượng yếu tố nguy cơ ≤2?",
+          "shortLabel": "HABTC — số lượng YTNC"
+        },
+        "logic": {
+          "predicate": {
+            "field": "risk.factorCount",
+            "op": "lte",
+            "value": 2
+          }
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "HABTC: 0–2 hoặc ≥3 yếu tố nguy cơ"
+          }
+        ]
+      },
+      {
+        "id": "risk_habtc_low",
+        "type": "end",
+        "display": {
+          "title": "Nguy cơ thấp",
+          "detail": "HABTC với 0–2 yếu tố nguy cơ"
+        },
+        "data": {
+          "outcomeCode": "low",
+          "sets": { "risk.cardiovascularRiskClass": "low" }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "HABTC, 0–2 YTNC → thấp"
+          }
+        ]
+      },
+      {
+        "id": "risk_habtc_low_medium",
+        "type": "end",
+        "display": {
+          "title": "Nguy cơ thấp/trung bình",
+          "detail": "HABTC với ≥3 yếu tố nguy cơ"
+        },
+        "data": {
+          "outcomeCode": "low_medium",
+          "sets": { "risk.cardiovascularRiskClass": "low_medium" }
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "HABTC, ≥3 YTNC → thấp/trung bình"
+          }
+        ]
+      },
+      {
+        "id": "risk_tha_degree2_gate",
+        "type": "branch",
+        "display": {
+          "title": "Xác định mức độ tăng huyết áp",
+          "shortLabel": "Độ 1 hoặc độ 2"
+        },
+        "logic": {
+          "cases": [
+            {
+              "id": "degree2",
+              "label": "Độ 2",
+              "predicate": {
+                "any": [
+                  { "field": "bp.latestSystolicMmHg", "op": "gte", "value": 160 },
+                  { "field": "bp.latestDiastolicMmHg", "op": "gte", "value": 100 }
+                ]
+              }
+            },
+            {
+              "id": "degree1",
+              "label": "Độ 1",
+              "predicate": {
+                "any": [
+                  {
+                    "all": [
+                      { "field": "bp.latestSystolicMmHg", "op": "gte", "value": 140 },
+                      { "field": "bp.latestSystolicMmHg", "op": "lte", "value": 159 }
+                    ]
+                  },
+                  {
+                    "all": [
+                      { "field": "bp.latestDiastolicMmHg", "op": "gte", "value": 90 },
+                      { "field": "bp.latestDiastolicMmHg", "op": "lte", "value": 99 }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "onMissingData": "stop",
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "Xác định trực tiếp độ 2 hoặc độ 1 từ HATT/HATTr gần nhất"
+          }
+        ]
+      },
+      {
+        "id": "risk_tha_degree1_factor_gate",
+        "type": "condition",
+        "display": {
+          "title": "Số lượng YTNC = 0?",
+          "shortLabel": "Độ 1 — 0 YTNC"
+        },
+        "logic": {
+          "predicate": {
+            "field": "risk.factorCount",
+            "op": "eq",
+            "value": 0
+          }
+        },
+        "onMissingData": "stop"
+      },
+      {
+        "id": "risk_tha_degree1_factor_medium_gate",
+        "type": "condition",
+        "display": {
+          "title": "Số lượng YTNC = 1–2?",
+          "shortLabel": "Độ 1 — 1–2 YTNC"
+        },
+        "logic": {
+          "predicate": {
+            "all": [
+              { "field": "risk.factorCount", "op": "gte", "value": 1 },
+              { "field": "risk.factorCount", "op": "lte", "value": 2 }
+            ]
+          }
+        },
+        "onMissingData": "stop"
+      },
+      {
+        "id": "risk_tha_degree2_factor_gate",
+        "type": "condition",
+        "display": {
+          "title": "Số lượng YTNC ≤1?",
+          "shortLabel": "Độ 2 — 0–1 YTNC"
+        },
+        "logic": {
+          "predicate": {
+            "field": "risk.factorCount",
+            "op": "lte",
+            "value": 1
+          }
+        },
+        "onMissingData": "stop"
+      },
+      {
+        "id": "risk_tha_degree1_low",
+        "type": "end",
+        "display": { "title": "Nguy cơ thấp", "detail": "THA độ 1 với 0 YTNC" },
+        "data": { "outcomeCode": "low", "sets": { "risk.cardiovascularRiskClass": "low" } }
+      },
+      {
+        "id": "risk_tha_degree1_medium",
+        "type": "end",
+        "display": { "title": "Nguy cơ trung bình", "detail": "THA độ 1 với 1–2 YTNC" },
+        "data": { "outcomeCode": "medium", "sets": { "risk.cardiovascularRiskClass": "medium" } }
+      },
+      {
+        "id": "risk_tha_degree1_high",
+        "type": "end",
+        "display": { "title": "Nguy cơ cao", "detail": "THA độ 1 với ≥3 YTNC" },
+        "data": { "outcomeCode": "high", "sets": { "risk.cardiovascularRiskClass": "high" } }
+      },
+      {
+        "id": "risk_tha_degree2_medium_high",
+        "type": "end",
+        "display": { "title": "Nguy cơ trung bình/cao", "detail": "THA độ 2 với 0–1 YTNC" },
+        "data": { "outcomeCode": "medium_high", "sets": { "risk.cardiovascularRiskClass": "medium_high" } }
+      },
+      {
+        "id": "risk_tha_degree2_high",
+        "type": "end",
+        "display": { "title": "Nguy cơ cao", "detail": "THA độ 2 với ≥2 YTNC" },
+        "data": { "outcomeCode": "high", "sets": { "risk.cardiovascularRiskClass": "high" } }
+      },
+      {
+        "id": "risk_link_treatment",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang xác định mục tiêu huyết áp",
+          "shortLabel": "Cây tiếp theo"
+        },
+        "data": {
+          "targetTreeId": "bp_thresholds_targets"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_03_hypertension_risk_stratification",
+            "page": 1,
+            "section": "Phân tầng nguy cơ tim mạch",
+            "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+            "note": "Chuyển kết quả nguy cơ sang Cây 2"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      { "from": "risk_start", "to": "risk_high_comorbidity_gate", "when": "default" },
+      { "from": "risk_high_comorbidity_gate", "to": "risk_high_comorbidity", "when": "true", "label": "Có" },
+      { "from": "risk_high_comorbidity_gate", "to": "risk_diagnosis_gate", "when": "false", "label": "Không" },
+      { "from": "risk_diagnosis_gate", "to": "risk_tha_degree2_gate", "when": "true", "label": "THA" },
+      { "from": "risk_diagnosis_gate", "to": "risk_habtc_factor_count_gate", "when": "false", "label": "HABTC" },
+      { "from": "risk_habtc_factor_count_gate", "to": "risk_habtc_low", "when": "true", "label": "0–2" },
+      { "from": "risk_habtc_factor_count_gate", "to": "risk_habtc_low_medium", "when": "false", "label": "≥3" },
+      { "from": "risk_tha_degree2_gate", "to": "risk_tha_degree2_factor_gate", "when": "degree2", "label": "Độ 2" },
+      { "from": "risk_tha_degree2_gate", "to": "risk_tha_degree1_factor_gate", "when": "degree1", "label": "Độ 1" },
+      { "from": "risk_tha_degree1_factor_gate", "to": "risk_tha_degree1_low", "when": "true", "label": "0" },
+      { "from": "risk_tha_degree1_factor_gate", "to": "risk_tha_degree1_factor_medium_gate", "when": "false", "label": "≥1" },
+      { "from": "risk_tha_degree1_factor_medium_gate", "to": "risk_tha_degree1_medium", "when": "true", "label": "1–2" },
+      { "from": "risk_tha_degree1_factor_medium_gate", "to": "risk_tha_degree1_high", "when": "false", "label": "≥3" },
+      { "from": "risk_tha_degree2_factor_gate", "to": "risk_tha_degree2_medium_high", "when": "true", "label": "0–1" },
+      { "from": "risk_tha_degree2_factor_gate", "to": "risk_tha_degree2_high", "when": "false", "label": "≥2" },
+      { "from": "risk_high_comorbidity", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "risk_habtc_low", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "risk_habtc_low_medium", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "risk_tha_degree1_low", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "risk_tha_degree1_medium", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "risk_tha_degree1_high", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "risk_tha_degree2_medium_high", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" },
+      { "from": "risk_tha_degree2_high", "to": "risk_link_treatment", "when": "default", "label": "Tiếp tục" }
+    ],
+    "sourceRefs": [
+      {
+        "sourceId": "image_03_hypertension_risk_stratification",
+        "page": 1,
+        "section": "Phân tầng nguy cơ tim mạch",
+        "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
+        "note": "Ảnh sơ đồ do người dùng cung cấp"
+      }
+    ],
+    "notes": [
+      "HABTC được chuẩn hóa là high_normal_bp; THA được chuẩn hóa là hypertension.",
+      "Số lượng YTNC dùng risk.factorCount; các nhánh chính dùng 0–2, ≥3; THA độ 1 dùng 0, 1–2, ≥3; THA độ 2 dùng 0–1, ≥2 theo sơ đồ.",
+      "HATT/HATTr gần nhất dùng bp.latestSystolicMmHg và bp.latestDiastolicMmHg từ Variable Registry.",
+      "Cây đang ở trạng thái draft; clinical review cần xác nhận cách gộp các nhãn giao nhau thấp/trung bình và trung bình/cao."
+    ]
+  }
+}
