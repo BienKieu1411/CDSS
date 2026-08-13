@@ -1,0 +1,998 @@
+{
+  "formatVersion": "decision-tree.v1",
+  "tree": {
+    "id": "hypertension_risk_stratification",
+    "name": "Cây phân tầng nguy cơ tăng huyết áp",
+    "purpose": "Phân tầng nguy cơ thấp, trung bình hoặc cao theo bảng nguy cơ: bệnh đồng mắc/tổn thương cơ quan đích, mức huyết áp gần nhất và số yếu tố nguy cơ.",
+    "clinicalStatus": "under_review",
+    "entryNodeId": "risk_start",
+    "inputVariables": [
+      "bp.latest.systolicMmHg",
+      "bp.latest.diastolicMmHg",
+      "risk.factorCount",
+      "comorbidity.leftVentricularHypertrophy",
+      "risk.ckdStageAtLeast3",
+      "comorbidity.diabetes",
+      "risk.cardiovascularDisease"
+    ],
+    "outputVariables": [
+      "risk.class"
+    ],
+    "linksTo": [
+      "bp_thresholds_targets"
+    ],
+    "nodes": [
+      {
+        "id": "risk_start",
+        "type": "start",
+        "display": {
+          "title": "Thông tin huyết áp và yếu tố nguy cơ",
+          "detail": "Đánh giá theo bảng phân tầng nguy cơ tăng huyết áp."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Bắt đầu phân tầng nguy cơ"
+          }
+        ]
+      },
+      {
+        "id": "risk_mandatory_high",
+        "type": "condition",
+        "display": {
+          "title": "Có tổn thương cơ quan đích, CKD giai đoạn ≥3, đái tháo đường hoặc bệnh tim mạch?",
+          "detail": "Chỉ cần có ít nhất một trong bốn nhóm bệnh/tình trạng này là nguy cơ cao."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Có tổn thương cơ quan đích, CKD giai đoạn ≥3, đái tháo đường hoặc bệnh tim mạch?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "any": [
+              {
+                "field": "comorbidity.leftVentricularHypertrophy",
+                "op": "eq",
+                "value": true
+              },
+              {
+                "field": "risk.ckdStageAtLeast3",
+                "op": "eq",
+                "value": true
+              },
+              {
+                "field": "comorbidity.diabetes",
+                "op": "eq",
+                "value": true
+              },
+              {
+                "field": "risk.cardiovascularDisease",
+                "op": "eq",
+                "value": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "risk_infer_high_mandatory",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ cao",
+          "detail": "risk.class = high"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ cao"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_high",
+          "severity": "high",
+          "sets": {
+            "risk.class": "high"
+          },
+          "outcomeCode": "risk_high"
+        }
+      },
+      {
+        "id": "risk_link_high_mandatory",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ cao."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_grade2",
+        "type": "condition",
+        "display": {
+          "title": "HATT ≥160 mmHg hoặc HATTr ≥100 mmHg?",
+          "detail": "Nhóm huyết áp độ 2 theo bảng phân tầng."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "HATT ≥160 mmHg hoặc HATTr ≥100 mmHg?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "any": [
+              {
+                "field": "bp.latest.systolicMmHg",
+                "op": "gte",
+                "value": 160
+              },
+              {
+                "field": "bp.latest.diastolicMmHg",
+                "op": "gte",
+                "value": 100
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "risk_grade2_very_high",
+        "type": "condition",
+        "display": {
+          "title": "HATT ≥180 mmHg hoặc HATTr ≥110 mmHg?",
+          "detail": "Mức huyết áp rất cao trong nhóm độ 2 được xếp nguy cơ cao."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "HATT ≥180 mmHg hoặc HATTr ≥110 mmHg?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "any": [
+              {
+                "field": "bp.latest.systolicMmHg",
+                "op": "gte",
+                "value": 180
+              },
+              {
+                "field": "bp.latest.diastolicMmHg",
+                "op": "gte",
+                "value": 110
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "risk_grade2_factor",
+        "type": "condition",
+        "display": {
+          "title": "Có ít nhất 1 yếu tố nguy cơ?",
+          "detail": "Đếm từ biến số yếu tố nguy cơ chuẩn của bệnh nhân."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Có ít nhất 1 yếu tố nguy cơ?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "field": "risk.factorCount",
+            "op": "gte",
+            "value": 1
+          }
+        }
+      },
+      {
+        "id": "risk_infer_high_grade2_very_high",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ cao",
+          "detail": "risk.class = high"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ cao"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_high",
+          "severity": "high",
+          "sets": {
+            "risk.class": "high"
+          },
+          "outcomeCode": "risk_high"
+        }
+      },
+      {
+        "id": "risk_link_high_grade2_very_high",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ cao."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_infer_high_grade2_factor",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ cao",
+          "detail": "risk.class = high"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ cao"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_high",
+          "severity": "high",
+          "sets": {
+            "risk.class": "high"
+          },
+          "outcomeCode": "risk_high"
+        }
+      },
+      {
+        "id": "risk_link_high_grade2_factor",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ cao."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_infer_medium_grade2",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ trung bình",
+          "detail": "risk.class = medium"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ trung bình"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_medium",
+          "severity": "medium",
+          "sets": {
+            "risk.class": "medium"
+          },
+          "outcomeCode": "risk_medium"
+        }
+      },
+      {
+        "id": "risk_link_medium_grade2",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ trung bình."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_grade1",
+        "type": "condition",
+        "display": {
+          "title": "HATT 140–159 mmHg hoặc HATTr 90–99 mmHg?",
+          "detail": "Nhóm huyết áp độ 1 theo bảng phân tầng."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "HATT 140–159 mmHg hoặc HATTr 90–99 mmHg?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "any": [
+              {
+                "all": [
+                  {
+                    "field": "bp.latest.systolicMmHg",
+                    "op": "gte",
+                    "value": 140
+                  },
+                  {
+                    "field": "bp.latest.systolicMmHg",
+                    "op": "lte",
+                    "value": 159
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "field": "bp.latest.diastolicMmHg",
+                    "op": "gte",
+                    "value": 90
+                  },
+                  {
+                    "field": "bp.latest.diastolicMmHg",
+                    "op": "lte",
+                    "value": 99
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "risk_grade1_three",
+        "type": "condition",
+        "display": {
+          "title": "Có ≥3 yếu tố nguy cơ?",
+          "detail": "Từ 3 yếu tố nguy cơ trở lên được xếp nguy cơ cao ở nhóm huyết áp độ 1."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Có ≥3 yếu tố nguy cơ?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "field": "risk.factorCount",
+            "op": "gte",
+            "value": 3
+          }
+        }
+      },
+      {
+        "id": "risk_grade1_one",
+        "type": "condition",
+        "display": {
+          "title": "Có 1 hoặc 2 yếu tố nguy cơ?",
+          "detail": "Nhánh này được chọn khi chưa đạt ngưỡng ≥3 yếu tố nguy cơ và có ít nhất 1 yếu tố."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Có 1 hoặc 2 yếu tố nguy cơ?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "field": "risk.factorCount",
+            "op": "gte",
+            "value": 1
+          }
+        }
+      },
+      {
+        "id": "risk_infer_high_grade1",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ cao",
+          "detail": "risk.class = high"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ cao"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_high",
+          "severity": "high",
+          "sets": {
+            "risk.class": "high"
+          },
+          "outcomeCode": "risk_high"
+        }
+      },
+      {
+        "id": "risk_link_high_grade1",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ cao."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_infer_medium_grade1",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ trung bình",
+          "detail": "risk.class = medium"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ trung bình"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_medium",
+          "severity": "medium",
+          "sets": {
+            "risk.class": "medium"
+          },
+          "outcomeCode": "risk_medium"
+        }
+      },
+      {
+        "id": "risk_link_medium_grade1",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ trung bình."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_infer_low_grade1",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ thấp",
+          "detail": "risk.class = low"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ thấp"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_low",
+          "severity": "low",
+          "sets": {
+            "risk.class": "low"
+          },
+          "outcomeCode": "risk_low"
+        }
+      },
+      {
+        "id": "risk_link_low_grade1",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ thấp."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_high_normal",
+        "type": "condition",
+        "display": {
+          "title": "HATT 130–139 mmHg hoặc HATTr 85–89 mmHg?",
+          "detail": "Nhóm huyết áp bình thường cao theo bảng phân tầng."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "HATT 130–139 mmHg hoặc HATTr 85–89 mmHg?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "any": [
+              {
+                "all": [
+                  {
+                    "field": "bp.latest.systolicMmHg",
+                    "op": "gte",
+                    "value": 130
+                  },
+                  {
+                    "field": "bp.latest.systolicMmHg",
+                    "op": "lte",
+                    "value": 139
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "field": "bp.latest.diastolicMmHg",
+                    "op": "gte",
+                    "value": 85
+                  },
+                  {
+                    "field": "bp.latest.diastolicMmHg",
+                    "op": "lte",
+                    "value": 89
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "risk_infer_low_high_normal",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ thấp",
+          "detail": "risk.class = low"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ thấp"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_low",
+          "severity": "low",
+          "sets": {
+            "risk.class": "low"
+          },
+          "outcomeCode": "risk_low"
+        }
+      },
+      {
+        "id": "risk_link_low_high_normal",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ thấp."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_normal",
+        "type": "condition",
+        "display": {
+          "title": "HATT <130 mmHg và HATTr <85 mmHg?",
+          "detail": "Huyết áp bình thường được xếp nguy cơ thấp trong flow này."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "HATT <130 mmHg và HATTr <85 mmHg?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "all": [
+              {
+                "field": "bp.latest.systolicMmHg",
+                "op": "lt",
+                "value": 130
+              },
+              {
+                "field": "bp.latest.diastolicMmHg",
+                "op": "lt",
+                "value": 85
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "risk_infer_low_normal",
+        "type": "inference",
+        "display": {
+          "title": "Nguy cơ thấp",
+          "detail": "risk.class = low"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Nguy cơ thấp"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_low",
+          "severity": "low",
+          "sets": {
+            "risk.class": "low"
+          },
+          "outcomeCode": "risk_low"
+        }
+      },
+      {
+        "id": "risk_link_low_normal",
+        "type": "link",
+        "display": {
+          "title": "Chuyển sang Cây 2: Ngưỡng và đích điều trị",
+          "detail": "Tiếp tục với kết quả phân tầng nguy cơ thấp."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Liên kết kết quả phân tầng sang Cây 2"
+          }
+        ],
+        "data": {
+          "targetTreeId": "bp_thresholds_targets",
+          "callMode": "navigate_only",
+          "passContext": true,
+          "returnPolicy": "merge_context",
+          "sets": {}
+        }
+      },
+      {
+        "id": "risk_end_review",
+        "type": "end",
+        "display": {
+          "title": "Cần rà soát dữ liệu huyết áp"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_04_risk_stratification",
+            "page": 1,
+            "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+            "tableOrFigure": "04_hypertension_risk_stratification.png",
+            "note": "Dữ liệu không thuộc các khoảng huyết áp hợp lệ"
+          }
+        ],
+        "data": {
+          "resultCode": "risk_review_required",
+          "outcomeCode": "risk_review_required"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "risk_start",
+        "to": "risk_mandatory_high",
+        "when": "default"
+      },
+      {
+        "from": "risk_mandatory_high",
+        "to": "risk_infer_high_mandatory",
+        "when": "true",
+        "label": "TOD/CKD giai đoạn ≥3/ĐTĐ/bệnh tim mạch"
+      },
+      {
+        "from": "risk_infer_high_mandatory",
+        "to": "risk_link_high_mandatory",
+        "when": "default"
+      },
+      {
+        "from": "risk_mandatory_high",
+        "to": "risk_grade2",
+        "when": "false",
+        "label": "Không có TOD/CKD giai đoạn ≥3/ĐTĐ/bệnh tim mạch"
+      },
+      {
+        "from": "risk_grade2",
+        "to": "risk_grade2_very_high",
+        "when": "true",
+        "label": "HATT ≥160 hoặc HATTr ≥100"
+      },
+      {
+        "from": "risk_grade2",
+        "to": "risk_grade1",
+        "when": "false",
+        "label": "HATT <160 và HATTr <100 mmHg"
+      },
+      {
+        "from": "risk_grade2_very_high",
+        "to": "risk_infer_high_grade2_very_high",
+        "when": "true",
+        "label": "HATT ≥180 hoặc HATTr ≥110"
+      },
+      {
+        "from": "risk_infer_high_grade2_very_high",
+        "to": "risk_link_high_grade2_very_high",
+        "when": "default"
+      },
+      {
+        "from": "risk_grade2_very_high",
+        "to": "risk_grade2_factor",
+        "when": "false",
+        "label": "HATT <180 và HATTr <110"
+      },
+      {
+        "from": "risk_grade2_factor",
+        "to": "risk_infer_high_grade2_factor",
+        "when": "true",
+        "label": "≥1 yếu tố nguy cơ"
+      },
+      {
+        "from": "risk_infer_high_grade2_factor",
+        "to": "risk_link_high_grade2_factor",
+        "when": "default"
+      },
+      {
+        "from": "risk_grade2_factor",
+        "to": "risk_infer_medium_grade2",
+        "when": "false",
+        "label": "0 yếu tố nguy cơ"
+      },
+      {
+        "from": "risk_infer_medium_grade2",
+        "to": "risk_link_medium_grade2",
+        "when": "default"
+      },
+      {
+        "from": "risk_grade1",
+        "to": "risk_grade1_three",
+        "when": "true",
+        "label": "HATT 140–159 hoặc HATTr 90–99 mmHg"
+      },
+      {
+        "from": "risk_grade1",
+        "to": "risk_high_normal",
+        "when": "false",
+        "label": "HATT <140 và HATTr <90 mmHg"
+      },
+      {
+        "from": "risk_grade1_three",
+        "to": "risk_infer_high_grade1",
+        "when": "true",
+        "label": "≥3 yếu tố nguy cơ"
+      },
+      {
+        "from": "risk_infer_high_grade1",
+        "to": "risk_link_high_grade1",
+        "when": "default"
+      },
+      {
+        "from": "risk_grade1_three",
+        "to": "risk_grade1_one",
+        "when": "false",
+        "label": "0–2 yếu tố nguy cơ"
+      },
+      {
+        "from": "risk_grade1_one",
+        "to": "risk_infer_medium_grade1",
+        "when": "true",
+        "label": "1–2 yếu tố nguy cơ"
+      },
+      {
+        "from": "risk_infer_medium_grade1",
+        "to": "risk_link_medium_grade1",
+        "when": "default"
+      },
+      {
+        "from": "risk_grade1_one",
+        "to": "risk_infer_low_grade1",
+        "when": "false",
+        "label": "0 yếu tố nguy cơ"
+      },
+      {
+        "from": "risk_infer_low_grade1",
+        "to": "risk_link_low_grade1",
+        "when": "default"
+      },
+      {
+        "from": "risk_high_normal",
+        "to": "risk_infer_low_high_normal",
+        "when": "true",
+        "label": "HATT 130–139 hoặc HATTr 85–89"
+      },
+      {
+        "from": "risk_infer_low_high_normal",
+        "to": "risk_link_low_high_normal",
+        "when": "default"
+      },
+      {
+        "from": "risk_high_normal",
+        "to": "risk_normal",
+        "when": "false",
+        "label": "HATT <130 và HATTr <85 mmHg"
+      },
+      {
+        "from": "risk_normal",
+        "to": "risk_infer_low_normal",
+        "when": "true",
+        "label": "HATT <130 và HATTr <85 mmHg"
+      },
+      {
+        "from": "risk_infer_low_normal",
+        "to": "risk_link_low_normal",
+        "when": "default"
+      },
+      {
+        "from": "risk_normal",
+        "to": "risk_end_review",
+        "when": "false",
+        "label": "HATT ≥130 hoặc HATTr ≥85 mmHg"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "sourceId": "image_04_risk_stratification",
+        "page": 1,
+        "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
+        "tableOrFigure": "04_hypertension_risk_stratification.png",
+        "note": "Cây được xây theo Bảng 2 phân tầng nguy cơ"
+      }
+    ],
+    "notes": [
+      "Cây chỉ dùng các biến chuẩn: HATT/HATTr gần nhất, số yếu tố nguy cơ, dày thất trái, CKD giai đoạn ≥3, đái tháo đường và bệnh tim mạch.",
+      "Bệnh đồng mắc/tổn thương cơ quan đích hoặc bệnh tim mạch: nguy cơ cao ở mọi mức huyết áp trong bảng.",
+      "Độ 2: HATT ≥180 hoặc HATTr ≥110 là nguy cơ cao; mức còn lại của độ 2 có 0 YTNC là trung bình và có ≥1 YTNC là cao.",
+      "Độ 1: 0 YTNC thấp; 1–2 YTNC trung bình; ≥3 YTNC cao.",
+      "Bình thường cao: nguy cơ thấp theo bảng phân tầng, không phân tiếp theo số YTNC.",
+      "Mỗi kết quả phân tầng được liên kết sang Cây 2 để xác định ngưỡng và đích điều trị."
+    ]
+  }
+}

@@ -5,8 +5,8 @@
     "asOf": "2026-08-11",
     "bp.category": "hypertension",
     "treatment.recommendation": "medication_now",
-    "risk.class": "low",
-    "treatment.hasHighRiskComorbidity": false,
+    "comorbidity.targetOrganDamageOrCvd": false,
+    "patient.ageYears": 36,
     "encounter.number": 2,
     "patient.diagnosisCodes": "",
     "medication.previousEncounterDrugNames": "Losartan, amlodipine",
@@ -27,17 +27,20 @@
     "entryTreeId": "optimized_hypertension_treatment",
     "terminalTreeId": "optimized_hypertension_treatment",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.7.0",
+    "bundleVersion": "0.2.0",
     "context": {
       "patient.birthDate": "1990-01-01",
       "asOf": "2026-08-11",
       "bp.category": "hypertension",
       "treatment.recommendation": "medication_now",
-      "risk.class": "low",
-      "treatment.hasHighRiskComorbidity": false,
+      "comorbidity.targetOrganDamageOrCvd": false,
+      "patient.ageYears": 36,
       "encounter.number": 2,
       "patient.diagnosisCodes": "",
-      "medication.previousEncounterDrugNames": "Losartan, amlodipine",
+      "medication.previousEncounterDrugNames": [
+        "Losartan",
+        "amlodipine"
+      ],
       "bp.controlledAfterTwoDrugs": false,
       "bp.controlledAfterThreeDrugs": false,
       "bp.controlledAfterFourDrugs": false,
@@ -57,30 +60,18 @@
       "risk.diabetes": false,
       "risk.cardiovascularDisease": false,
       "risk.targetOrganDamage": false,
-      "comorbidity.targetOrganDamageOrCvd": false,
       "risk.highRiskComorbidity": false,
       "treatment.mandatoryIndication": false,
-      "patient.ageYears": 36,
+      "treatment.hasHighRiskComorbidity": false,
       "risk.ageOver65": false,
       "medication.previousEncounterDrugClassList": [
         "arb",
         "ccb"
       ],
-      "medication.previousEncounterDrugClassCodes": "arb,ccb",
-      "medication.previousEncounterAgentCount": 2,
-      "medication.previousEncounterIncludesDiuretic": false,
-      "medication.previousEncounterUnmappedDrugNames": "",
-      "medication.previousEncounterHasUnmappedDrug": false,
       "treatment.path": "followup_escalate_three_drugs"
     },
     "linksVisited": [],
     "trace": [
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "type": "entry_precondition",
-        "status": "passed",
-        "value": true
-      },
       {
         "treeId": "optimized_hypertension_treatment",
         "nodeId": "optimized_start",
@@ -89,21 +80,15 @@
       },
       {
         "treeId": "optimized_hypertension_treatment",
+        "nodeId": "optimized_entry_gate",
+        "type": "condition",
+        "value": true
+      },
+      {
+        "treeId": "optimized_hypertension_treatment",
         "nodeId": "optimized_encounter_type",
         "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_followup_mandatory",
-        "type": "condition",
         "value": false
-      },
-      {
-        "treeId": "optimized_hypertension_treatment",
-        "nodeId": "optimized_previous_drug_mapping",
-        "type": "condition",
-        "value": true
       },
       {
         "treeId": "optimized_hypertension_treatment",
@@ -160,14 +145,14 @@
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Phân biệt buổi tái khám theo dõi thuốc với cuộc gặp ban đầu."
+        "note": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
         "page": 1,
         "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
         "tableOrFigure": "03_optimized_hypertension_treatment.png",
-        "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
+        "note": "Đây là bệnh nhân mới (lần khám số 1)?"
       },
       {
         "sourceId": "image_03_optimized_treatment",
@@ -214,10 +199,10 @@
     ],
     "validation": {
       "trees": 5,
-      "variables": 84,
-      "nodes": 111,
-      "edges": 110,
-      "links": 20
+      "variables": 50,
+      "nodes": 91,
+      "edges": 89,
+      "links": 18
     },
     "decision": {
       "status": "completed",

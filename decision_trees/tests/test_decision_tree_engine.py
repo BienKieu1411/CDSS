@@ -69,6 +69,30 @@ def test_tree_two_uses_derived_high_risk_comorbidity() -> None:
     assert result["context"]["treatment.targetSystolicMmHg"] == 130
 
 
+def test_tree_two_has_only_two_comorbidity_target_outputs() -> None:
+    with_comorbidity = run(BUNDLE_PATH, "bp_thresholds_targets", {
+        "bp.category": "hypertension",
+        "encounter.number": 2,
+        "comorbidity.targetOrganDamageOrCvd": True,
+    })
+    without_comorbidity = run(BUNDLE_PATH, "bp_thresholds_targets", {
+        "bp.category": "hypertension",
+        "encounter.number": 2,
+        "comorbidity.targetOrganDamageOrCvd": False,
+    })
+
+    assert with_comorbidity["sets"] == {
+        "treatment.recommendation": "medication_now_high_risk",
+        "treatment.targetSystolicMmHg": 130,
+        "treatment.targetDiastolicMmHg": 80,
+    }
+    assert without_comorbidity["sets"] == {
+        "treatment.recommendation": "medication_now",
+        "treatment.targetSystolicMmHg": 140,
+        "treatment.targetDiastolicMmHg": 80,
+    }
+
+
 def test_antihypertensive_names_are_grouped_without_counting_duplicate_classes() -> None:
     derived = derive_medication_variables({
         "medication.currentDrugNames": "Losartan, amlodipine, indapamide, spironolactone",
@@ -221,9 +245,10 @@ def test_tree_four_classifies_high_risk_icd10_as_high_without_manual_boolean() -
 
 def test_tree_five_classifies_two_drug_regimen_as_uncontrolled() -> None:
     result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "asOf": "2026-08-12",
         "bp.office3.systolicMmHg": 150,
         "bp.office3.diastolicMmHg": 95,
-        "medication.regimenStableWeeks": 4,
+        "medication.regimenStartDate": "2026-07-14",
         "medication.currentDrugNames": "Losartan, amlodipine",
     })
     assert result["status"] == "completed"
@@ -233,9 +258,10 @@ def test_tree_five_classifies_two_drug_regimen_as_uncontrolled() -> None:
 
 def test_tree_five_classifies_three_drugs_with_diuretic_as_resistant() -> None:
     result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "asOf": "2026-08-12",
         "bp.office3.systolicMmHg": 150,
         "bp.office3.diastolicMmHg": 95,
-        "medication.regimenStableWeeks": 4,
+        "medication.regimenStartDate": "2026-07-14",
         "medication.currentDrugNames": "Losartan, amlodipine, indapamide",
     })
     assert result["status"] == "completed"
@@ -244,27 +270,55 @@ def test_tree_five_classifies_three_drugs_with_diuretic_as_resistant() -> None:
     assert result["context"]["medication.currentIncludesDiuretic"] is True
 
 
-def test_tree_five_defers_when_regimen_is_not_stable() -> None:
+def test_tree_five_defers_when_derived_regimen_duration_is_under_four_weeks() -> None:
     result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "asOf": "2026-08-12",
         "bp.office3.systolicMmHg": 150,
         "bp.office3.diastolicMmHg": 95,
-        "medication.regimenStableWeeks": 3,
+        "medication.regimenStartDate": "2026-08-01",
         "medication.currentDrugNames": "Losartan, amlodipine",
     })
     assert result["status"] == "completed"
     assert result["resultCode"] == "resistant_defer"
+    assert result["context"]["medication.regimenStableWeeks"] == 1
 
 
-def test_tree_five_stops_when_a_drug_is_not_in_the_catalog() -> None:
+def test_tree_five_ignores_manual_regimen_stability_override() -> None:
     result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "asOf": "2026-08-12",
         "bp.office3.systolicMmHg": 150,
         "bp.office3.diastolicMmHg": 95,
-        "medication.regimenStableWeeks": 4,
+        "medication.regimenStartDate": "2026-08-01",
+        "medication.regimenStableWeeks": 99,
+        "medication.currentDrugNames": "Losartan, amlodipine",
+    })
+    assert result["status"] == "completed"
+    assert result["resultCode"] == "resistant_defer"
+    assert result["context"]["medication.regimenStableWeeks"] == 1
+
+
+def test_tree_five_uses_the_recognized_drug_class_list() -> None:
+    result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "asOf": "2026-08-12",
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "medication.regimenStartDate": "2026-07-14",
         "medication.currentDrugNames": "Losartan, unknown-drug",
     })
     assert result["status"] == "completed"
-    assert result["resultCode"] == "resistant_drug_review_required"
-    assert result["context"]["medication.currentHasUnmappedDrug"] is True
+    assert result["resultCode"] == "resistant_agent_count_review_required"
+    assert result["context"]["medication.currentDrugClassCount"] == 1
+
+
+def test_tree_five_reports_regimen_start_date_when_duration_source_is_missing() -> None:
+    result = run(BUNDLE_PATH, "uncontrolled_resistant_hypertension", {
+        "asOf": "2026-08-12",
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "medication.currentDrugNames": "Losartan, amlodipine",
+    })
+    assert result["status"] == "needs_data"
+    assert result["missingData"] == ["medication.regimenStartDate"]
 
 
 def test_tree_three_uses_previous_encounter_drug_list_and_escalates_by_control() -> None:
@@ -396,7 +450,8 @@ def test_tree_three_links_four_drug_uncontrolled_case_to_tree_five() -> None:
         "bp.controlledAfterFourDrugs": False,
         "bp.office3.systolicMmHg": 150,
         "bp.office3.diastolicMmHg": 95,
-        "medication.regimenStableWeeks": 4,
+        "medication.regimenStartDate": "2026-07-14",
+        "asOf": "2026-08-11",
         "medication.currentDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
     })
     assert result["status"] == "completed"
@@ -426,7 +481,7 @@ def test_full_clinical_flow_passes_tree_outputs_forward_to_tree_five() -> None:
         "risk.socialEnvironmentalRisk": False,
         "medication.previousEncounterDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
         "medication.currentDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
-        "medication.regimenStableWeeks": 4,
+        "medication.regimenStartDate": "2026-07-14",
         "bp.controlledAfterFourDrugs": False,
     }, start_tree_id="bp_diagnosis")
     assert result["status"] == "completed"
@@ -455,19 +510,17 @@ def test_clinical_flow_stops_at_terminal_crisis_without_following_unrelated_tree
     assert result["linksVisited"] == []
 
 
-def test_clinical_flow_stops_at_review_end_without_following_treatment_tree() -> None:
+def test_clinical_flow_uses_the_standard_target_for_no_comorbidity() -> None:
     result = run_clinical_flow(BUNDLE_PATH, {
         "bp.category": "normal",
         "risk.class": "low",
-        "treatment.hasHighRiskComorbidity": False,
         "encounter.number": 2,
         "patient.diagnosisCodes": "",
     }, start_tree_id="bp_thresholds_targets")
-    assert result["status"] == "completed"
-    assert result["resultCode"] == "threshold_review_required"
-    assert result["terminalTreeId"] == "bp_thresholds_targets"
-    assert [step["treeId"] for step in result["steps"]] == ["bp_thresholds_targets"]
-    assert result["linksVisited"] == []
+    assert result["status"] == "needs_data"
+    assert result["sets"]["treatment.targetSystolicMmHg"] == 140
+    assert result["sets"]["treatment.targetDiastolicMmHg"] == 80
+    assert result["linksVisited"] == ["optimized_hypertension_treatment"]
 
 
 def test_runtime_returns_structured_invalid_input_for_wrong_canonical_type() -> None:

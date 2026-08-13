@@ -28,8 +28,8 @@ TEST_CASES = {
     },
     "bp_thresholds_targets": {
         "bp.category": "high_normal",
-        "risk.class": "low",
         "patient.diagnosisCodes": "",
+        "comorbidity.targetOrganDamageOrCvd": False,
         "encounter.number": 2,
     },
     "optimized_hypertension_treatment": {
@@ -37,8 +37,8 @@ TEST_CASES = {
         "asOf": "2026-08-11",
         "bp.category": "hypertension",
         "treatment.recommendation": "medication_now",
-        "risk.class": "low",
-        "treatment.hasHighRiskComorbidity": False,
+        "comorbidity.targetOrganDamageOrCvd": False,
+        "patient.ageYears": 36,
         "encounter.number": 2,
         "patient.diagnosisCodes": "",
         "medication.previousEncounterDrugNames": "Losartan, amlodipine",
@@ -60,9 +60,10 @@ TEST_CASES = {
         "risk.socialEnvironmentalRisk": False,
     },
     "uncontrolled_resistant_hypertension": {
+        "asOf": "2026-08-12",
         "bp.office3.systolicMmHg": 150,
         "bp.office3.diastolicMmHg": 95,
-        "medication.regimenStableWeeks": 4,
+        "medication.regimenStartDate": "2026-07-14",
         "medication.currentDrugNames": "Losartan, amlodipine",
     },
 }

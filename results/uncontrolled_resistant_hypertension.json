@@ -1,9 +1,10 @@
 {
   "treeId": "uncontrolled_resistant_hypertension",
   "testInput": {
+    "asOf": "2026-08-12",
     "bp.office3.systolicMmHg": 150,
     "bp.office3.diastolicMmHg": 95,
-    "medication.regimenStableWeeks": 4,
+    "medication.regimenStartDate": "2026-07-14",
     "medication.currentDrugNames": "Losartan, amlodipine"
   },
   "result": {
@@ -19,23 +20,23 @@
     "entryTreeId": "uncontrolled_resistant_hypertension",
     "terminalTreeId": "uncontrolled_resistant_hypertension",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.7.0",
+    "bundleVersion": "0.2.0",
     "context": {
+      "asOf": "2026-08-12",
       "bp.office3.systolicMmHg": 150,
       "bp.office3.diastolicMmHg": 95,
-      "medication.regimenStableWeeks": 4,
-      "medication.currentDrugNames": "Losartan, amlodipine",
+      "medication.regimenStartDate": "2026-07-14",
+      "medication.currentDrugNames": [
+        "Losartan",
+        "amlodipine"
+      ],
       "bp.latest.systolicMmHg": 150,
       "bp.latest.diastolicMmHg": 95,
+      "medication.regimenStableWeeks": 4,
       "medication.currentDrugClassList": [
         "arb",
         "ccb"
       ],
-      "medication.currentDrugClassCodes": "arb,ccb",
-      "medication.currentDrugClassCount": 2,
-      "medication.currentIncludesDiuretic": false,
-      "medication.currentUnmappedDrugNames": "",
-      "medication.currentHasUnmappedDrug": false,
       "resistant.classification": "uncontrolled_two_drug"
     },
     "linksVisited": [],
@@ -55,12 +56,6 @@
       {
         "treeId": "uncontrolled_resistant_hypertension",
         "nodeId": "resistant_stable",
-        "type": "condition",
-        "value": true
-      },
-      {
-        "treeId": "uncontrolled_resistant_hypertension",
-        "nodeId": "resistant_drug_mapping",
         "type": "condition",
         "value": true
       },
@@ -87,7 +82,7 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5."
+        "note": "Phân loại đến nhánh không kiểm soát hoặc kháng trị bằng danh sách nhóm thuốc đã chuẩn hóa."
       },
       {
         "sourceId": "image_05_uncontrolled_resistant",
@@ -101,7 +96,7 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "HATT tư thế ngồi 140–169 mmHg?"
+        "note": "HATT lần đo gần nhất 140–169 mmHg?"
       },
       {
         "sourceId": "image_05_uncontrolled_resistant",
@@ -115,14 +110,7 @@
         "page": 1,
         "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
         "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Kiểm tra danh sách thuốc theo danh mục chuẩn."
-      },
-      {
-        "sourceId": "image_05_uncontrolled_resistant",
-        "page": 1,
-        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
-        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
-        "note": "Số nhóm thuốc hạ áp đang dùng?"
+        "note": "Đang sử dụng đúng 2 nhóm thuốc?"
       },
       {
         "sourceId": "image_05_uncontrolled_resistant",
@@ -134,10 +122,10 @@
     ],
     "validation": {
       "trees": 5,
-      "variables": 84,
-      "nodes": 111,
-      "edges": 110,
-      "links": 20
+      "variables": 50,
+      "nodes": 91,
+      "edges": 89,
+      "links": 18
     },
     "decision": {
       "status": "completed",

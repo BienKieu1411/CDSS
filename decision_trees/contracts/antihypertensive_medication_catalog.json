@@ -16,13 +16,7 @@
     "unknownDrugPolicy": "require_review_before_classification",
     "derivedFields": [
       "medication.currentDrugClassList",
-      "medication.currentDrugClassCount",
-      "medication.currentIncludesDiuretic",
-      "medication.currentUnmappedDrugNames",
-      "medication.previousEncounterDrugClassList",
-      "medication.previousEncounterAgentCount",
-      "medication.previousEncounterIncludesDiuretic",
-      "medication.previousEncounterUnmappedDrugNames"
+      "medication.previousEncounterDrugClassList"
     ]
   },
   "classes": [

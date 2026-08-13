@@ -150,7 +150,7 @@ const VARIABLE_TRANSLATIONS = {
     "bp.latest.diastolicMmHg": "Latest BP — diastolic",
     "medication.currentDrugNames": "Current antihypertensive medicines",
     "medication.previousEncounterDrugNames": "Medicines prescribed at the previous encounter",
-    "medication.regimenStableWeeks": "Weeks on a stable regimen",
+    "medication.regimenStartDate": "Regimen start or last change date",
     "medication.drugClass": "Antihypertensive drug class",
   },
   vi: {
@@ -187,7 +187,7 @@ const FORM_GROUPS = {
     tab: "specs",
   },
   treatment: {
-    ids: ["medication.currentDrugNames", "medication.previousEncounterDrugNames", "medication.regimenStableWeeks"],
+    ids: ["medication.currentDrugNames", "medication.previousEncounterDrugNames", "medication.regimenStartDate"],
     vi: "Điều trị và tái khám",
     en: "Treatment and follow-up",
     tab: "history",
@@ -207,7 +207,6 @@ const PATIENT_PRESETS = {
       "lab.eGfr": 90, "lab.ldlCholesterol": 2, "lab.triglycerides": 1,
       "risk.lipidAbnormality": false, "risk.familyHistoryPrematureCvd": false,
       "risk.currentSmoker": false, "risk.socialEnvironmentalRisk": false,
-      "medication.regimenStableWeeks": 0,
     },
   },
   demo_high_risk: {
@@ -219,7 +218,6 @@ const PATIENT_PRESETS = {
       "patient.diagnosisCodes": "I25.1,I50.9,E11.9", "patient.birthDate": "1955-07-21",
       "patient.sex": "male", "encounter.number": 2,
       "medication.previousEncounterDrugNames": "Amlodipine, Losartan",
-      "medication.regimenStableWeeks": 6,
     },
   },
 };
@@ -458,7 +456,7 @@ function inputVariableIdsForTree(tree) {
   // changing the form when the selected tree changes. Derived values stay in
   // the context but are never exposed as manual inputs.
   return state.bundle.variables
-    .filter((variable) => variable.sourceSystem !== "derived" && variable.dataType !== "array")
+    .filter((variable) => variable.sourceSystem !== "derived")
     .map((variable) => variable.id);
 }
 
@@ -483,6 +481,27 @@ function refreshLatestBpDisplay(context = state.context) {
   if (source) source.textContent = latest.encounter
     ? (state.locale === "en" ? `Automatically taken from clinic visit ${latest.encounter}.` : `Tự động lấy từ HA phòng khám lần ${latest.encounter}.`)
     : (state.locale === "en" ? "Enter a complete clinic BP pair to calculate the latest BP." : "Nhập đủ một cặp huyết áp phòng khám để tự tính HA lần đo gần nhất.");
+}
+
+function regimenStableWeeks(context = state.context) {
+  const start = context["medication.regimenStartDate"];
+  if (!start) return null;
+  const startDate = new Date(`${String(start).slice(0, 10)}T00:00:00Z`);
+  const referenceValue = context.asOf || new Date().toISOString().slice(0, 10);
+  const referenceDate = new Date(`${String(referenceValue).slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(startDate.getTime()) || Number.isNaN(referenceDate.getTime()) || startDate > referenceDate) return null;
+  return Math.floor((referenceDate - startDate) / (7 * 24 * 60 * 60 * 1000));
+}
+
+function refreshRegimenStableDisplay(context = state.context) {
+  const output = $("derived-regimen-stable-weeks");
+  const source = $("derived-regimen-stable-source");
+  if (!output || !source) return;
+  const weeks = regimenStableWeeks(context);
+  output.value = weeks == null ? "" : String(weeks);
+  source.textContent = weeks == null
+    ? (state.locale === "en" ? "Enter the regimen start or last change date." : "Nhập ngày bắt đầu hoặc chỉnh phác đồ để tự tính.")
+    : (state.locale === "en" ? "Automatically calculated from the regimen date and encounter date." : "Tự động tính từ ngày bắt đầu/chỉnh phác đồ đến ngày khám.");
 }
 
 function isProvided(value) {
@@ -532,6 +551,29 @@ function pathConditionClass(label) {
   return "path-condition-default";
 }
 
+function formatOutputValue(value) {
+  if (typeof value === "string") return value;
+  if (value === null) return "null";
+  if (Array.isArray(value) || typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+function outputAssignments(node) {
+  const sets = node?.data?.sets;
+  if (!sets || typeof sets !== "object" || Array.isArray(sets)) return "";
+  return Object.entries(sets)
+    .map(([field, value]) => `${field} = ${formatOutputValue(value)}`)
+    .join("\n");
+}
+
+function visualNodeLabel(node) {
+  if (["inference", "end"].includes(node.type)) {
+    const assignments = outputAssignments(node);
+    if (assignments) return assignments;
+  }
+  return localizeText(node.display?.title || "");
+}
+
 function buildVisualGraph(tree) {
   const nodesById = Object.fromEntries(tree.nodes.map((node) => [node.id, node]));
   const outgoingByNode = Object.fromEntries(tree.nodes.map((node) => [node.id, []]));
@@ -551,7 +593,7 @@ function buildVisualGraph(tree) {
       data: {
         id: visualId,
         canonicalId: nodeId,
-        label: localizeText(node.display?.title || ""),
+        label: visualNodeLabel(node),
         nodeType: node.type,
         color: NODE_COLORS[node.type] || NODE_COLORS.condition,
         borderColor: NODE_BORDERS[node.type] || NODE_BORDERS.condition,
@@ -801,6 +843,7 @@ function renderInputForm(tree) {
     });
     section.appendChild(fields);
     if (groupId === "bloodPressure") fields.appendChild(renderDerivedLatestBpField());
+    if (groupId === "treatment") fields.appendChild(renderDerivedRegimenStableField());
     form.appendChild(section);
   });
 
@@ -809,6 +852,7 @@ function renderInputForm(tree) {
     : "Dữ liệu được dùng chung cho năm cây liên kết. Dấu * chỉ xuất hiện khi cây đang xem cần trường đó.";
   if (state.inputMode === "json") $("json-input").value = pretty(state.context);
   refreshLatestBpDisplay(state.context);
+  refreshRegimenStableDisplay(state.context);
 }
 
 function renderDerivedLatestBpField() {
@@ -842,6 +886,23 @@ function renderDerivedLatestBpField() {
   return card;
 }
 
+function renderDerivedRegimenStableField() {
+  const card = document.createElement("div");
+  card.className = "input-card derived-input-card";
+  const title = document.createElement("label");
+  title.textContent = state.locale === "en" ? "Stable regimen duration (weeks)" : "Thời gian phác đồ ổn định (tuần)";
+  const input = document.createElement("input");
+  input.id = "derived-regimen-stable-weeks";
+  input.type = "number";
+  input.readOnly = true;
+  input.tabIndex = -1;
+  input.setAttribute("aria-readonly", "true");
+  const help = document.createElement("small");
+  help.id = "derived-regimen-stable-source";
+  card.append(title, input, help);
+  return card;
+}
+
 function pairIdsFor(id, ids) {
   const match = id.match(/^(.*)\.(systolicMmHg|diastolicMmHg)$/);
   if (!match) return [];
@@ -867,7 +928,9 @@ function inputElementFor(variable, id) {
     (variable.allowedValues || []).forEach((value) => input.add(new Option(valueLabel(value, variable.id), value)));
   } else {
     input = document.createElement("input");
-    input.type = variable.id === "patient.birthDate" ? "date" : variable.dataType === "string" ? "text" : "number";
+    input.type = ["patient.birthDate", "medication.regimenStartDate"].includes(variable.id)
+      ? "date"
+      : variable.dataType === "string" ? "text" : "number";
     if (variable.dataType !== "string") input.step = "any";
     if (variable.validation?.minimum != null) input.min = variable.validation.minimum;
     if (variable.validation?.maximum != null) input.max = variable.validation.maximum;
@@ -1032,6 +1095,7 @@ function collectInputsFromForm() {
     if (value !== "") values[input.dataset.variableId] = value;
     else delete values[input.dataset.variableId];
   });
+  delete values["medication.regimenStableWeeks"];
   return values;
 }
 
@@ -1043,6 +1107,7 @@ function normalizeFhirContext(parsed) {
   const context = {};
   const diagnoses = [];
   const medications = [];
+  const regimenDates = [];
   const observations = new Map();
   resources.forEach((resource) => {
     if (resource.resourceType === "Patient") {
@@ -1063,10 +1128,15 @@ function normalizeFhirContext(parsed) {
         || resource.medicationCodeableConcept?.text
         || resource.medicationReference?.display;
       if (medication) medications.push(medication);
+      const dateValue = resource.resourceType === "MedicationRequest"
+        ? resource.authoredOn
+        : resource.effectiveDateTime || resource.effectivePeriod?.start;
+      if (dateValue) regimenDates.push(String(dateValue).slice(0, 10));
     }
   });
   if (diagnoses.length) context["patient.diagnosisCodes"] = [...new Set(diagnoses)].join(",");
   if (medications.length) context["medication.currentDrugNames"] = [...new Set(medications)].join(", ");
+  if (regimenDates.length) context["medication.regimenStartDate"] = regimenDates.sort()[0];
   const observationMap = {
     "8867-4": "vitals.heartRate",
     "98979-8": "lab.eGfr",
@@ -1089,6 +1159,9 @@ function normalizeJsonContext(parsed) {
   delete context.result;
   delete context.variables;
   delete context.context;
+  // This is a dependent field. A JSON record may provide its source date,
+  // but must never override the value calculated by the runtime.
+  delete context["medication.regimenStableWeeks"];
   return { ...fhirContext, ...context };
 }
 
@@ -1426,6 +1499,8 @@ function renderResult(result) {
     state.context = { ...state.context, ...result.context };
     if (state.inputMode === "json") $("json-input").value = pretty(state.context);
   }
+  refreshLatestBpDisplay(state.context);
+  refreshRegimenStableDisplay(state.context);
   markMissingInputs(result?.missingData || []);
   const headline = result.status === "completed"
     ? resultDisplayLabel(result)

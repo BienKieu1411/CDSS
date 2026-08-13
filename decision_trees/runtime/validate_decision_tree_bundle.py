@@ -16,7 +16,7 @@ if __package__ in (None, ""):
 from decision_trees.config.paths import BUNDLE_PATH
 
 
-OPS = {"eq", "neq", "gt", "gte", "lt", "lte", "in", "notIn", "present"}
+OPS = {"eq", "neq", "gt", "gte", "lt", "lte", "in", "notIn", "present", "contains", "lengthEq", "lengthGte", "lengthIn"}
 NODE_TYPES = {"start", "condition", "branch", "inference", "link", "end"}
 EDGE_WHEN = {"true", "false", "default"}
 DATA_TYPES = {"boolean", "integer", "number", "string", "enum", "array"}
@@ -27,7 +27,7 @@ def fail(message: str) -> None:
 
 
 def validate_predicate_value(variable: dict[str, Any], op: str, value: Any, where: str) -> None:
-    if op in {"in", "notIn"}:
+    if op in {"in", "notIn", "lengthIn"}:
         if not isinstance(value, list) or not value:
             fail(f"{where}: operator {op} requires a non-empty list value")
         values = value
@@ -35,6 +35,14 @@ def validate_predicate_value(variable: dict[str, Any], op: str, value: Any, wher
         values = [value]
 
     data_type = variable.get("dataType")
+    if op == "contains" and data_type != "array":
+        fail(f"{where}: operator contains requires an array variable")
+    if op in {"lengthEq", "lengthGte", "lengthIn"} and data_type != "array":
+        fail(f"{where}: operator {op} requires an array variable")
+    if op in {"lengthEq", "lengthGte"} and (isinstance(value, bool) or not isinstance(value, int)):
+        fail(f"{where}: operator {op} requires an integer length value")
+    if op == "lengthIn" and any(isinstance(item, bool) or not isinstance(item, int) for item in values):
+        fail(f"{where}: operator lengthIn requires integer length values")
     allowed_values = variable.get("allowedValues", [])
     for item in values:
         if data_type == "boolean" and not isinstance(item, bool):
@@ -47,7 +55,7 @@ def validate_predicate_value(variable: dict[str, Any], op: str, value: Any, wher
             fail(f"{where}: expected string value for {variable['id']}")
         if data_type == "enum" and item not in allowed_values:
             fail(f"{where}: value {item!r} is not allowed for {variable['id']}")
-    if op in {"gt", "gte", "lt", "lte"} and data_type not in {"integer", "number"}:
+    if op in {"gt", "gte", "lt", "lte", "lengthEq", "lengthGte", "lengthIn"} and data_type not in {"integer", "number", "array"}:
         fail(f"{where}: operator {op} requires a numeric variable")
 
 

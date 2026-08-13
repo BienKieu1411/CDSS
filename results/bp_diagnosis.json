@@ -23,7 +23,7 @@
     "entryTreeId": "bp_diagnosis",
     "terminalTreeId": "bp_diagnosis",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.7.0",
+    "bundleVersion": "0.2.0",
     "context": {
       "bp.office1.systolicMmHg": 130,
       "bp.office1.diastolicMmHg": 80,
@@ -68,25 +68,25 @@
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_first_screen",
+        "nodeId": "bp_crisis_gate",
         "type": "condition",
         "value": false
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_second_screen",
+        "nodeId": "bp_second_gate",
         "type": "condition",
         "value": false
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_third_normal_screen",
+        "nodeId": "bp_office3_normal",
         "type": "condition",
         "value": true
       },
       {
         "treeId": "bp_diagnosis",
-        "nodeId": "bp_normal_result",
+        "nodeId": "bp_infer_normal",
         "type": "inference",
         "resultCode": "normal_bp",
         "sets": {
@@ -108,57 +108,50 @@
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Cây 1 chỉ giữ các nhánh đo huyết áp phòng khám lần 1, lần 2 và lần 3 theo bản phác thảo."
+        "note": "Chẩn đoán tăng huyết áp bằng ba lần đo phòng khám."
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Bắt đầu chẩn đoán huyết áp"
+        "note": "Bắt đầu chẩn đoán HA"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Huyết áp phòng khám lần 1 có mức rất cao hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
+        "note": "HA phòng khám lần 1 ≥180/120 hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Huyết áp phòng khám lần 2 có thuộc khoảng 140–179/90–119 mmHg hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
+        "note": "HA phòng khám lần 2 140-179/90-119 hoặc có tổn thương cơ quan đích/bệnh tim mạch?"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Huyết áp phòng khám lần 3 có dưới 130/85 mmHg?"
+        "note": "HATT <130 và HATTr <85?"
       },
       {
         "sourceId": "image_01_bp_diagnosis",
         "page": 1,
         "section": "Sơ đồ chẩn đoán tăng huyết áp",
         "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Huyết áp bình thường"
-      },
-      {
-        "sourceId": "image_01_bp_diagnosis",
-        "page": 1,
-        "section": "Sơ đồ chẩn đoán tăng huyết áp",
-        "tableOrFigure": "01_bp_diagnosis.png",
-        "note": "Liên kết sang Cây 4 sau phân loại huyết áp bình thường."
+        "note": "HA bình thường"
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 84,
-      "nodes": 111,
-      "edges": 110,
-      "links": 20
+      "variables": 50,
+      "nodes": 91,
+      "edges": 89,
+      "links": 18
     },
     "decision": {
       "status": "completed",

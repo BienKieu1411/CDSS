@@ -102,15 +102,16 @@ canonical ID nằm trong [expected_variable_mapping.json](./expected_variable_ma
 | `risk.factorCount` | risk-assessment service | integer |
 | `risk.highRiskComorbidity` | problem/lab derived risk flag | boolean |
 | `encounter.number` | encounter sequence | integer |
-| `medication.previousEncounterAgentCount` | medication reconciliation của encounter n-1 | integer |
+| `medication.previousEncounterDrugClassList` | danh sách nhóm thuốc chuẩn hóa từ encounter n-1; dùng `lengthEq/lengthIn` để xác định giai đoạn | array |
 | `medication.previousEncounterDrugClassList` | engine chuẩn hóa danh sách thuốc encounter n-1 theo catalog | array |
-| `medication.previousEncounterIncludesDiuretic` | medication reconciliation của encounter n-1 | boolean |
 | `medication.currentDrugClassList` | engine chuẩn hóa danh sách thuốc hiện tại theo catalog | array |
 | `treatment.targetSystolicMmHg` | Cây 2 — đích HATT | number, mmHg |
 | `treatment.targetDiastolicMmHg` | Cây 2 — đích HATTr | number, mmHg |
 | `bp.controlledAfterTwoDrugs` | engine — so sánh HA hiện tại với đích Cây 2 | boolean |
 | `bp.controlledAfterThreeDrugs` | engine — so sánh HA hiện tại với đích Cây 2 | boolean |
 | `bp.controlledAfterFourDrugs` | engine — so sánh HA hiện tại với đích Cây 2 | boolean |
+| `medication.regimenStartDate` | ngày bắt đầu hoặc thay đổi gần nhất của phác đồ từ lịch sử kê đơn | date |
+| `medication.regimenStableWeeks` | engine tự tính `floor((asOf - medication.regimenStartDate) / 7 ngày)`; không nhận input ghi đè | number, week |
 
 Mapping không nên nằm trong tree JSON; đặt ở adapter/database layer để guideline logic độc lập với HIS/EMR cụ thể.
 

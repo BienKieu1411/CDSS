@@ -27,7 +27,7 @@ DEFAULT_BUNDLE = BUNDLE_PATH
 DEFAULT_OUT = EXAMPLE_PATH
 DEFAULT_PROMPT_OUT = GENERATION_PROMPT_PATH
 EXEMPLAR_VERSION = "one-shot-exemplar.v2"
-PREDICATE_OPERATORS = ("eq", "neq", "gt", "gte", "lt", "lte", "in", "notIn", "present")
+PREDICATE_OPERATORS = ("eq", "neq", "gt", "gte", "lt", "lte", "in", "notIn", "present", "contains", "lengthEq", "lengthGte", "lengthIn")
 
 
 def _predicate_fields(value: Any) -> set[str]:

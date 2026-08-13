@@ -305,7 +305,13 @@ DRUG_CLASS_BY_NAME = _load_drug_class_by_name()
 
 
 def derive_medication_variables(context: dict[str, Any]) -> dict[str, Any]:
-    """Map entered antihypertensive generic names to stable drug-group codes."""
+    """Derive medication groups and regimen duration from the patient record.
+
+    ``medication.regimenStableWeeks`` is deliberately never accepted as an
+    input. It is calculated from the recorded regimen start/change date and
+    the encounter reference date so callers cannot manually bypass the
+    four-week stability check in Tree 5.
+    """
     def map_classes(raw_names: Any) -> tuple[list[str], list[str]]:
         if raw_names is None or raw_names == "":
             return [], []
@@ -324,28 +330,57 @@ def derive_medication_variables(context: dict[str, Any]) -> dict[str, Any]:
         return class_codes, unknown_names
 
     derived: dict[str, Any] = {}
+    regimen_start = _parse_date(context.get("medication.regimenStartDate"))
+    reference = _reference_date(context)
+    if regimen_start is not None and regimen_start <= reference:
+        derived["medication.regimenStableWeeks"] = (reference - regimen_start).days // 7
     current_codes, current_unknown = map_classes(context.get("medication.currentDrugNames"))
     if current_codes or current_unknown:
-        derived.update({
-            "medication.currentDrugClassList": current_codes,
-            "medication.currentDrugClassCodes": ",".join(current_codes),
-            "medication.currentDrugClassCount": len(current_codes),
-            "medication.currentIncludesDiuretic": "diuretic" in current_codes,
-            "medication.currentUnmappedDrugNames": ", ".join(current_unknown),
-            "medication.currentHasUnmappedDrug": bool(current_unknown),
-        })
+        # Keep one canonical representation.  Count and membership checks are
+        # evaluated directly against this list by the decision-tree engine.
+        derived["medication.currentDrugClassList"] = current_codes
 
     previous_codes, previous_unknown = map_classes(context.get("medication.previousEncounterDrugNames"))
     if previous_codes or previous_unknown:
-        derived.update({
-            "medication.previousEncounterDrugClassList": previous_codes,
-            "medication.previousEncounterDrugClassCodes": ",".join(previous_codes),
-            "medication.previousEncounterAgentCount": len(previous_codes),
-            "medication.previousEncounterIncludesDiuretic": "diuretic" in previous_codes,
-            "medication.previousEncounterUnmappedDrugNames": ", ".join(previous_unknown),
-            "medication.previousEncounterHasUnmappedDrug": bool(previous_unknown),
-        })
+        derived["medication.previousEncounterDrugClassList"] = previous_codes
     return derived
+
+
+def normalize_medication_list_inputs(context: dict[str, Any]) -> dict[str, Any]:
+    """Accept UI-friendly comma-separated medication input as canonical lists.
+
+    The contract remains an array: this adapter only handles the convenient
+    text representation used by the local UI and CLI callers.
+    """
+    normalized = dict(context)
+    for field in ("medication.currentDrugNames", "medication.previousEncounterDrugNames"):
+        value = normalized.get(field)
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, list):
+                normalized[field] = parsed
+            else:
+                normalized[field] = [item.strip() for item in re.split(r"[,;\n\r\t]+", value) if item.strip()]
+    return normalized
+
+
+def _map_missing_derived_fields(bundle: dict[str, Any], result: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+    """Report missing source fields instead of hiding them behind a derived ID."""
+    missing = result.get("missingData")
+    if not isinstance(missing, list):
+        return result
+    variable_map = {variable["id"]: variable for variable in bundle.get("variables", [])}
+    expanded: list[str] = []
+    for field in missing:
+        variable = variable_map.get(field, {})
+        sources = variable.get("derivedFrom", []) if variable.get("sourceSystem") == "derived" else []
+        unresolved_sources = [source for source in sources if not _has_value(context, source)]
+        expanded.extend(unresolved_sources or [field])
+    result["missingData"] = list(dict.fromkeys(expanded))
+    return result
 
 
 def derive_bp_control_variables(context: dict[str, Any]) -> dict[str, Any]:
@@ -413,6 +448,22 @@ def evaluate_predicate(predicate: dict[str, Any], context: dict[str, Any]) -> bo
             return actual in expected
         if op == "notIn":
             return actual not in expected
+        if op == "contains":
+            if not isinstance(actual, list):
+                raise TypeError(f"{field} must be a list for contains")
+            return expected in actual
+        if op == "lengthEq":
+            if not isinstance(actual, list):
+                raise TypeError(f"{field} must be a list for lengthEq")
+            return len(actual) == expected
+        if op == "lengthGte":
+            if not isinstance(actual, list):
+                raise TypeError(f"{field} must be a list for lengthGte")
+            return len(actual) >= expected
+        if op == "lengthIn":
+            if not isinstance(actual, list):
+                raise TypeError(f"{field} must be a list for lengthIn")
+            return len(actual) in expected
         raise ValueError(f"unsupported operator: {op}")
     if "all" in predicate:
         missing: list[MissingData] = []
@@ -627,10 +678,12 @@ def run(bundle_path: Path, tree_id: str, context: dict[str, Any]) -> dict[str, A
         raise TypeError("context must be a JSON object")
     validation_summary = validate_bundle(bundle_path)
     bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-    initial_context = dict(context)
+    initial_context = normalize_medication_list_inputs(context)
     # Do not allow a JSON/API caller to override the derived latest BP.
     initial_context.pop("bp.latest.systolicMmHg", None)
     initial_context.pop("bp.latest.diastolicMmHg", None)
+    # This is a derived duration, never a caller-supplied override.
+    initial_context.pop("medication.regimenStableWeeks", None)
     initial_context.update(derive_patient_problem_variables(initial_context))
     initial_context.update(derive_patient_measurement_variables(initial_context))
     initial_context.update(derive_medication_variables(initial_context))
@@ -646,6 +699,7 @@ def run(bundle_path: Path, tree_id: str, context: dict[str, Any]) -> dict[str, A
         }
     else:
         result = execute_tree(bundle, tree_id, state)
+    result = _map_missing_derived_fields(bundle, result, initial_context)
     result.update({
         "entryTreeId": tree_id,
         "terminalTreeId": result.get("treeId"),

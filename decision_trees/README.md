@@ -29,6 +29,13 @@ decision_trees/
 ├── runtime/                                 # chạy và validate tree
 │   ├── decision_tree_engine.py
 │   └── validate_decision_tree_bundle.py
+├── trees/                                   # 5 cây độc lập và danh sách biến bàn giao
+│   ├── tree_1_bp_diagnosis.json
+│   ├── tree_2_bp_thresholds_targets.json
+│   ├── tree_3_optimized_hypertension_treatment.json
+│   ├── tree_4_hypertension_risk_stratification.json
+│   ├── tree_5_uncontrolled_resistant_hypertension.json
+│   └── clinical_variables.json
 ├── tests/                                   # test tự động
 │   ├── test_decision_tree_engine.py
 │   ├── test_pipeline_guards.py
@@ -81,3 +88,7 @@ Cây 3 dùng cùng cơ chế này.
 
 `run_all_trees.py` ghi kết quả kiểm thử vào `results/`, mỗi file tương ứng một
 `treeId` đang có trong bundle.
+
+Các file trong `trees/` là bản tách để bàn giao: năm cây giữ nguyên node/edge
+của bundle đã validate; `clinical_variables.json` chỉ chứa các biến canonical
+được ánh xạ từ bảng biến Excel đã thống nhất.

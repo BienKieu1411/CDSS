@@ -34,7 +34,8 @@
     { "expectedId": "heart_failure_reduced_ejection_fraction", "canonicalId": "comorbidity.heartFailureReducedEjectionFraction", "status": "mapped", "note": "ICD-10 nhóm I50.2x." },
     { "expectedId": "chronic_kidney_disease", "canonicalId": "comorbidity.ckd", "status": "mapped", "note": "ICD-10 nhóm N18; phân tầng ≥3 dùng risk.ckdStageAtLeast3." },
     { "expectedId": "type2_diabetes", "canonicalId": "comorbidity.type2Diabetes", "status": "mapped", "note": "ICD-10 E11/E11.9." },
-    { "expectedId": "current_smoker", "canonicalId": "risk.currentSmoker", "status": "mapped", "note": "Biến cần input lâm sàng; ảnh dùng biến này trong công thức ytnc dù không có dòng independent riêng." }
+    { "expectedId": "current_smoker", "canonicalId": "risk.currentSmoker", "status": "mapped", "note": "Biến cần input lâm sàng; ảnh dùng biến này trong công thức ytnc dù không có dòng independent riêng." },
+    { "expectedId": "regimen_start_date", "canonicalId": "medication.regimenStartDate", "status": "mapped", "note": "Ngày bắt đầu hoặc thay đổi gần nhất của phác đồ; dùng làm nguồn để tự tính số tuần ổn định." }
   ],
   "dependent": [
     { "expectedId": "target_organ_damage_or_cvd", "canonicalId": "comorbidity.targetOrganDamageOrCvd", "status": "mapped" },
@@ -53,7 +54,8 @@
     { "expectedId": "bp_controlled_after_2_drugs", "canonicalId": "bp.controlledAfterTwoDrugs", "status": "mapped" },
     { "expectedId": "bp_controlled_after_3_drugs", "canonicalId": "bp.controlledAfterThreeDrugs", "status": "mapped" },
     { "expectedId": "bp_controlled_after_4_drugs", "canonicalId": "bp.controlledAfterFourDrugs", "status": "mapped" },
-    { "expectedId": "benh_nen", "canonicalId": "patient.diagnosisCodes", "status": "mapped", "note": "Các cờ comorbidity được runtime suy ra từ ICD-10/SNOMED CT." }
+    { "expectedId": "benh_nen", "canonicalId": "patient.diagnosisCodes", "status": "mapped", "note": "Các cờ comorbidity được runtime suy ra từ ICD-10/SNOMED CT." },
+    { "expectedId": "regimen_stable_weeks", "canonicalId": "medication.regimenStableWeeks", "status": "derived", "note": "Tự tính bằng số tuần tròn từ medication.regimenStartDate đến ngày khám; không cho nhập trực tiếp." }
   ],
   "unresolved": [
     "Ngưỡng tăng LDL-C/triglyceride để tự động set risk.lipidAbnormality chưa có trong ảnh.",

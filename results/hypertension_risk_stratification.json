@@ -27,7 +27,7 @@
     "entryTreeId": "hypertension_risk_stratification",
     "terminalTreeId": "hypertension_risk_stratification",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.7.0",
+    "bundleVersion": "0.2.0",
     "context": {
       "bp.office3.systolicMmHg": 150,
       "bp.office3.diastolicMmHg": 95,
@@ -77,7 +77,7 @@
       },
       {
         "treeId": "hypertension_risk_stratification",
-        "nodeId": "risk_high_comorbidity",
+        "nodeId": "risk_mandatory_high",
         "type": "condition",
         "value": false
       },
@@ -118,7 +118,7 @@
       },
       {
         "treeId": "hypertension_risk_stratification",
-        "nodeId": "risk_link_thresholds_low_grade1",
+        "nodeId": "risk_link_low_grade1",
         "type": "link",
         "targetTreeId": "bp_thresholds_targets"
       }
@@ -129,35 +129,35 @@
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "Phân tầng nguy cơ theo bảng nguy cơ trong năm nhóm phân loại."
+        "note": "Cây được xây theo Bảng 2 phân tầng nguy cơ"
       },
       {
         "sourceId": "image_04_risk_stratification",
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "Phân tầng nguy cơ tim mạch"
+        "note": "Bắt đầu phân tầng nguy cơ"
       },
       {
         "sourceId": "image_04_risk_stratification",
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "Có TOD/CKD ≥3/ĐTĐ/bệnh tim mạch?"
+        "note": "Có tổn thương cơ quan đích, CKD giai đoạn ≥3, đái tháo đường hoặc bệnh tim mạch?"
       },
       {
         "sourceId": "image_04_risk_stratification",
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "HA độ 2?"
+        "note": "HATT ≥160 mmHg hoặc HATTr ≥100 mmHg?"
       },
       {
         "sourceId": "image_04_risk_stratification",
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "HA độ 1?"
+        "note": "HATT 140–159 mmHg hoặc HATTr 90–99 mmHg?"
       },
       {
         "sourceId": "image_04_risk_stratification",
@@ -171,7 +171,7 @@
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "Có ít nhất 1 yếu tố nguy cơ?"
+        "note": "Có 1 hoặc 2 yếu tố nguy cơ?"
       },
       {
         "sourceId": "image_04_risk_stratification",
@@ -185,15 +185,15 @@
         "page": 1,
         "section": "Bảng phân tầng nguy cơ trong tăng huyết áp",
         "tableOrFigure": "04_hypertension_risk_stratification.png",
-        "note": "Liên kết sang Cây 2 sau phân tầng nguy cơ."
+        "note": "Liên kết kết quả phân tầng sang Cây 2"
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 84,
-      "nodes": 111,
-      "edges": 110,
-      "links": 20
+      "variables": 50,
+      "nodes": 91,
+      "edges": 89,
+      "links": 18
     },
     "decision": {
       "status": "completed",

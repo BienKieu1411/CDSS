@@ -97,6 +97,7 @@ function coerceVariablesForTrees(treeIds, rawVariables, bundle = loadBundle()) {
   // Keep every known variable supplied by the client, including outputs from
   // an earlier tree. This is the shared clinical-flow context.
   for (const variableId of Object.keys(rawVariables)) {
+    if (variableId === "medication.regimenStableWeeks") continue;
     if (!(variableId in variableMap) || rawVariables[variableId] === "" || rawVariables[variableId] == null) continue;
     const variable = variableMap[variableId];
     const value = coerceVariable(variable, rawVariables[variableId]);

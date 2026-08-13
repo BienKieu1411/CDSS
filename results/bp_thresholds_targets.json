@@ -2,21 +2,19 @@
   "treeId": "bp_thresholds_targets",
   "testInput": {
     "bp.category": "high_normal",
-    "risk.class": "low",
     "patient.diagnosisCodes": "",
+    "comorbidity.targetOrganDamageOrCvd": false,
     "encounter.number": 2
   },
   "result": {
     "treeId": "bp_thresholds_targets",
     "status": "completed",
-    "resultCode": "high_normal_followup_target",
-    "outcomeCode": "high_normal_followup_target",
+    "resultCode": "hypertension_medication_start",
+    "outcomeCode": "hypertension_treatment_started",
     "sets": {
-      "treatment.recommendation": "medication_now_high_risk",
-      "treatment.targetSystolicMmHg": 130,
-      "treatment.targetDiastolicMmHg": 80,
-      "treatment.targetProfile": "high_risk",
-      "treatment.controlWindowMonths": "3-6"
+      "treatment.recommendation": "medication_now",
+      "treatment.targetSystolicMmHg": 140,
+      "treatment.targetDiastolicMmHg": 80
     },
     "severity": "high",
     "actions": [],
@@ -24,11 +22,11 @@
     "entryTreeId": "bp_thresholds_targets",
     "terminalTreeId": "bp_thresholds_targets",
     "bundleId": "vsh-vnha-2022-image-targets",
-    "bundleVersion": "0.7.0",
+    "bundleVersion": "0.2.0",
     "context": {
       "bp.category": "high_normal",
-      "risk.class": "low",
       "patient.diagnosisCodes": "",
+      "comorbidity.targetOrganDamageOrCvd": false,
       "encounter.number": 2,
       "comorbidity.earlyMenopause": false,
       "comorbidity.diabetes": false,
@@ -46,15 +44,12 @@
       "risk.diabetes": false,
       "risk.cardiovascularDisease": false,
       "risk.targetOrganDamage": false,
-      "comorbidity.targetOrganDamageOrCvd": false,
       "risk.highRiskComorbidity": false,
       "treatment.mandatoryIndication": false,
       "treatment.hasHighRiskComorbidity": false,
-      "treatment.recommendation": "medication_now_high_risk",
-      "treatment.targetSystolicMmHg": 130,
-      "treatment.targetDiastolicMmHg": 80,
-      "treatment.targetProfile": "high_risk",
-      "treatment.controlWindowMonths": "3-6"
+      "treatment.recommendation": "medication_now",
+      "treatment.targetSystolicMmHg": 140,
+      "treatment.targetDiastolicMmHg": 80
     },
     "linksVisited": [
       "optimized_hypertension_treatment"
@@ -80,22 +75,26 @@
       },
       {
         "treeId": "bp_thresholds_targets",
-        "nodeId": "threshold_high_normal_target",
+        "nodeId": "threshold_comorbidity",
+        "type": "condition",
+        "value": false
+      },
+      {
+        "treeId": "bp_thresholds_targets",
+        "nodeId": "threshold_standard_target",
         "type": "inference",
-        "resultCode": "high_normal_followup_target",
+        "resultCode": "hypertension_medication_start",
         "sets": {
-          "treatment.recommendation": "medication_now_high_risk",
-          "treatment.targetSystolicMmHg": 130,
-          "treatment.targetDiastolicMmHg": 80,
-          "treatment.targetProfile": "high_risk",
-          "treatment.controlWindowMonths": "3-6"
+          "treatment.recommendation": "medication_now",
+          "treatment.targetSystolicMmHg": 140,
+          "treatment.targetDiastolicMmHg": 80
         },
         "severity": "high",
         "actions": []
       },
       {
         "treeId": "bp_thresholds_targets",
-        "nodeId": "threshold_link_treatment_high_normal_target",
+        "nodeId": "threshold_link_treatment_standard",
         "type": "link",
         "targetTreeId": "optimized_hypertension_treatment"
       }
@@ -106,14 +105,14 @@
         "page": 1,
         "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
         "tableOrFigure": "02_bp_thresholds_and_targets.png",
-        "note": "Cây 2 liên kết chẩn đoán từ Cây 1 với encounter, nguy cơ và bệnh đồng mắc để chọn thay đổi lối sống hoặc đích điều trị."
+        "note": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng."
       },
       {
         "sourceId": "image_02_bp_thresholds_targets",
         "page": 1,
         "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
         "tableOrFigure": "02_bp_thresholds_and_targets.png",
-        "note": "Bắt đầu xác định ngưỡng và đích điều trị"
+        "note": "Ngưỡng HA và đích điều trị"
       },
       {
         "sourceId": "image_02_bp_thresholds_targets",
@@ -134,33 +133,38 @@
         "page": 1,
         "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
         "tableOrFigure": "02_bp_thresholds_and_targets.png",
-        "note": "Đích điều trị sau tái khám: <130/80 mmHg"
+        "note": "Người bệnh có bệnh đồng mắc?"
       },
       {
         "sourceId": "image_02_bp_thresholds_targets",
         "page": 1,
         "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
         "tableOrFigure": "02_bp_thresholds_and_targets.png",
-        "note": "Liên kết sang Cây 3 sau khi xác định đích điều trị."
+        "note": "Đích điều trị khi không có bệnh đồng mắc: <140/80 mmHg"
+      },
+      {
+        "sourceId": "image_02_bp_thresholds_targets",
+        "page": 1,
+        "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
+        "tableOrFigure": "02_bp_thresholds_and_targets.png",
+        "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
       }
     ],
     "validation": {
       "trees": 5,
-      "variables": 84,
-      "nodes": 111,
-      "edges": 110,
-      "links": 20
+      "variables": 50,
+      "nodes": 91,
+      "edges": 89,
+      "links": 18
     },
     "decision": {
       "status": "completed",
-      "resultCode": "high_normal_followup_target",
-      "outcomeCode": "high_normal_followup_target",
+      "resultCode": "hypertension_medication_start",
+      "outcomeCode": "hypertension_treatment_started",
       "sets": {
-        "treatment.recommendation": "medication_now_high_risk",
-        "treatment.targetSystolicMmHg": 130,
-        "treatment.targetDiastolicMmHg": 80,
-        "treatment.targetProfile": "high_risk",
-        "treatment.controlWindowMonths": "3-6"
+        "treatment.recommendation": "medication_now",
+        "treatment.targetSystolicMmHg": 140,
+        "treatment.targetDiastolicMmHg": 80
       },
       "severity": "high",
       "actions": [],

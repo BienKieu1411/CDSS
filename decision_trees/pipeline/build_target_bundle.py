@@ -192,12 +192,9 @@ def build_variables() -> list[dict[str, Any]]:
 
     s2 = "image_02_bp_thresholds_targets"
     add(variable("risk.class", "Phân tầng nguy cơ tim mạch", "enum", None, "derived", s2, "Kết quả từ cây phân tầng nguy cơ.", allowed=["low", "medium", "high"], required=False))
-    add(variable("treatment.hasHighRiskComorbidity", "Có bệnh đồng mắc/nguy cơ cao", "boolean", None, "derived", s2, "Có BTMXV, đái tháo đường, bệnh thận mạn hoặc bệnh đồng mắc nguy cơ cao.", required=False))
     add(variable("treatment.recommendation", "Khuyến nghị điều trị ban đầu", "enum", None, "derived", s2, "Nhánh điều trị từ ngưỡng HA và nguy cơ.", allowed=["lifestyle_first", "medication_now", "medication_now_high_risk", "review_required"], required=False))
     add(variable("treatment.targetSystolicMmHg", "Đích HATT", "number", "mmHg", "derived", s2, "Đích HATT hiển thị trong sơ đồ mục tiêu.", required=False, validation={"minimum": 80, "maximum": 220}))
     add(variable("treatment.targetDiastolicMmHg", "Đích HATTr", "number", "mmHg", "derived", s2, "Đích HATTr hiển thị trong sơ đồ mục tiêu.", required=False, validation={"minimum": 40, "maximum": 140}))
-    add(variable("treatment.targetProfile", "Nhóm đích điều trị", "enum", None, "derived", s2, "Nhóm bệnh nhân dùng để chọn đích HA: nguy cơ cao, có bệnh đồng mắc hoặc không có bệnh đồng mắc.", allowed=["high_risk", "comorbidity", "no_comorbidity"], required=False))
-    add(variable("treatment.controlWindowMonths", "Khoảng thời gian kiểm soát mục tiêu", "enum", "month", "derived", s2, "Khoảng thời gian kiểm soát HA theo nhánh nguy cơ.", allowed=["1-3", "3-6"], required=False))
 
     s3 = "image_03_optimized_treatment"
     add(variable("patient.ageYears", "Tuổi bệnh nhân", "integer", "year", "patient", s3, "Tuổi bệnh nhân; sơ đồ áp dụng cho người lớn trên 18 tuổi.", validation={"minimum": 0, "maximum": 120}))
@@ -206,8 +203,8 @@ def build_variables() -> list[dict[str, Any]]:
         add(variable(f"comorbidity.{condition_id}", label, "boolean", None, "problem_list", s3, f"Có {label.lower()} trong danh sách bệnh đồng mắc."))
     add(variable("comorbidity.targetOrganDamageOrCvd", "Tổn thương cơ quan đích hoặc bệnh tim mạch", "boolean", None, "derived", s1, "Tự tổng hợp từ mã bệnh, tổn thương cơ quan đích và bệnh tim mạch trong hồ sơ người bệnh.", derived_from=["risk.targetOrganDamage", "risk.cardiovascularDisease"], required=False))
     add(variable("treatment.mandatoryIndication", "Có chỉ định điều trị bắt buộc", "boolean", None, "derived", s3, "Biến dẫn xuất từ bệnh mạch vành/xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường.", derived_from=["comorbidity.atheroscleroticCvd", "comorbidity.heartFailure", "comorbidity.stroke", "comorbidity.ckd", "comorbidity.diabetes"]))
-    add(variable("medication.previousEncounterAgentCount", "Số nhóm thuốc được kê ở lần khám trước", "integer", "class", "medication", s3, "Số nhóm thuốc được kê tại encounter n-1; dùng để xác định giai đoạn 1, 2, 3 hoặc 4 thuốc khi tái khám.", validation={"minimum": 1, "maximum": 4}))
-    add(variable("medication.previousEncounterIncludesDiuretic", "Lần khám trước có thuốc lợi tiểu", "boolean", None, "medication", s3, "Lần khám n-1 có thiazide, lợi tiểu quai hoặc MRA hay không; dùng khi chuyển phân loại không kiểm soát/kháng trị."))
+    add(variable("medication.previousEncounterDrugNames", "Danh sách thuốc ở lần khám trước", "array", None, "medication", s3, "Tên hoạt chất được kê tại encounter n-1; engine tự chuẩn hóa thành danh sách nhóm thuốc."))
+    add(variable("medication.previousEncounterDrugClassList", "Danh sách nhóm thuốc ở lần khám trước", "array", None, "derived", s3, "Danh sách mã nhóm thuốc chuẩn hóa từ encounter n-1; mỗi nhóm chỉ xuất hiện một lần.", derived_from=["medication.previousEncounterDrugNames"]))
     add(variable("bp.controlledAfterTwoDrugs", "Huyết áp đã kiểm soát sau 2 nhóm thuốc", "boolean", None, "derived", s3, "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 2 thuốc đều thấp hơn đích do Cây 2 xuất ra.", derived_from=["treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg"]))
     add(variable("bp.controlledAfterThreeDrugs", "Huyết áp đã kiểm soát sau 3 nhóm thuốc", "boolean", None, "derived", s3, "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 3 thuốc đều thấp hơn đích do Cây 2 xuất ra.", derived_from=["treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg"]))
     add(variable("bp.controlledAfterFourDrugs", "Huyết áp đã kiểm soát sau 4 nhóm thuốc", "boolean", None, "derived", s3, "Clinical flow đặt true khi cả HATT và HATTr của lần đánh giá sau 4 thuốc đều thấp hơn đích do Cây 2 xuất ra.", derived_from=["treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg"]))
@@ -244,14 +241,14 @@ def build_variables() -> list[dict[str, Any]]:
         high_risk_ids.append(field_id)
         add(variable(field_id, label, "boolean", None, "clinician_input", s4, f"Có {label.lower()} khi phân tầng nguy cơ."))
     add(variable("risk.highRiskComorbidity", "Tổn thương cơ quan đích/bệnh đồng mắc nguy cơ cao", "boolean", None, "derived", s4, "Có tổn thương cơ quan đích, CKD giai đoạn từ 3, đái tháo đường hoặc bệnh tim mạch.", required=False, derived_from=high_risk_ids))
+    add(variable("comorbidity.leftVentricularHypertrophy", "Dày thất trái trên điện tâm đồ", "boolean", None, "problem_list", s4, "Có bằng chứng dày thất trái trên điện tâm đồ hoặc hồ sơ bệnh nhân."))
 
     s5 = "image_05_uncontrolled_resistant"
-    add(variable("bp.officeAverageSystolicMmHg", "HATT phòng khám trung bình", "number", "mmHg", "vitals", s5, "HATT phòng khám trung bình trong 2-3 lần đo ngồi.", validation={"minimum": 40, "maximum": 300}))
-    add(variable("bp.officeReadingCount", "Số lần đo phòng khám", "integer", "reading", "vitals", s5, "Số lần đo ngồi dùng để tính trung bình phòng khám.", validation={"minimum": 1, "maximum": 5}))
-    add(variable("medication.regimenStableWeeks", "Số tuần phác đồ ổn định", "number", "week", "medication", s5, "Thời gian không thay đổi liều/nhóm thuốc gần đây.", validation={"minimum": 0, "maximum": 104}))
-    add(variable("medication.includesDiuretic", "Phác đồ có lợi tiểu", "boolean", None, "medication", s5, "Có thiazide, lợi tiểu quai hoặc MRA trong phác đồ."))
+    add(variable("medication.regimenStartDate", "Ngày bắt đầu hoặc chỉnh phác đồ", "string", None, "medication", s5, "Ngày bắt đầu hoặc ngày thay đổi gần nhất của phác đồ đang đánh giá; lấy từ lịch sử kê đơn/MedicationRequest của hồ sơ bệnh nhân.", validation={"maxLength": 10}))
+    add(variable("medication.regimenStableWeeks", "Số tuần phác đồ ổn định", "number", "week", "derived", s5, "Tự tính bằng số tuần tròn từ medication.regimenStartDate đến ngày khám (asOf); không cho nhập trực tiếp.", derived_from=["medication.regimenStartDate"], validation={"minimum": 0, "maximum": 104}))
+    add(variable("medication.currentDrugNames", "Các thuốc hạ áp đang sử dụng", "array", None, "medication", s5, "Tên hoạt chất hạ áp đang dùng; engine tự chuẩn hóa thành danh sách nhóm thuốc."))
+    add(variable("medication.currentDrugClassList", "Danh sách nhóm thuốc đang sử dụng", "array", None, "derived", s5, "Danh sách mã nhóm thuốc chuẩn hóa từ các hoạt chất đang dùng; mỗi nhóm chỉ xuất hiện một lần.", derived_from=["medication.currentDrugNames"]))
     add(variable("resistant.classification", "Phân loại nhánh không kiểm soát/kháng trị", "enum", None, "derived", s5, "Phân loại dựa trên số nhóm thuốc và có lợi tiểu.", allowed=["uncontrolled_two_drug", "resistant_three_or_more_with_diuretic", "add_diuretic_and_reclassify", "review_required"], required=False))
-    next(item for item in v if item["id"] == "medication.agentCount")["sourceRefs"].append(ref(s5, "Số nhóm thuốc hạ áp đang sử dụng trong cây 5."))
     return v
 
 
@@ -315,10 +312,10 @@ def build_trees() -> list[dict[str, Any]]:
 
     bp_nodes = [
         node("bp_start", "start", "Bắt đầu chẩn đoán HA", s1, detail="Đo HA phòng khám lần 1 và khai thác tổn thương cơ quan đích/bệnh tim mạch."),
-        node("bp_crisis_gate", "condition", "HA phòng khám lần 1 ≥180/120 và có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=all_of(any_of(predicate("bp.office1.systolicMmHg", "gte", 180), predicate("bp.office1.diastolicMmHg", "gte", 120)), predicate("comorbidity.targetOrganDamageOrCvd", "eq", True))),
+        node("bp_crisis_gate", "condition", "HA phòng khám lần 1 ≥180/120 hoặc có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=any_of(predicate("bp.office1.systolicMmHg", "gte", 180), predicate("bp.office1.diastolicMmHg", "gte", 120), predicate("comorbidity.targetOrganDamageOrCvd", "eq", True))),
         node("bp_infer_crisis", "inference", "Cơn tăng huyết áp", s1, data={"resultCode": "hypertensive_crisis", "severity": "critical", "sets": {"bp.category": "hypertensive_crisis"}}),
         node("bp_end_crisis", "end", "Cơn THA", s1, data={"outcomeCode": "hypertensive_crisis_detected", "actions": ["Đánh giá cấp cứu và tổn thương cơ quan đích ngay"]}),
-        node("bp_second_gate", "condition", "HA phòng khám lần 2 140-179/90-119 và có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=all_of(any_of(all_of(predicate("bp.office2.systolicMmHg", "gte", 140), predicate("bp.office2.systolicMmHg", "lte", 179)), all_of(predicate("bp.office2.diastolicMmHg", "gte", 90), predicate("bp.office2.diastolicMmHg", "lte", 119))), predicate("comorbidity.targetOrganDamageOrCvd", "eq", True))),
+        node("bp_second_gate", "condition", "HA phòng khám lần 2 140-179/90-119 hoặc có tổn thương cơ quan đích/bệnh tim mạch?", s1, logic=any_of(all_of(predicate("bp.office2.systolicMmHg", "gte", 140), predicate("bp.office2.systolicMmHg", "lte", 179)), all_of(predicate("bp.office2.diastolicMmHg", "gte", 90), predicate("bp.office2.diastolicMmHg", "lte", 119)), predicate("comorbidity.targetOrganDamageOrCvd", "eq", True))),
         node("bp_infer_hypertension", "inference", "Tăng huyết áp", s1, data={"resultCode": "hypertension", "severity": "high", "sets": {"bp.category": "hypertension"}}),
         node("bp_end_hypertension", "end", "THA", s1, data={"outcomeCode": "hypertension_detected", "actions": ["Đánh giá nguy cơ và chỉ định điều trị"]}),
         node("bp_office3_normal", "condition", "HATT <130 và HATTr <85?", s1, logic=all_of(predicate("bp.office3.systolicMmHg", "lt", 130), predicate("bp.office3.diastolicMmHg", "lt", 85))),
@@ -329,7 +326,6 @@ def build_trees() -> list[dict[str, Any]]:
         node("bp_end_high_normal", "end", "HA bình thường-cao", s1, data={"outcomeCode": "high_normal_bp"}),
         node("bp_infer_office3_htn", "inference", "Tăng huyết áp", s1, data={"resultCode": "hypertension", "severity": "high", "sets": {"bp.category": "hypertension"}}),
         node("bp_end_office3_htn", "end", "THA", s1, data={"outcomeCode": "hypertension_detected"}),
-        node("bp_end_review", "end", "Cần rà soát dữ liệu đo", s1, data={"resultCode": "bp_diagnosis_review_required", "outcomeCode": "bp_diagnosis_review_required"}),
     ]
     bp_edges = [
         edge("bp_start", "bp_crisis_gate"), edge("bp_crisis_gate", "bp_infer_crisis", "true", "Có"), edge("bp_crisis_gate", "bp_second_gate", "false", "Không"), edge("bp_infer_crisis", "bp_end_crisis"),
@@ -339,29 +335,33 @@ def build_trees() -> list[dict[str, Any]]:
 
     threshold_nodes = [
         node("threshold_start", "start", "Ngưỡng HA và đích điều trị", s2, detail="Phân biệt HA bình thường-cao và THA ở người lớn."),
-        node("threshold_high_normal", "condition", "HA bình thường-cao 130-139/85-89?", s2, logic=predicate("bp.category", "eq", "high_normal")),
-        node("threshold_high_normal_risk", "condition", "Nguy cơ cao?", s2, logic=predicate("risk.class", "eq", "high")),
-        node("threshold_high_normal_comorbidity", "condition", "Có bệnh đồng mắc?", s2, logic=predicate("treatment.hasHighRiskComorbidity", "eq", True)),
-        node("threshold_infer_high_risk", "inference", "Đích HA ở bệnh nhân nguy cơ cao", s2, detail="Đích HATT/HATTr <130/80 mmHg.", data={"resultCode": "high_normal_high_risk_treatment", "severity": "high", "sets": {"treatment.recommendation": "medication_now_high_risk", "treatment.targetSystolicMmHg": 130, "treatment.targetDiastolicMmHg": 80, "treatment.targetProfile": "high_risk", "treatment.controlWindowMonths": "3-6"}}),
-        node("threshold_end_high_risk", "end", "Điều trị nguy cơ cao", s2, data={"outcomeCode": "high_normal_high_risk_treatment_started"}),
-        node("threshold_infer_comorbidity", "inference", "Đích HA ở bệnh nhân có bệnh đồng mắc", s2, detail="Đích HATT/HATTr <130/80 mmHg.", data={"resultCode": "high_normal_comorbidity", "severity": "high", "sets": {"treatment.recommendation": "medication_now_high_risk", "treatment.targetSystolicMmHg": 130, "treatment.targetDiastolicMmHg": 80, "treatment.targetProfile": "comorbidity", "treatment.controlWindowMonths": "3-6"}}),
-        node("threshold_end_comorbidity", "end", "Điều trị khi có bệnh đồng mắc", s2, data={"outcomeCode": "high_normal_comorbidity_treatment_started"}),
-        node("threshold_infer_lifestyle", "inference", "Đích HA khi không có bệnh đồng mắc", s2, detail="Đích HATT/HATTr <140/80 mmHg.", data={"resultCode": "high_normal_lifestyle", "severity": "low", "sets": {"treatment.recommendation": "lifestyle_first", "treatment.targetSystolicMmHg": 140, "treatment.targetDiastolicMmHg": 80, "treatment.targetProfile": "no_comorbidity", "treatment.controlWindowMonths": "3-6"}}),
-        node("threshold_end_lifestyle", "end", "Theo dõi sau thay đổi lối sống", s2, data={"outcomeCode": "high_normal_lifestyle_followup"}),
-        node("threshold_hypertension", "condition", "THA HATT ≥140 và/hoặc HATTr ≥90?", s2, logic=predicate("bp.category", "in", ["hypertension", "grade1", "grade2"])),
-        node("threshold_htn_risk", "condition", "Nguy cơ cao?", s2, logic=predicate("risk.class", "eq", "high")),
-        node("threshold_htn_comorbidity", "condition", "Có bệnh đồng mắc?", s2, logic=predicate("treatment.hasHighRiskComorbidity", "eq", True)),
-        node("threshold_infer_htn_high", "inference", "Đích HA ở bệnh nhân nguy cơ cao", s2, detail="Đích HATT/HATTr <130/80 mmHg.", data={"resultCode": "hypertension_high_risk_medication", "severity": "high", "sets": {"treatment.recommendation": "medication_now_high_risk", "treatment.targetSystolicMmHg": 130, "treatment.targetDiastolicMmHg": 80, "treatment.targetProfile": "high_risk", "treatment.controlWindowMonths": "1-3"}}),
-        node("threshold_end_htn_high", "end", "Điều trị THA nguy cơ cao", s2, data={"outcomeCode": "hypertension_high_risk_treatment_started"}),
-        node("threshold_infer_htn_comorbidity", "inference", "Đích HA ở bệnh nhân có bệnh đồng mắc", s2, detail="Đích HATT/HATTr <130/80 mmHg.", data={"resultCode": "hypertension_comorbidity_medication", "severity": "high", "sets": {"treatment.recommendation": "medication_now_high_risk", "treatment.targetSystolicMmHg": 130, "treatment.targetDiastolicMmHg": 80, "treatment.targetProfile": "comorbidity", "treatment.controlWindowMonths": "1-3"}}),
-        node("threshold_end_htn_comorbidity", "end", "Điều trị THA khi có bệnh đồng mắc", s2, data={"outcomeCode": "hypertension_comorbidity_treatment_started"}),
-        node("threshold_infer_htn_standard", "inference", "Đích HA khi không có bệnh đồng mắc", s2, detail="Đích HATT/HATTr <140/80 mmHg.", data={"resultCode": "hypertension_medication_start", "severity": "high", "sets": {"treatment.recommendation": "medication_now", "treatment.targetSystolicMmHg": 140, "treatment.targetDiastolicMmHg": 80, "treatment.targetProfile": "no_comorbidity", "treatment.controlWindowMonths": "3-6"}}),
-        node("threshold_end_htn_standard", "end", "Điều trị THA", s2, data={"outcomeCode": "hypertension_treatment_started"}),
-        node("threshold_end_review", "end", "Cần rà soát phân loại HA", s2, data={"resultCode": "threshold_review_required", "outcomeCode": "threshold_review_required"}),
+        node("threshold_high_normal", "condition", "Người bệnh có huyết áp bình thường-cao?", s2, logic=predicate("bp.category", "eq", "high_normal")),
+        node("threshold_high_normal_encounter", "condition", "Đây có phải lần khám đầu tiên không?", s2, logic=predicate("encounter.number", "eq", 1)),
+        node("threshold_high_normal_lifestyle", "inference", "Thay đổi lối sống và hẹn khám lại", s2, data={"resultCode": "high_normal_lifestyle_recheck", "outcomeCode": "high_normal_lifestyle_recheck", "severity": "low", "sets": {"treatment.recommendation": "lifestyle_first"}}),
+        node("threshold_hypertension_encounter", "condition", "Đây có phải lần khám đầu tiên không?", s2, logic=predicate("encounter.number", "eq", 1)),
+        node("threshold_hypertension_lifestyle", "inference", "Thay đổi lối sống và hẹn khám lại", s2, data={"resultCode": "hypertension_lifestyle_recheck", "outcomeCode": "hypertension_lifestyle_recheck", "severity": "low", "sets": {"treatment.recommendation": "lifestyle_first"}}),
+        node("threshold_comorbidity", "condition", "Người bệnh có bệnh đồng mắc?", s2, logic=predicate("comorbidity.targetOrganDamageOrCvd", "eq", True)),
+        node("threshold_comorbidity_target", "inference", "Đích điều trị khi có bệnh đồng mắc: <130/80 mmHg", s2, data={"resultCode": "hypertension_comorbidity_medication", "outcomeCode": "hypertension_comorbidity_treatment_started", "severity": "high", "sets": {"treatment.recommendation": "medication_now_high_risk", "treatment.targetSystolicMmHg": 130, "treatment.targetDiastolicMmHg": 80}}),
+        node("threshold_standard_target", "inference", "Đích điều trị khi không có bệnh đồng mắc: <140/80 mmHg", s2, data={"resultCode": "hypertension_medication_start", "outcomeCode": "hypertension_treatment_started", "severity": "high", "sets": {"treatment.recommendation": "medication_now", "treatment.targetSystolicMmHg": 140, "treatment.targetDiastolicMmHg": 80}}),
+        node("threshold_link_treatment_high_normal_lifestyle", "link", "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu", s2, data={"targetTreeId": "optimized_hypertension_treatment", "callMode": "navigate_only", "passContext": True, "returnPolicy": "merge_context", "sets": {}}),
+        node("threshold_link_treatment_hypertension_lifestyle", "link", "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu", s2, data={"targetTreeId": "optimized_hypertension_treatment", "callMode": "navigate_only", "passContext": True, "returnPolicy": "merge_context", "sets": {}}),
+        node("threshold_link_treatment_comorbidity", "link", "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu", s2, data={"targetTreeId": "optimized_hypertension_treatment", "callMode": "navigate_only", "passContext": True, "returnPolicy": "merge_context", "sets": {}}),
+        node("threshold_link_treatment_standard", "link", "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu", s2, data={"targetTreeId": "optimized_hypertension_treatment", "callMode": "navigate_only", "passContext": True, "returnPolicy": "merge_context", "sets": {}}),
     ]
     threshold_edges = [
-        edge("threshold_start", "threshold_high_normal"), edge("threshold_high_normal", "threshold_high_normal_risk", "true", "Có"), edge("threshold_high_normal", "threshold_hypertension", "false", "Không"), edge("threshold_high_normal_risk", "threshold_infer_high_risk", "true", "Có"), edge("threshold_high_normal_risk", "threshold_high_normal_comorbidity", "false", "Không"), edge("threshold_high_normal_comorbidity", "threshold_infer_comorbidity", "true", "Có"), edge("threshold_high_normal_comorbidity", "threshold_infer_lifestyle", "false", "Không"), edge("threshold_infer_high_risk", "threshold_end_high_risk"), edge("threshold_infer_comorbidity", "threshold_end_comorbidity"), edge("threshold_infer_lifestyle", "threshold_end_lifestyle"),
-        edge("threshold_hypertension", "threshold_htn_risk", "true", "Có"), edge("threshold_hypertension", "threshold_end_review", "false", "Không"), edge("threshold_htn_risk", "threshold_infer_htn_high", "true", "Có"), edge("threshold_htn_risk", "threshold_htn_comorbidity", "false", "Không"), edge("threshold_htn_comorbidity", "threshold_infer_htn_comorbidity", "true", "Có"), edge("threshold_htn_comorbidity", "threshold_infer_htn_standard", "false", "Không"), edge("threshold_infer_htn_high", "threshold_end_htn_high"), edge("threshold_infer_htn_comorbidity", "threshold_end_htn_comorbidity"), edge("threshold_infer_htn_standard", "threshold_end_htn_standard"),
+        edge("threshold_start", "threshold_high_normal"),
+        edge("threshold_high_normal", "threshold_high_normal_encounter", "true", "Huyết áp bình thường-cao"),
+        edge("threshold_high_normal_encounter", "threshold_high_normal_lifestyle", "true", "Lần khám =1"),
+        edge("threshold_high_normal_lifestyle", "threshold_link_treatment_high_normal_lifestyle"),
+        edge("threshold_high_normal", "threshold_hypertension_encounter", "false", "Huyết áp không thuộc nhóm bình thường-cao"),
+        edge("threshold_high_normal_encounter", "threshold_comorbidity", "false", "Lần khám >1"),
+        edge("threshold_hypertension_encounter", "threshold_hypertension_lifestyle", "true", "Lần khám =1"),
+        edge("threshold_hypertension_lifestyle", "threshold_link_treatment_hypertension_lifestyle"),
+        edge("threshold_hypertension_encounter", "threshold_comorbidity", "false", "Lần khám >1"),
+        edge("threshold_comorbidity", "threshold_comorbidity_target", "true", "Có bệnh đồng mắc/TOD/CVD"),
+        edge("threshold_comorbidity_target", "threshold_link_treatment_comorbidity"),
+        edge("threshold_comorbidity", "threshold_standard_target", "false", "Không có bệnh đồng mắc/TOD/CVD"),
+        edge("threshold_standard_target", "threshold_link_treatment_standard"),
     ]
 
     optimized_nodes = [
@@ -373,23 +373,23 @@ def build_trees() -> list[dict[str, Any]]:
         node("optimized_end_new_mandatory", "end", "Khởi trị theo chỉ định bắt buộc", s3, data={"outcomeCode": "new_patient_mandatory_indication_started"}),
         node("optimized_infer_new", "inference", "Bệnh nhân mới — khởi trị phác đồ ban đầu", s3, detail="Không dùng số lượng thuốc hiện tại để phân nhánh.", data={"resultCode": "new_patient_initial_treatment", "severity": "high", "sets": {"treatment.path": "new_patient_initial_treatment"}}),
         node("optimized_end_new", "end", "Khởi trị phác đồ ban đầu", s3, data={"outcomeCode": "new_patient_initial_treatment_started"}),
-        node("optimized_followup_count_valid", "condition", "Lần khám trước có 1–4 nhóm thuốc được kê?", s3, detail="Tái khám dùng encounter n-1 để xác định giai đoạn.", logic=predicate("medication.previousEncounterAgentCount", "in", [1, 2, 3, 4])),
-        node("optimized_previous_count_one", "condition", "Lần khám trước kê 1 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterAgentCount", "eq", 1)),
+        node("optimized_followup_count_valid", "condition", "Lần khám trước có 1–4 nhóm thuốc được kê?", s3, detail="Tái khám dùng encounter n-1 để xác định giai đoạn.", logic=predicate("medication.previousEncounterDrugClassList", "lengthIn", [1, 2, 3, 4])),
+        node("optimized_previous_count_one", "condition", "Lần khám trước kê 1 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterDrugClassList", "lengthEq", 1)),
         node("optimized_infer_stage_one", "inference", "Giai đoạn 1 thuốc — phối hợp lên 2 thuốc", s3, data={"resultCode": "followup_stage_1_escalate_two_drugs", "severity": "high", "sets": {"treatment.path": "followup_stage_1_escalate_two_drugs"}}),
         node("optimized_end_stage_one", "end", "Phối hợp lên 2 thuốc", s3, data={"outcomeCode": "followup_stage_1_escalate_two_drugs"}),
-        node("optimized_previous_count_two", "condition", "Lần khám trước kê 2 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterAgentCount", "eq", 2)),
+        node("optimized_previous_count_two", "condition", "Lần khám trước kê 2 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterDrugClassList", "lengthEq", 2)),
         node("optimized_control_after_two", "condition", "Huyết áp đã kiểm soát sau 2 nhóm thuốc?", s3, detail="Cờ được clinical flow tính theo đích của Cây 2.", logic=predicate("bp.controlledAfterTwoDrugs", "eq", True)),
         node("optimized_infer_two_controlled", "inference", "Giai đoạn 2 thuốc — huyết áp đã kiểm soát", s3, data={"resultCode": "followup_two_drugs_controlled", "severity": "high", "sets": {"treatment.path": "followup_two_drugs_controlled"}}),
         node("optimized_infer_escalate_three", "inference", "Giai đoạn 2 thuốc — huyết áp chưa kiểm soát, tăng lên 3 thuốc", s3, data={"resultCode": "followup_escalate_three_drugs", "severity": "high", "sets": {"treatment.path": "followup_escalate_three_drugs"}}),
         node("optimized_end_two_controlled", "end", "Duy trì 2 thuốc và theo dõi", s3, data={"outcomeCode": "followup_two_drugs_controlled"}),
         node("optimized_end_escalate_three", "end", "Tăng lên 3 thuốc", s3, data={"outcomeCode": "followup_escalate_three_drugs"}),
-        node("optimized_previous_count_three", "condition", "Lần khám trước kê 3 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterAgentCount", "eq", 3)),
+        node("optimized_previous_count_three", "condition", "Lần khám trước kê 3 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterDrugClassList", "lengthEq", 3)),
         node("optimized_control_after_three", "condition", "Huyết áp đã kiểm soát sau 3 nhóm thuốc?", s3, detail="Cờ được clinical flow tính theo đích của Cây 2.", logic=predicate("bp.controlledAfterThreeDrugs", "eq", True)),
         node("optimized_infer_three_controlled", "inference", "Giai đoạn 3 thuốc — huyết áp đã kiểm soát", s3, data={"resultCode": "followup_three_drugs_controlled", "severity": "high", "sets": {"treatment.path": "followup_three_drugs_controlled"}}),
         node("optimized_infer_escalate_four", "inference", "Giai đoạn 3 thuốc — huyết áp chưa kiểm soát, tăng lên 4 thuốc", s3, data={"resultCode": "followup_escalate_four_drugs", "severity": "high", "sets": {"treatment.path": "followup_escalate_four_drugs"}}),
         node("optimized_end_three_controlled", "end", "Duy trì 3 thuốc và theo dõi", s3, data={"outcomeCode": "followup_three_drugs_controlled"}),
         node("optimized_end_escalate_four", "end", "Tăng lên 4 thuốc", s3, data={"outcomeCode": "followup_escalate_four_drugs"}),
-        node("optimized_previous_count_four", "condition", "Lần khám trước kê 4 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterAgentCount", "eq", 4)),
+        node("optimized_previous_count_four", "condition", "Lần khám trước kê 4 nhóm thuốc?", s3, logic=predicate("medication.previousEncounterDrugClassList", "lengthEq", 4)),
         node("optimized_control_after_four", "condition", "Huyết áp đã kiểm soát sau 4 nhóm thuốc?", s3, detail="Cờ được clinical flow tính theo đích của Cây 2.", logic=predicate("bp.controlledAfterFourDrugs", "eq", True)),
         node("optimized_infer_four_controlled", "inference", "Giai đoạn 4 thuốc — huyết áp đã kiểm soát", s3, data={"resultCode": "followup_four_drugs_controlled", "severity": "high", "sets": {"treatment.path": "followup_four_drugs_controlled"}}),
         node("optimized_infer_resistant", "inference", "Giai đoạn 4 thuốc — huyết áp chưa kiểm soát, chuyển phân loại", s3, detail="Chuyển Cây 5 để phân loại không kiểm soát/kháng trị.", data={"resultCode": "resistant_htn_referral", "severity": "high", "sets": {"treatment.path": "resistant_referral"}}, extra_sources=[ref(s5, "Nhánh chuyển sang flow không kiểm soát/kháng trị")]),
@@ -454,16 +454,16 @@ def build_trees() -> list[dict[str, Any]]:
 
     resistant_nodes = [
         node("resistant_start", "start", "Hypertension General — Phân loại THA", s5),
-        node("resistant_range", "condition", "HATT tư thế ngồi 140–169 mmHg?", s5, detail="Trung bình phòng khám, 2–3 lần đo", logic=all_of(predicate("bp.officeAverageSystolicMmHg", "gte", 140), predicate("bp.officeAverageSystolicMmHg", "lte", 169), predicate("bp.officeReadingCount", "in", [2, 3]))),
+        node("resistant_range", "condition", "HATT lần đo gần nhất 140–169 mmHg?", s5, detail="Tự động lấy lần 3; nếu thiếu thì lần 2 hoặc lần 1.", logic=all_of(predicate("bp.latest.systolicMmHg", "gte", 140), predicate("bp.latest.systolicMmHg", "lte", 169))),
         node("resistant_end_out_of_range", "end", "Ngoài khoảng — Cần đánh giá thêm", s5, detail="Ưu tiên xử trí nguyên nhân trước", data={"resultCode": "resistant_out_of_range", "outcomeCode": "resistant_out_of_range_manage_first"}),
         node("resistant_stable", "condition", "Phác đồ ổn định ≥ 4 tuần?", s5, detail="Không thay đổi liều trong tháng qua", logic=predicate("medication.regimenStableWeeks", "gte", 4)),
         node("resistant_end_defer", "end", "Tạm hoãn — Đánh giá lại sau", s5, detail="Đánh giá lại sau", data={"resultCode": "resistant_defer", "outcomeCode": "resistant_defer_reassess"}),
-        node("resistant_agent_count", "condition", "Số nhóm thuốc hạ áp đang dùng?", s5, detail="Tính theo nhóm thuốc", logic=predicate("medication.agentCount", "eq", 2)),
-        node("resistant_agent_count_ge3", "condition", "Số nhóm thuốc ≥3?", s5, detail="Chỉ chấp nhận đúng 2 hoặc từ 3 nhóm thuốc trở lên.", logic=predicate("medication.agentCount", "gte", 3)),
+        node("resistant_agent_count", "condition", "Đang sử dụng đúng 2 nhóm thuốc?", s5, detail="Engine chuẩn hóa danh sách hoạt chất thành các nhóm thuốc duy nhất rồi kiểm tra độ dài danh sách.", logic=predicate("medication.currentDrugClassList", "lengthEq", 2)),
+        node("resistant_agent_count_ge3", "condition", "Đang sử dụng từ 3 nhóm thuốc trở lên?", s5, detail="Kiểm tra trực tiếp độ dài danh sách nhóm thuốc đã chuẩn hóa.", logic=predicate("medication.currentDrugClassList", "lengthGte", 3)),
         node("resistant_end_agent_count_review", "end", "Cần rà soát số nhóm thuốc", s5, detail="Giá trị phải là đúng 2 hoặc ≥3.", data={"resultCode": "resistant_agent_count_review_required", "outcomeCode": "resistant_agent_count_review_required", "sets": {"resistant.classification": "review_required"}}),
         node("resistant_infer_uncontrolled", "inference", "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc", s5, detail="Phác đồ 2 nhóm thuốc", data={"resultCode": "uncontrolled_htn_arm", "severity": "high", "sets": {"resistant.classification": "uncontrolled_two_drug"}}),
         node("resistant_end_uncontrolled", "end", "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc", s5, detail="Phác đồ 2 nhóm thuốc", data={"outcomeCode": "uncontrolled_two_drug_classified"}),
-        node("resistant_diuretic", "condition", "Phác đồ có lợi tiểu?", s5, detail="Thiazide, lợi tiểu quai hoặc MRA", logic=predicate("medication.includesDiuretic", "eq", True)),
+        node("resistant_diuretic", "condition", "Danh sách thuốc có nhóm lợi tiểu?", s5, detail="Danh sách nhóm thuốc có chứa lợi tiểu thiazide, lợi tiểu quai hoặc MRA.", logic=predicate("medication.currentDrugClassList", "contains", "diuretic")),
         node("resistant_infer_resistant", "inference", "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu", s5, detail="≥3 nhóm thuốc + lợi tiểu", data={"resultCode": "resistant_htn_arm", "severity": "critical", "sets": {"resistant.classification": "resistant_three_or_more_with_diuretic"}}),
         node("resistant_end_resistant", "end", "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu", s5, detail="≥3 nhóm thuốc + lợi tiểu", data={"outcomeCode": "resistant_three_or_more_with_diuretic_classified"}),
         node("resistant_end_add_diuretic", "end", "Thêm lợi tiểu — Phân loại lại sau", s5, detail="Re-classify later", data={"resultCode": "add_diuretic", "outcomeCode": "add_diuretic_reclassify", "sets": {"resistant.classification": "add_diuretic_and_reclassify"}}),
@@ -474,10 +474,10 @@ def build_trees() -> list[dict[str, Any]]:
 
     trees = [
         tree("bp_diagnosis", "BP Diagnosis Tree", "Chẩn đoán tăng huyết áp bằng ba lần đo phòng khám.", s1, "bp_start", ["bp.office1.systolicMmHg", "bp.office1.diastolicMmHg", "bp.office2.systolicMmHg", "bp.office2.diastolicMmHg", "bp.office3.systolicMmHg", "bp.office3.diastolicMmHg", "comorbidity.targetOrganDamageOrCvd"], ["bp.category"], bp_nodes, bp_edges),
-        tree("bp_thresholds_targets", "BP Thresholds and Targets Tree", "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng.", s2, "threshold_start", ["bp.category", "risk.class", "treatment.hasHighRiskComorbidity"], ["treatment.recommendation", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg", "treatment.targetProfile", "treatment.controlWindowMonths"], threshold_nodes, threshold_edges),
-        tree("optimized_hypertension_treatment", "Optimized Hypertension Treatment Tree", "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2.", s3, "optimized_start", ["patient.ageYears", "bp.assessmentOfficeSystolicMmHg", "bp.assessmentOfficeDiastolicMmHg", "bp.category", "treatment.hasHighRiskComorbidity", "treatment.mandatoryIndication", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg", "treatment.targetProfile", "medication.agentCount"], ["treatment.path"], optimized_nodes, optimized_edges, links_to=["uncontrolled_resistant_hypertension"]),
-        tree("hypertension_risk_stratification", "Hypertension Risk Stratification Tree", "Phân tầng nguy cơ theo bảng nguy cơ trong năm nhóm phân loại.", s4, "risk_start", ["bp.category", "bp.systolicMmHg", "bp.diastolicMmHg", "risk.factorCount", "risk.ageOver65", "risk.maleSex", "risk.heartRateOver80", "risk.overweight", "risk.lipidAbnormality", "risk.familyHistoryPrematureCvd", "risk.currentSmoker", "risk.socialEnvironmentalRisk", "risk.highRiskComorbidity", "risk.targetOrganDamage", "risk.ckdStageAtLeast3", "risk.diabetes", "risk.cardiovascularDisease"], ["risk.class"], risk_nodes, risk_edges),
-        tree("uncontrolled_resistant_hypertension", "Hypertension General — Phân loại THA", "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5.", s5, "resistant_start", ["bp.officeAverageSystolicMmHg", "bp.officeReadingCount", "medication.regimenStableWeeks", "medication.agentCount", "medication.includesDiuretic"], ["resistant.classification"], resistant_nodes, resistant_edges),
+        tree("bp_thresholds_targets", "BP Thresholds and Targets Tree", "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng.", s2, "threshold_start", ["bp.category", "encounter.number", "comorbidity.targetOrganDamageOrCvd"], ["treatment.recommendation", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg"], threshold_nodes, threshold_edges, links_to=["optimized_hypertension_treatment"]),
+        tree("optimized_hypertension_treatment", "Optimized Hypertension Treatment Tree", "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2.", s3, "optimized_start", ["patient.ageYears", "bp.latest.systolicMmHg", "bp.latest.diastolicMmHg", "bp.category", "treatment.mandatoryIndication", "treatment.targetSystolicMmHg", "treatment.targetDiastolicMmHg", "medication.previousEncounterDrugNames", "medication.previousEncounterDrugClassList", "bp.controlledAfterTwoDrugs", "bp.controlledAfterThreeDrugs", "bp.controlledAfterFourDrugs", "encounter.number"], ["treatment.path"], optimized_nodes, optimized_edges, links_to=["uncontrolled_resistant_hypertension"]),
+        tree("hypertension_risk_stratification", "Hypertension Risk Stratification Tree", "Phân tầng nguy cơ theo bảng nguy cơ trong năm nhóm phân loại.", s4, "risk_start", ["bp.latest.systolicMmHg", "bp.latest.diastolicMmHg", "risk.factorCount", "risk.ckdStageAtLeast3", "risk.diabetes", "risk.cardiovascularDisease", "comorbidity.diabetes", "comorbidity.leftVentricularHypertrophy"], ["risk.class"], risk_nodes, risk_edges),
+        tree("uncontrolled_resistant_hypertension", "Hypertension General — Phân loại THA", "Phân loại đến nhánh không kiểm soát hoặc kháng trị bằng danh sách nhóm thuốc đã chuẩn hóa.", s5, "resistant_start", ["bp.latest.systolicMmHg", "medication.regimenStartDate", "medication.regimenStableWeeks", "medication.currentDrugNames", "medication.currentDrugClassList"], ["resistant.classification"], resistant_nodes, resistant_edges),
     ]
     return [collapse_terminal_inferences(tree_item) for tree_item in trees]
 

@@ -60,13 +60,13 @@ quy tắc ICD-10/SNOMED CT.
 | Mã biến | Ý nghĩa |
 |---|---|
 | `bp.category` | Kết quả phân loại từ Cây 1 |
-| `risk.class` | Phân tầng nguy cơ hiện có của người bệnh |
 | `encounter.number` | Lần khám; 1 là lần đầu, lớn hơn 1 là tái khám |
-| `patient.diagnosisCodes` | Dùng để tự cập nhật bệnh đồng mắc nguy cơ cao |
+| `comorbidity.targetOrganDamageOrCvd` | Có bằng chứng tổn thương cơ quan đích hoặc bệnh tim mạch |
 
-Đầu ra: `treatment.recommendation`, `treatment.targetSystolicMmHg`,
-`treatment.targetDiastolicMmHg`, `treatment.targetProfile` và
-`treatment.controlWindowMonths`.
+Đầu ra: `treatment.recommendation`, `treatment.targetSystolicMmHg` và
+`treatment.targetDiastolicMmHg`. Nhánh có bệnh đồng mắc đặt đích `130/80
+mmHg`; nhánh không có bệnh đồng mắc đặt đích `140/80 mmHg`. Không sử dụng
+`treatment.targetProfile` hoặc `treatment.controlWindowMonths`.
 
 ### Cây 4
 
@@ -97,7 +97,7 @@ hút thuốc và yếu tố xã hội/môi trường.
 | `comorbidity.type2Diabetes` | Đái tháo đường type 2 |
 | `medication.previousEncounterDrugNames` | Danh sách thuốc của encounter n-1 |
 | `medication.previousEncounterDrugClassList` | Danh sách mã nhóm thuốc chuẩn hóa từ encounter n-1 |
-| `medication.previousEncounterAgentCount` | Số nhóm thuốc tự tính từ danh sách encounter n-1 |
+| `medication.previousEncounterDrugClassList` | Danh sách nhóm thuốc tự tính từ encounter n-1; dùng độ dài danh sách cho giai đoạn điều trị |
 | `bp.latest.systolicMmHg`, `bp.latest.diastolicMmHg` | HA encounter hiện tại để so sánh với đích Cây 2 |
 | `bp.controlledAfterTwoDrugs` | HA sau 2 nhóm thuốc đã thấp hơn đích Cây 2 chưa |
 | `bp.controlledAfterThreeDrugs` | HA sau 3 nhóm thuốc đã thấp hơn đích Cây 2 chưa |
@@ -121,11 +121,10 @@ và lưu `treatment.mandatoryDisease` cùng `treatment.mandatoryRegimen`.
 |---|---|
 | `bp.latest.systolicMmHg` | HATT lần đo gần nhất; khoảng đánh giá 140–169 mmHg |
 | `bp.latest.diastolicMmHg` | HATTr của cùng lần đo gần nhất |
-| `medication.regimenStableWeeks` | Số tuần phác đồ không thay đổi; yêu cầu ≥4 tuần |
+| `medication.regimenStartDate` | Ngày bắt đầu hoặc thay đổi gần nhất của phác đồ; lấy từ lịch sử kê đơn |
+| `medication.regimenStableWeeks` | Biến dẫn xuất: số tuần tròn từ ngày bắt đầu/thay đổi phác đồ đến ngày khám; tự tính, không nhập tay |
 | `medication.currentDrugNames` | Danh sách hoạt chất người bệnh đang dùng |
 | `medication.currentDrugClassList` | Danh sách mã nhóm thuốc chuẩn hóa từ danh sách hoạt chất |
-| `medication.currentDrugClassCount` | Số nhóm thuốc tự tính từ danh sách hoạt chất |
-| `medication.currentIncludesDiuretic` | Tự xác định có thiazide, lợi tiểu quai hoặc MRA |
 
 Đầu ra: `resistant.classification`. Đúng 2 nhóm thuốc cho kết quả chưa kiểm
 soát; từ 3 nhóm có lợi tiểu cho kết quả kháng trị; từ 3 nhóm không có lợi tiểu
@@ -158,11 +157,12 @@ Danh mục hoạt chất và phân loại được lưu tại
 Các nhóm chuẩn gồm ACEI, ARB, CCB, chẹn beta, lợi tiểu, MRA và thuốc khác.
 Trong đó lợi tiểu được ghi rõ lợi tiểu quai, thiazide hoặc giống thiazide.
 
-Nhập tên hoạt chất ở `medication.currentDrugNames`; engine đọc danh mục đã lưu,
-tự tạo `medication.currentDrugClassList`, `medication.currentDrugClassCodes`,
-`medication.currentDrugClassCount` và `medication.currentIncludesDiuretic`. Số
-nhóm được tính theo nhóm khác nhau, không tính số viên hoặc số hoạt chất. Cùng
-cơ chế được dùng cho danh sách thuốc encounter trước của Cây 3. Hoạt chất
+ Nhập danh sách hoạt chất ở `medication.currentDrugNames`; engine đọc danh mục đã lưu,
+tạo duy nhất `medication.currentDrugClassList`. Cây 5 dùng `lengthEq(2)`,
+`lengthGte(3)` và `contains("diuretic")` trực tiếp trên danh sách này; không cần
+biến đếm hoặc cờ lợi tiểu riêng. Cùng cơ chế được dùng cho danh sách thuốc
+encounter trước của Cây 3 với `medication.previousEncounterDrugClassList`.
+Hoạt chất
 không có trong danh mục không bị bỏ qua; cây dừng để rà soát.
 
 Ba biến `bp.controlledAfterTwoDrugs`, `bp.controlledAfterThreeDrugs` và

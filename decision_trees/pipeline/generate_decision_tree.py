@@ -29,7 +29,7 @@ from decision_trees.config.paths import BUNDLE_PATH, PROJECT_ROOT, SCHEMA_PATH
 from decision_trees.pipeline.create_decision_tree_example import extract_exemplar
 
 DEFAULT_DOTENV = PROJECT_ROOT / ".env"
-PREDICATE_OPERATORS = {"eq", "neq", "gt", "gte", "lt", "lte", "in", "notIn", "present"}
+PREDICATE_OPERATORS = {"eq", "neq", "gt", "gte", "lt", "lte", "in", "notIn", "present", "contains", "lengthEq", "lengthGte", "lengthIn"}
 NODE_TYPES = {"start", "condition", "inference", "link", "end"}
 EDGE_LABELS = {"true", "false", "default"}
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024

@@ -1,0 +1,380 @@
+{
+  "formatVersion": "decision-tree.v1",
+  "tree": {
+    "id": "uncontrolled_resistant_hypertension",
+    "name": "Cây phân loại tăng huyết áp chưa kiểm soát/kháng trị",
+    "purpose": "Phân loại người bệnh tăng huyết áp chưa kiểm soát hoặc kháng trị dựa trên HA lần gần nhất, độ ổn định của phác đồ, số nhóm thuốc và lợi tiểu.",
+    "clinicalStatus": "under_review",
+    "entryNodeId": "resistant_start",
+    "inputVariables": [
+      "bp.latest.systolicMmHg",
+      "bp.latest.diastolicMmHg",
+      "medication.currentDrugClassList",
+      "medication.regimenStableWeeks",
+      "medication.currentDrugNames"
+    ],
+    "outputVariables": [
+      "resistant.classification"
+    ],
+    "linksTo": [],
+    "nodes": [
+      {
+        "id": "resistant_start",
+        "type": "start",
+        "display": {
+          "title": "Phân loại THA chưa kiểm soát/kháng trị"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Hypertension General — Phân loại THA"
+          }
+        ]
+      },
+      {
+        "id": "resistant_range",
+        "type": "condition",
+        "display": {
+          "title": "HATT lần gần nhất 140–169 mmHg?",
+          "detail": "Chỉ kiểm tra HATT lần gần nhất trong khoảng 140–169 mmHg."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "HATT tư thế ngồi 140–169 mmHg?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "all": [
+              {},
+              {}
+            ]
+          }
+        }
+      },
+      {
+        "id": "resistant_end_out_of_range",
+        "type": "end",
+        "display": {
+          "title": "Ngoài khoảng đánh giá",
+          "detail": "Đánh giá lại trước khi phân loại không kiểm soát/kháng trị."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Ngoài khoảng — Cần đánh giá thêm"
+          }
+        ],
+        "data": {
+          "resultCode": "resistant_out_of_range",
+          "outcomeCode": "resistant_out_of_range_manage_first"
+        }
+      },
+      {
+        "id": "resistant_agent_count",
+        "type": "condition",
+        "display": {
+          "title": "Đang sử dụng đúng 2 nhóm thuốc?",
+          "detail": "Số nhóm được tự tính từ danh sách thuốc."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Số nhóm thuốc hạ áp đang dùng?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "field": "medication.currentDrugClassList",
+            "op": "lengthEq",
+            "value": 2
+          }
+        }
+      },
+      {
+        "id": "resistant_agent_count_ge3",
+        "type": "condition",
+        "display": {
+          "title": "Đang sử dụng từ 3 nhóm thuốc trở lên?",
+          "detail": "Số nhóm được tự tính từ danh sách thuốc."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Số nhóm thuốc ≥3?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "field": "medication.currentDrugClassList",
+            "op": "lengthGte",
+            "value": 3
+          }
+        }
+      },
+      {
+        "id": "resistant_end_agent_count_review",
+        "type": "end",
+        "display": {
+          "title": "Cần rà soát số nhóm thuốc",
+          "detail": "resistant.classification = review_required"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Cần rà soát số nhóm thuốc"
+          }
+        ],
+        "data": {
+          "resultCode": "resistant_agent_count_review_required",
+          "outcomeCode": "resistant_agent_count_review_required",
+          "sets": {
+            "resistant.classification": "review_required"
+          }
+        }
+      },
+      {
+        "id": "resistant_infer_uncontrolled",
+        "type": "end",
+        "display": {
+          "title": "Tăng huyết áp chưa kiểm soát",
+          "detail": "resistant.classification = uncontrolled_two_drug"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "THA chưa kiểm soát — Phác đồ 2 nhóm thuốc"
+          }
+        ],
+        "data": {
+          "resultCode": "uncontrolled_htn_arm",
+          "severity": "high",
+          "sets": {
+            "resistant.classification": "uncontrolled_two_drug"
+          },
+          "outcomeCode": "uncontrolled_two_drug_classified"
+        }
+      },
+      {
+        "id": "resistant_diuretic",
+        "type": "condition",
+        "display": {
+          "title": "Phác đồ có thuốc lợi tiểu?",
+          "detail": "Thiazide, lợi tiểu quai hoặc MRA."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Phác đồ có lợi tiểu?"
+          }
+        ],
+        "logic": {
+          "predicate": {
+            "field": "medication.currentDrugClassList",
+            "op": "contains",
+            "value": "diuretic"
+          }
+        }
+      },
+      {
+        "id": "resistant_infer_resistant",
+        "type": "end",
+        "display": {
+          "title": "Tăng huyết áp kháng trị",
+          "detail": "resistant.classification = resistant_three_or_more_with_diuretic"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "THA kháng trị — ≥3 nhóm thuốc + lợi tiểu"
+          }
+        ],
+        "data": {
+          "resultCode": "resistant_htn_arm",
+          "severity": "critical",
+          "sets": {
+            "resistant.classification": "resistant_three_or_more_with_diuretic"
+          },
+          "outcomeCode": "resistant_three_or_more_with_diuretic_classified"
+        }
+      },
+      {
+        "id": "resistant_end_add_diuretic",
+        "type": "end",
+        "display": {
+          "title": "Cần thêm thuốc lợi tiểu",
+          "detail": "resistant.classification = add_diuretic_and_reclassify"
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Thêm lợi tiểu — Phân loại lại sau"
+          }
+        ],
+        "data": {
+          "resultCode": "add_diuretic",
+          "outcomeCode": "add_diuretic_reclassify",
+          "sets": {
+            "resistant.classification": "add_diuretic_and_reclassify"
+          }
+        }
+      },
+      {
+        "id": "resistant_stable",
+        "type": "condition",
+        "display": {
+          "title": "Phác đồ đã ổn định ≥4 tuần?",
+          "detail": "Tự tính từ ngày bắt đầu/chỉnh phác đồ và ngày khám; không nhập số tuần."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Phác đồ ổn định ít nhất 4 tuần trước khi phân loại."
+          }
+        ],
+        "logic": {
+          "predicate": {}
+        }
+      },
+      {
+        "id": "resistant_end_defer",
+        "type": "end",
+        "display": {
+          "title": "Đánh giá lại sau",
+          "detail": "Phác đồ chưa ổn định đủ 4 tuần."
+        },
+        "sourceRefs": [
+          {
+            "sourceId": "image_05_uncontrolled_resistant",
+            "page": 1,
+            "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+            "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+            "note": "Chưa đủ thời gian ổn định phác đồ để phân loại."
+          }
+        ],
+        "data": {
+          "resultCode": "resistant_defer",
+          "outcomeCode": "resistant_defer_reassess"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "resistant_start",
+        "to": "resistant_range",
+        "when": "default"
+      },
+      {
+        "from": "resistant_agent_count",
+        "to": "resistant_infer_uncontrolled",
+        "when": "true",
+        "label": "Đúng 2 nhóm thuốc"
+      },
+      {
+        "from": "resistant_agent_count",
+        "to": "resistant_agent_count_ge3",
+        "when": "false",
+        "label": "Số nhóm thuốc khác 2"
+      },
+      {
+        "from": "resistant_agent_count_ge3",
+        "to": "resistant_diuretic",
+        "when": "true",
+        "label": "Từ 3 nhóm thuốc"
+      },
+      {
+        "from": "resistant_agent_count_ge3",
+        "to": "resistant_end_agent_count_review",
+        "when": "false",
+        "label": "Số nhóm thuốc <3"
+      },
+      {
+        "from": "resistant_diuretic",
+        "to": "resistant_infer_resistant",
+        "when": "true",
+        "label": "Có thuốc lợi tiểu"
+      },
+      {
+        "from": "resistant_diuretic",
+        "to": "resistant_end_add_diuretic",
+        "when": "false",
+        "label": "Không có thuốc lợi tiểu"
+      },
+      {
+        "from": "resistant_range",
+        "to": "resistant_stable",
+        "when": "true",
+        "label": "HATT lần gần nhất 140–169 mmHg"
+      },
+      {
+        "from": "resistant_stable",
+        "to": "resistant_agent_count",
+        "when": "true",
+        "label": "Phác đồ ổn định ≥4 tuần"
+      },
+      {
+        "from": "resistant_stable",
+        "to": "resistant_end_defer",
+        "when": "false",
+        "label": "Phác đồ ổn định <4 tuần"
+      },
+      {
+        "from": "resistant_range",
+        "to": "resistant_end_out_of_range",
+        "when": "false",
+        "label": "HATT ngoài khoảng 140–169 mmHg"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "sourceId": "image_05_uncontrolled_resistant",
+        "page": 1,
+        "section": "Phân loại tăng huyết áp không kiểm soát/kháng trị",
+        "tableOrFigure": "05_uncontrolled_resistant_hypertension.png",
+        "note": "Phân loại đến nhánh không kiểm soát hoặc kháng trị theo số nhóm thuốc và lợi tiểu trong ảnh cây 5."
+      }
+    ],
+    "notes": [
+      "Chỉ phân loại nhánh tăng huyết áp chưa kiểm soát/kháng trị theo ảnh cây 5; không bao gồm safety screen hoặc exclusion screen.",
+      "Khoảng đánh giá: HATT lần gần nhất 140–169 mmHg; HATTr của cùng lần đo phải có dữ liệu.",
+      "Phác đồ phải ổn định ít nhất 4 tuần trước khi phân loại.",
+      "Đúng 2 nhóm thuốc: tăng huyết áp chưa kiểm soát — phác đồ 2 nhóm thuốc.",
+      "Từ 3 nhóm thuốc: có lợi tiểu thì tăng huyết áp kháng trị; không có lợi tiểu thì thêm lợi tiểu và đánh giá lại.",
+      "Nếu có hoạt chất chưa khớp danh mục thuốc đã lưu, dừng để rà soát; không tự ý đếm thiếu nhóm thuốc."
+    ]
+  }
+}
