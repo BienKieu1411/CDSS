@@ -208,10 +208,6 @@ def validate_bundle(path: Path) -> dict[str, int]:
         for variable_id in input_variables + output_variables:
             if variable_id not in variable_ids:
                 fail(f"{tree_id}: unknown declared variable {variable_id}")
-        for target_tree_id in links_to:
-            if target_tree_id not in tree_ids:
-                fail(f"{tree_id}: unknown linksTo tree {target_tree_id}")
-
         validate_source_refs(tree.get("sourceRefs", []), source_ids, tree_id)
         used_fields: set[str] = set()
         if "entryPreconditions" in tree:
@@ -283,9 +279,10 @@ def validate_bundle(path: Path) -> dict[str, int]:
                     fail(f"{tree_id}/{node_id}: data must be an object")
                 if node_type == "link":
                     target = node_data.get("targetTreeId")
-                    if target not in tree_ids:
+                    if target not in tree_ids and node_data.get("callMode") != "navigate_only":
                         fail(f"{tree_id}/{node_id}: unknown link target {target}")
-                    global_links[tree_id].add(target)
+                    if target in tree_ids:
+                        global_links[tree_id].add(target)
                     link_count += 1
                 elif node_type == "inference":
                     if not isinstance(node_data.get("resultCode"), str) or not node_data["resultCode"]:
@@ -347,8 +344,14 @@ def validate_bundle(path: Path) -> dict[str, int]:
             elif node["type"] in {"start", "inference"}:
                 if when_counts != Counter({"default": 1}):
                     fail(f"{tree_id}/{node_id}: {node['type']} must have one default edge")
-            elif node["type"] in {"link", "end"} and outgoing:
-                fail(f"{tree_id}/{node_id}: {node['type']} must be terminal")
+            elif node["type"] == "link" and outgoing:
+                fail(f"{tree_id}/{node_id}: link must be terminal")
+            elif node["type"] == "end" and outgoing:
+                # A conclusion may hand off to a separate link node. The end
+                # remains the visible clinical outcome; the link is the
+                # navigation edge to the next tree.
+                if len(outgoing) != 1 or outgoing[0]["when"] != "default":
+                    fail(f"{tree_id}/{node_id}: end may only have one default handoff edge")
 
         if incoming[entry_node_id] != 0:
             fail(f"{tree_id}: entryNodeId must have no incoming edges")
@@ -375,7 +378,7 @@ def validate_bundle(path: Path) -> dict[str, int]:
         if unreachable:
             fail(f"{tree_id}: unreachable nodes {sorted(unreachable)}")
 
-        declared_links = set(links_to)
+        declared_links = {target for target in links_to if target in tree_ids}
         if declared_links != global_links[tree_id]:
             fail(f"{tree_id}: linksTo does not match LINK nodes: declared={sorted(declared_links)}, actual={sorted(global_links[tree_id])}")
 

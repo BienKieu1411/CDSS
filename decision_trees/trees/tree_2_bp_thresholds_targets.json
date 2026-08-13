@@ -131,7 +131,7 @@
           "predicate": {
             "field": "encounter.number",
             "op": "eq",
-            "value": "1"
+            "value": 1
           }
         },
         "onMissingData": "stop",
@@ -156,7 +156,7 @@
           "predicate": {
             "field": "encounter.number",
             "op": "eq",
-            "value": "1"
+            "value": 1
           }
         },
         "onMissingData": "stop",

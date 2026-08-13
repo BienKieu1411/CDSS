@@ -47,7 +47,7 @@
     {
       "id": "anthropometrics.heightM",
       "label": "Chiều cao (m)",
-      "dataType": "string",
+      "dataType": "number",
       "unit": null,
       "requiredForEvaluation": true,
       "definition": "Chiều cao (m)",
@@ -56,7 +56,7 @@
     {
       "id": "anthropometrics.weightKg",
       "label": "Cân nặng (kg)",
-      "dataType": "string",
+      "dataType": "number",
       "unit": null,
       "requiredForEvaluation": true,
       "definition": "Cân nặng (kg)",
@@ -278,7 +278,7 @@
     {
       "id": "lab.eGfr",
       "label": "eGFR",
-      "dataType": "string",
+      "dataType": "number",
       "unit": null,
       "requiredForEvaluation": true,
       "definition": "eGFR",
@@ -287,7 +287,7 @@
     {
       "id": "lab.ldlCholesterol",
       "label": "LDL-C",
-      "dataType": "string",
+      "dataType": "number",
       "unit": null,
       "requiredForEvaluation": true,
       "definition": "LDL-C",
@@ -296,7 +296,7 @@
     {
       "id": "lab.triglycerides",
       "label": "Triglyceride",
-      "dataType": "string",
+      "dataType": "number",
       "unit": null,
       "requiredForEvaluation": true,
       "definition": "Triglyceride",
@@ -350,7 +350,7 @@
     {
       "id": "medication.regimenStartDate",
       "label": "Ngày bắt đầu phác đồ",
-      "dataType": "date",
+      "dataType": "string",
       "unit": null,
       "requiredForEvaluation": true,
       "definition": "Ngày bắt đầu phác đồ",
@@ -1086,7 +1086,7 @@
             "predicate": {
               "field": "encounter.number",
               "op": "eq",
-              "value": "1"
+              "value": 1
             }
           },
           "onMissingData": "stop",
@@ -1111,7 +1111,7 @@
             "predicate": {
               "field": "encounter.number",
               "op": "eq",
-              "value": "1"
+              "value": 1
             }
           },
           "onMissingData": "stop",
@@ -1731,7 +1731,16 @@
               "value": 0
             }
           },
-          "onMissingData": "stop"
+          "onMissingData": "stop",
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_tha_degree1_factor_medium_gate",
@@ -1756,7 +1765,16 @@
               ]
             }
           },
-          "onMissingData": "stop"
+          "onMissingData": "stop",
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_tha_degree2_factor_gate",
@@ -1772,7 +1790,16 @@
               "value": 1
             }
           },
-          "onMissingData": "stop"
+          "onMissingData": "stop",
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_tha_degree1_low",
@@ -1786,7 +1813,16 @@
             "sets": {
               "risk.cardiovascularRiskClass": "low"
             }
-          }
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_tha_degree1_medium",
@@ -1800,7 +1836,16 @@
             "sets": {
               "risk.cardiovascularRiskClass": "medium"
             }
-          }
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_tha_degree1_high",
@@ -1814,7 +1859,16 @@
             "sets": {
               "risk.cardiovascularRiskClass": "high"
             }
-          }
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_tha_degree2_medium_high",
@@ -1828,7 +1882,16 @@
             "sets": {
               "risk.cardiovascularRiskClass": "medium_high"
             }
-          }
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_tha_degree2_high",
@@ -1842,7 +1905,16 @@
             "sets": {
               "risk.cardiovascularRiskClass": "high"
             }
-          }
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_hypertension_risk_stratification",
+              "page": 1,
+              "section": "Cây 3 — Phân tầng nguy cơ tim mạch",
+              "tableOrFigure": "bundle reconstruction",
+              "note": "Default provenance for a node without a specific source reference."
+            }
+          ]
         },
         {
           "id": "risk_link_treatment",
@@ -2170,7 +2242,7 @@
           "type": "condition",
           "display": {
             "title": "Số nhóm thuốc hạ áp = 2?",
-            "shortLabel": "Đếm drug_classes"
+            "shortLabel": "Đếm nhóm thuốc hạ áp"
           },
           "logic": {
             "predicate": {
@@ -2186,7 +2258,7 @@
               "page": 1,
               "section": "Phân loại thuốc và tối ưu phác đồ",
               "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
-              "note": "drug_classes list có độ dài 2"
+              "note": "Danh sách nhóm thuốc hạ áp có đúng 2 nhóm"
             }
           ]
         },
@@ -2215,7 +2287,7 @@
           "type": "condition",
           "display": {
             "title": "Số nhóm thuốc hạ áp ≥3?",
-            "shortLabel": "≥3 drug classes"
+            "shortLabel": "Từ 3 nhóm thuốc hạ áp"
           },
           "logic": {
             "predicate": {
@@ -2231,7 +2303,7 @@
               "page": 1,
               "section": "Phân loại thuốc và tối ưu phác đồ",
               "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
-              "note": "drug_classes list có độ dài ≥3"
+              "note": "Danh sách nhóm thuốc hạ áp có từ 3 nhóm trở lên"
             }
           ]
         },
@@ -2239,7 +2311,7 @@
           "id": "treatment_drug_d_gate",
           "type": "condition",
           "display": {
-            "title": "drug_classes có nhóm D?",
+            "title": "Danh sách thuốc có nhóm D?",
             "shortLabel": "Kiểm tra nhóm D"
           },
           "logic": {
@@ -2256,7 +2328,7 @@
               "page": 1,
               "section": "Phân loại thuốc và tối ưu phác đồ",
               "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
-              "note": "drug_classes là list loại thuốc A, B, C, D"
+              "note": "Danh sách thuốc được chuẩn hóa thành các nhóm A, B, C, D"
             }
           ]
         },
@@ -2378,7 +2450,7 @@
         }
       ],
       "notes": [
-        "drug_classes được chuẩn hóa thành medication.antihypertensiveDrugClasses, kiểu array, với phần tử A/B/C/D.",
+        "Danh sách thuốc được chuẩn hóa thành các nhóm A, B, C, D để đánh giá phác đồ.",
         "data_cf_latest_encounter được chuẩn hóa thành medication.regimenAtLeastFourWeeks, kiểu boolean; medication.regimenStartDate là biến độc lập để tạo/kiểm tra biến này.",
         "medication.regimenStartDate và medication.regimenAtLeastFourWeeks chưa có trong bản Excel hiện tại; cần bổ sung vào Variable Registry khi chốt catalog canonical.",
         "Khoảng xử lý trong sơ đồ được diễn giải là HATT 140–169 và HATTr 90–99; cần clinical review xác nhận nếu chỉ cần một trong hai chỉ số nằm trong khoảng."
@@ -3083,7 +3155,8 @@
             "shortLabel": "Bệnh thận mạn"
           },
           "data": {
-            "targetTreeId": "hypertension_ckd_strategy"
+            "targetTreeId": "hypertension_ckd_strategy",
+            "callMode": "navigate_only"
           },
           "sourceRefs": [
             {
@@ -3103,7 +3176,8 @@
             "shortLabel": "Đái tháo đường"
           },
           "data": {
-            "targetTreeId": "hypertension_diabetes_strategy"
+            "targetTreeId": "hypertension_diabetes_strategy",
+            "callMode": "navigate_only"
           },
           "sourceRefs": [
             {
@@ -3123,7 +3197,8 @@
             "shortLabel": "Bệnh tim mạch"
           },
           "data": {
-            "targetTreeId": "hypertension_cvd_strategy"
+            "targetTreeId": "hypertension_cvd_strategy",
+            "callMode": "navigate_only"
           },
           "sourceRefs": [
             {
@@ -3143,7 +3218,8 @@
             "shortLabel": "Tổn thương cơ quan đích"
           },
           "data": {
-            "targetTreeId": "hypertension_target_organ_damage_strategy"
+            "targetTreeId": "hypertension_target_organ_damage_strategy",
+            "callMode": "navigate_only"
           },
           "sourceRefs": [
             {
@@ -3163,7 +3239,8 @@
             "shortLabel": "Suy tim"
           },
           "data": {
-            "targetTreeId": "hypertension_heart_failure_strategy"
+            "targetTreeId": "hypertension_heart_failure_strategy",
+            "callMode": "navigate_only"
           },
           "sourceRefs": [
             {

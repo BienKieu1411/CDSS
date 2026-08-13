@@ -151,6 +151,24 @@ def derive_patient_problem_variables(context: dict[str, Any]) -> dict[str, Any]:
         "comorbidity.type2Diabetes",
     ))
     derived["treatment.hasHighRiskComorbidity"] = derived["risk.highRiskComorbidity"]
+    # Canonical registry IDs consumed by Trees 1–5.
+    canonical_flags = {
+        "condition.hasEarlyMenopause": "comorbidity.earlyMenopause",
+        "condition.hasDiabetesMellitus": "comorbidity.diabetes",
+        "condition.hasType2DiabetesMellitus": "comorbidity.type2Diabetes",
+        "condition.hasLeftVentricularHypertrophy": "comorbidity.leftVentricularHypertrophy",
+        "condition.hasCoronaryArteryDisease": "comorbidity.coronaryArteryDisease",
+        "condition.hasHeartFailure": "comorbidity.heartFailure",
+        "condition.hasHeartFailureWithReducedEjectionFraction": "comorbidity.heartFailureReducedEjectionFraction",
+        "condition.hasStroke": "comorbidity.stroke",
+        "condition.hasPeripheralArteryDisease": "comorbidity.peripheralArteryDisease",
+        "condition.hasAtrialFibrillation": "comorbidity.atrialFibrillation",
+        "condition.hasChronicKidneyDisease": "comorbidity.ckd",
+        "renal.hasCkdStage3OrHigher": "risk.ckdStageAtLeast3",
+        "risk.hasTargetOrganDamage": "risk.targetOrganDamage",
+        "cardiovascular.hasEstablishedCvd": "risk.cardiovascularDisease",
+    }
+    derived.update({target: derived[source] for target, source in canonical_flags.items()})
     return derived
 
 
@@ -188,8 +206,8 @@ def derive_patient_measurement_variables(context: dict[str, Any]) -> dict[str, A
         )
         derived["patient.ageYears"] = age
 
-    height = context.get("patient.heightM")
-    weight = context.get("patient.weightKg")
+    height = context.get("anthropometrics.heightM", context.get("patient.heightM"))
+    weight = context.get("anthropometrics.weightKg", context.get("patient.weightKg"))
     if isinstance(height, (int, float)) and not isinstance(height, bool) and height > 0:
         if isinstance(weight, (int, float)) and not isinstance(weight, bool) and weight >= 0:
             derived["patient.bmi"] = weight / (height * height)
@@ -202,7 +220,7 @@ def derive_patient_measurement_variables(context: dict[str, Any]) -> dict[str, A
     if isinstance(sex, str) and sex.strip():
         derived["risk.maleSex"] = sex.strip().lower() in {"male", "m", "nam"}
 
-    heart_rate = context.get("vitals.heartRate")
+    heart_rate = context.get("vitals.heartRateBpm", context.get("vitals.heartRate"))
     if isinstance(heart_rate, (int, float)) and not isinstance(heart_rate, bool):
         derived["risk.heartRateOver80"] = heart_rate > 80
 
@@ -213,6 +231,21 @@ def derive_patient_measurement_variables(context: dict[str, Any]) -> dict[str, A
     e_gfr = context.get("lab.eGfr")
     if isinstance(e_gfr, (int, float)) and not isinstance(e_gfr, bool):
         derived["risk.ckdStageAtLeast3"] = e_gfr < 60
+
+    smoking = str(context.get("socialHistory.smokingStatus", "")).strip().lower()
+    if smoking:
+        derived["risk.currentSmoker"] = smoking in {"current", "every day", "daily", "yes", "true", "đang hút"}
+
+    ldl = context.get("lab.ldlCholesterol")
+    triglycerides = context.get("lab.triglycerides")
+    if isinstance(ldl, (int, float)) and isinstance(triglycerides, (int, float)):
+        # The demo/runtime contract treats either abnormal lipid value as a
+        # risk factor; exact clinical cut-offs remain configurable upstream.
+        derived["risk.lipidAbnormality"] = ldl >= 3.0 or triglycerides >= 1.7
+
+    for field in ("risk.familyHistoryPrematureCvd", "risk.socialEnvironmentalRisk"):
+        if field in context and context[field] is not None:
+            derived[field] = context[field] is True or str(context[field]).lower() in {"yes", "true", "1"}
 
     if _has_value(context, "comorbidity.diabetes"):
         derived["risk.diabetes"] = context["comorbidity.diabetes"] is True
@@ -311,6 +344,10 @@ def _load_drug_class_by_name() -> dict[str, str]:
 
 
 DRUG_CLASS_BY_NAME = _load_drug_class_by_name()
+DRUG_GUIDELINE_CLASS = {
+    "acei": "A", "arb": "A", "beta_blocker": "B", "ccb": "C",
+    "diuretic": "D", "mra": "D",
+}
 
 
 def derive_medication_variables(context: dict[str, Any]) -> dict[str, Any]:
@@ -331,6 +368,8 @@ def derive_medication_variables(context: dict[str, Any]) -> dict[str, Any]:
             name = re.sub(r"\s+", " ", str(value).strip().lower())
             if not name:
                 continue
+            if name in {"none", "no medication", "không", "không dùng thuốc"}:
+                continue
             class_code = DRUG_CLASS_BY_NAME.get(name)
             if class_code and class_code not in class_codes:
                 class_codes.append(class_code)
@@ -349,17 +388,22 @@ def derive_medication_variables(context: dict[str, Any]) -> dict[str, Any]:
     if isinstance(raw_current, list) and all(str(value).upper() in {"A", "B", "C", "D"} for value in raw_current):
         current_codes, current_unknown = [str(value).upper() for value in raw_current], []
     else:
-        current_codes, current_unknown = map_classes(context.get("medication.currentDrugNames"))
-    if current_codes or current_unknown:
+        raw_current_names = context.get("medication.currentDrugNames")
+        current_codes, current_unknown = map_classes(raw_current_names)
+    current_was_provided = raw_current is not None and raw_current != "" and raw_current != [] or 'raw_current_names' in locals() and raw_current_names not in (None, "", [])
+    if current_codes or current_unknown or current_was_provided:
         # Keep one canonical representation.  Count and membership checks are
         # evaluated directly against this list by the decision-tree engine.
-        derived["medication.antihypertensiveDrugClasses"] = current_codes
+        derived["medication.antihypertensiveDrugClasses"] = list(dict.fromkeys(
+            DRUG_GUIDELINE_CLASS.get(code, code.upper()) for code in current_codes
+        ))
         derived["medication.antihypertensiveDrugClassCount"] = len(current_codes)
         # Compatibility aliases for older callers/tests.
         derived["medication.currentDrugClassList"] = current_codes
 
-    previous_codes, previous_unknown = map_classes(context.get("medication.previousEncounterDrugNames"))
-    if previous_codes or previous_unknown:
+    raw_previous = context.get("medication.previousEncounterDrugNames")
+    previous_codes, previous_unknown = map_classes(raw_previous)
+    if previous_codes or previous_unknown or raw_previous not in (None, "", []):
         derived["medication.previousEncounterDrugClassList"] = previous_codes
     return derived
 
@@ -535,6 +579,9 @@ def execute_tree(bundle: dict[str, Any], tree_id: str, state: EvalState, active_
     tree_map = {tree["id"]: tree for tree in bundle["trees"]}
     if tree_id not in tree_map:
         raise ValueError(f"unknown tree: {tree_id}")
+    # Recompute shared assessment values after an upstream tree has populated
+    # its outputs, especially bp.isControlled after Tree 2 sets the targets.
+    state.context.update(derive_bp_control_variables(state.context))
     tree = tree_map[tree_id]
     for source_ref in tree.get("sourceRefs", []):
         if source_ref not in state.source_refs:
@@ -688,6 +735,10 @@ def execute_tree(bundle: dict[str, Any], tree_id: str, state: EvalState, active_
                 result["resultCode"] = data["resultCode"]
             if isinstance(data.get("severity"), str):
                 result["severity"] = data["severity"]
+            handoff = [edge for edge in edges if edge["from"] == current_id and edge["when"] == "default"]
+            if handoff:
+                current_id = handoff[0]["to"]
+                continue
             return result
 
         raise ValueError(f"unsupported node type: {node_type}")
@@ -724,9 +775,15 @@ def run(bundle_path: Path, tree_id: str, context: dict[str, Any]) -> dict[str, A
         "medication.previousEncounterDrugClassList",
     ):
         initial_context.pop(field, None)
-    initial_context.update(derive_patient_problem_variables(initial_context))
-    initial_context.update(derive_patient_measurement_variables(initial_context))
+    problem_variables = derive_patient_problem_variables(initial_context)
+    initial_context.update(problem_variables)
+    initial_context.update(derive_patient_measurement_variables({**initial_context, **problem_variables}))
     initial_context.update(derive_medication_variables(initial_context))
+    # The canonical registry stores medication names as text; the derivation
+    # helper may temporarily normalize them to a list for catalog matching.
+    for field in ("medication.currentDrugNames", "medication.previousEncounterDrugNames"):
+        if isinstance(initial_context.get(field), list):
+            initial_context[field] = ", ".join(str(value) for value in initial_context[field])
     initial_context.update(derive_bp_control_variables(initial_context))
     state = EvalState(context=initial_context, trace=[], links_visited=[], source_refs=[], decision_sets={})
     input_errors = validate_context(bundle, initial_context)

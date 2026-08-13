@@ -17,6 +17,7 @@ const state = {
   locale: "vi",
   patientTab: "specs",
   medicationCatalog: { classes: [] },
+  lastRunResult: null,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -73,8 +74,10 @@ const UI_LABELS = {
     reset: "Reset",
     simulatorSubtitle: "Fill in fields to simulate traversal.",
     currentTree: "Tree being viewed",
-    localRecord: "Local patient record",
-    open: "Open",
+    localRecord: "Load patient record",
+    localRecordHelp: "Enter a preset patient ID (for example demo_high_risk) or paste patient JSON to load the record.",
+    localRecordPlaceholder: "Preset patient ID or paste JSON",
+    open: "Load record",
     preset: "Preset patient",
     patientSpecs: "Patient information",
     clinicalHistory: "Clinical history",
@@ -112,6 +115,7 @@ const UI_LABELS = {
     "bp.latestSystolicMmHg": "HATT gần nhất",
     "bp.latestDiastolicMmHg": "HATTr gần nhất",
     "hypertension.diagnosisCategory": "Kết quả chẩn đoán tăng huyết áp",
+    "patient.conditionCodes": "Bệnh đồng mắc và chẩn đoán đã biết",
     "risk.factorCount": "Số lượng yếu tố nguy cơ",
     "risk.cardiovascularRiskClass": "Mức nguy cơ tim mạch",
     "treatment.targetSystolicBpMmHg": "Mục tiêu HATT",
@@ -129,8 +133,10 @@ const UI_LABELS = {
     reset: "Xóa dữ liệu",
     simulatorSubtitle: "Điền dữ liệu để mô phỏng đường đi qua phác đồ.",
     currentTree: "Cây đang xem",
-    localRecord: "Hồ sơ bệnh nhân cục bộ",
-    open: "Mở",
+    localRecord: "Nạp hồ sơ bệnh nhân",
+    localRecordHelp: "Nhập mã bệnh nhân mẫu (ví dụ demo_high_risk) hoặc dán dữ liệu JSON để nạp hồ sơ.",
+    localRecordPlaceholder: "Mã bệnh nhân mẫu hoặc dán JSON",
+    open: "Nạp hồ sơ",
     preset: "Bệnh nhân mẫu",
     patientSpecs: "Thông tin bệnh nhân",
     clinicalHistory: "Lịch sử lâm sàng",
@@ -187,7 +193,7 @@ const VARIABLE_TRANSLATIONS = {
     "bp.office3.systolicMmHg": "Clinic visit 3 — systolic BP",
     "bp.office3.diastolicMmHg": "Clinic visit 3 — diastolic BP",
     "patient.diagnosisCodes": "Patient diagnosis codes (ICD-10/SNOMED CT)",
-    "patient.conditionCodes": "Patient diagnoses and comorbidities (ICD-10/SNOMED CT)",
+    "patient.conditionCodes": "Known diagnoses and comorbidities",
     "patient.birthDate": "Date of birth",
     "patient.sex": "Sex",
     "encounter.number": "Encounter number",
@@ -279,26 +285,78 @@ const PATIENT_PRESETS = {
   demo_normal: {
     label: "Demo — Huyết áp bình thường",
     values: {
-      "bp.office1.systolicMmHg": 128, "bp.office1.diastolicMmHg": 78,
-      "bp.office2.systolicMmHg": 126, "bp.office2.diastolicMmHg": 78,
-      "bp.office3.systolicMmHg": 125, "bp.office3.diastolicMmHg": 78,
-      "patient.diagnosisCodes": "NO_KNOWN_CODES", "patient.birthDate": "1985-04-12",
+      "bp.office.measurement1.systolicMmHg": 128, "bp.office.measurement1.diastolicMmHg": 78,
+      "bp.office.measurement2.systolicMmHg": 126, "bp.office.measurement2.diastolicMmHg": 78,
+      "bp.office.measurement3.systolicMmHg": 125, "bp.office.measurement3.diastolicMmHg": 78,
+      "patient.conditionCodes": "Không ghi nhận bệnh đồng mắc", "patient.birthDate": "1985-04-12",
       "patient.sex": "female", "encounter.number": 1,
-      "vitals.heartRate": 70, "patient.heightM": 1.65, "patient.weightKg": 60,
+      "vitals.heartRateBpm": 70, "anthropometrics.heightM": 1.65, "anthropometrics.weightKg": 60,
       "lab.eGfr": 90, "lab.ldlCholesterol": 2, "lab.triglycerides": 1,
-      "risk.lipidAbnormality": false, "risk.familyHistoryPrematureCvd": false,
-      "risk.currentSmoker": false, "risk.socialEnvironmentalRisk": false,
+      "socialHistory.smokingStatus": "never",
     },
   },
   demo_high_risk: {
     label: "Demo — Nguy cơ cao",
     values: {
-      "bp.office1.systolicMmHg": 154, "bp.office1.diastolicMmHg": 94,
-      "bp.office2.systolicMmHg": 150, "bp.office2.diastolicMmHg": 92,
-      "bp.office3.systolicMmHg": 148, "bp.office3.diastolicMmHg": 90,
-      "patient.diagnosisCodes": "I25.1,I50.9,E11.9", "patient.birthDate": "1955-07-21",
+      "bp.office.measurement1.systolicMmHg": 154, "bp.office.measurement1.diastolicMmHg": 94,
+      "bp.office.measurement2.systolicMmHg": 150, "bp.office.measurement2.diastolicMmHg": 92,
+      "bp.office.measurement3.systolicMmHg": 148, "bp.office.measurement3.diastolicMmHg": 90,
+      "patient.conditionCodes": "I25.1,I50.9,E11.9", "patient.birthDate": "1955-07-21",
       "patient.sex": "male", "encounter.number": 2,
+      "vitals.heartRateBpm": 84, "anthropometrics.heightM": 1.70, "anthropometrics.weightKg": 82,
+      "lab.eGfr": 52, "lab.ldlCholesterol": 4.0, "lab.triglycerides": 2.2,
+      "socialHistory.smokingStatus": "current",
       "medication.previousEncounterDrugNames": "Amlodipine, Losartan",
+      "medication.currentDrugNames": "Amlodipine, Losartan, Indapamide",
+      "medication.regimenStartDate": "2026-06-15",
+    },
+  },
+  demo_full_flow_tha: {
+    label: "Demo — THA tái khám, 4 nhóm thuốc",
+    values: {
+      "bp.office.measurement1.systolicMmHg": 150, "bp.office.measurement1.diastolicMmHg": 95,
+      "bp.office.measurement2.systolicMmHg": 150, "bp.office.measurement2.diastolicMmHg": 95,
+      "bp.office.measurement3.systolicMmHg": 150, "bp.office.measurement3.diastolicMmHg": 95,
+      "patient.conditionCodes": "Không ghi nhận bệnh đồng mắc", "patient.birthDate": "1985-04-12",
+      "patient.sex": "female", "encounter.number": 2,
+      "vitals.heartRateBpm": 70, "anthropometrics.heightM": 1.65, "anthropometrics.weightKg": 60,
+      "lab.eGfr": 90, "lab.ldlCholesterol": 2, "lab.triglycerides": 1,
+      "socialHistory.smokingStatus": "never",
+      "risk.familyHistoryPrematureCvd": false, "risk.socialEnvironmentalRisk": false,
+      "medication.currentDrugNames": "Losartan, Amlodipine, Indapamide, Spironolactone",
+      "medication.previousEncounterDrugNames": "Losartan, Amlodipine, Indapamide, Spironolactone",
+      "medication.regimenStartDate": "2026-06-15",
+    },
+  },
+  demo_full_flow_habtc_first_visit: {
+    label: "Demo — HABTC lần khám đầu",
+    values: {
+      "bp.office.measurement1.systolicMmHg": 135, "bp.office.measurement1.diastolicMmHg": 87,
+      "bp.office.measurement2.systolicMmHg": 135, "bp.office.measurement2.diastolicMmHg": 87,
+      "bp.office.measurement3.systolicMmHg": 135, "bp.office.measurement3.diastolicMmHg": 87,
+      "patient.conditionCodes": "Không ghi nhận bệnh đồng mắc", "patient.birthDate": "1990-05-20",
+      "patient.sex": "female", "encounter.number": 1,
+      "vitals.heartRateBpm": 68, "anthropometrics.heightM": 1.62, "anthropometrics.weightKg": 58,
+      "lab.eGfr": 95, "lab.ldlCholesterol": 2, "lab.triglycerides": 1,
+      "socialHistory.smokingStatus": "never",
+      "risk.familyHistoryPrematureCvd": false, "risk.socialEnvironmentalRisk": false,
+    },
+  },
+  demo_full_flow_tha_comorbidity: {
+    label: "Demo — THA tái khám có bệnh đồng mắc",
+    values: {
+      "bp.office.measurement1.systolicMmHg": 150, "bp.office.measurement1.diastolicMmHg": 95,
+      "bp.office.measurement2.systolicMmHg": 150, "bp.office.measurement2.diastolicMmHg": 95,
+      "bp.office.measurement3.systolicMmHg": 150, "bp.office.measurement3.diastolicMmHg": 95,
+      "patient.conditionCodes": "I25.1", "patient.birthDate": "1960-05-20",
+      "patient.sex": "male", "encounter.number": 2,
+      "vitals.heartRateBpm": 72, "anthropometrics.heightM": 1.70, "anthropometrics.weightKg": 76,
+      "lab.eGfr": 78, "lab.ldlCholesterol": 3.2, "lab.triglycerides": 1.4,
+      "socialHistory.smokingStatus": "never",
+      "risk.familyHistoryPrematureCvd": false, "risk.socialEnvironmentalRisk": false,
+      "medication.currentDrugNames": "Losartan, Amlodipine, Indapamide, Spironolactone",
+      "medication.previousEncounterDrugNames": "Losartan, Amlodipine, Indapamide, Spironolactone",
+      "medication.regimenStartDate": "2026-06-15",
     },
   },
 };
@@ -372,6 +430,7 @@ const englishGraphTranslations = new Map([
 ]);
 
 const valueTranslations = new Map([
+  ["NO_KNOWN_CODES", "Không ghi nhận bệnh đồng mắc"],
   ["true", "Có"],
   ["false", "Không"],
   ["office", "Phòng khám"],
@@ -388,6 +447,9 @@ const valueTranslations = new Map([
   ["comorbidity", "Có bệnh đồng mắc"],
   ["no_comorbidity", "Không có bệnh đồng mắc"],
   ["two_drug_combination", "Phối hợp 2 thuốc"],
+  ["two_drug_classes", "Phối hợp 2 nhóm thuốc"],
+  ["three_drug_classes", "Phối hợp 3 nhóm thuốc"],
+  ["add_drug_class_d", "Bổ sung nhóm thuốc D"],
   ["monotherapy_or_two_drug", "Đơn trị hoặc phối hợp 2 thuốc"],
   ["lifestyle_only", "Thay đổi lối sống"],
   ["initial_treatment", "Điều trị ban đầu"],
@@ -470,6 +532,8 @@ function applyLocale() {
   set("#simulator-subtitle", labels.simulatorSubtitle);
   set("label[for=tree-select]", labels.currentTree);
   set("label[for=patient-record-id]", labels.localRecord);
+  $("#patient-record-id").placeholder = labels.localRecordPlaceholder;
+  $("#patient-record-help").textContent = labels.localRecordHelp;
   set("#open-patient-record", labels.open);
   set(".preset-field span", labels.preset);
   set("#patient-tab-specs", labels.patientSpecs);
@@ -895,7 +959,7 @@ function renderGraph(tree) {
           "taxi-turn-min-distance": 12,
           label: "data(label)",
           color: "#52637c",
-          "font-size": 8,
+          "font-size": 11,
           "font-weight": 700,
           "text-background-color": "#f1f4f9",
           "text-background-opacity": 1,
@@ -991,9 +1055,7 @@ function renderInputForm(tree) {
     form.appendChild(section);
   });
 
-  $("input-help").textContent = state.locale === "en"
-    ? "Fields are shared across the five linked trees. Required fields are marked with * when the selected tree needs them."
-    : "Dữ liệu được dùng chung cho năm cây liên kết. Dấu * chỉ xuất hiện khi cây đang xem cần trường đó.";
+  $("input-help").textContent = "";
   if (state.inputMode === "json") $("json-input").value = pretty(state.context);
   refreshLatestBpDisplay(state.context);
   refreshRegimenStableDisplay(state.context);
@@ -1156,13 +1218,18 @@ function renderMedicationField(variable, required) {
   const picker = document.createElement("select");
   picker.className = "medication-picker";
   picker.add(new Option(state.locale === "en" ? "Add a medicine…" : "Thêm thuốc…", ""));
+  picker.add(new Option(state.locale === "en" ? "No medication (NONE)" : "Không dùng thuốc (NONE)", "__NONE__"));
   medicationEntries().forEach((entry) => picker.add(new Option(`${entry.label} · ${entry.classLabel}`, entry.name)));
   const chips = document.createElement("div");
   chips.className = "medication-chips";
   picker.addEventListener("change", () => {
     const names = medicationNames(hidden.value);
-    if (picker.value && !names.includes(picker.value)) names.push(picker.value);
-    hidden.value = names.join(", ");
+    if (picker.value === "__NONE__") {
+      hidden.value = "NONE";
+    } else {
+      if (picker.value && !names.includes(picker.value)) names.push(picker.value);
+      hidden.value = names.filter((name) => name !== "none").join(", ");
+    }
     picker.value = "";
     renderMedicationChips(chips, hidden);
     rememberCurrentForm();
@@ -1281,11 +1348,11 @@ function normalizeFhirContext(parsed) {
       if (dateValue) regimenDates.push(String(dateValue).slice(0, 10));
     }
   });
-  if (diagnoses.length) context["patient.diagnosisCodes"] = [...new Set(diagnoses)].join(",");
+  if (diagnoses.length) context["patient.conditionCodes"] = [...new Set(diagnoses)].join(",");
   if (medications.length) context["medication.currentDrugNames"] = [...new Set(medications)].join(", ");
   if (regimenDates.length) context["medication.regimenStartDate"] = regimenDates.sort()[0];
   const observationMap = {
-    "8867-4": "vitals.heartRate",
+    "8867-4": "vitals.heartRateBpm",
     "98979-8": "lab.eGfr",
     "13457-7": "lab.ldlCholesterol",
     "2571-8": "lab.triglycerides",
@@ -1626,9 +1693,18 @@ function renderTree() {
   renderGraph(tree);
   renderInputForm(tree);
   updateViewPanels(tree);
-  setResultCard(UI_LABELS[state.locale].currentRun, [], tree.id);
+  if (state.lastRunResult) {
+    const result = state.lastRunResult;
+    const headline = result.status === "completed"
+      ? resultDisplayLabel(result)
+      : result.status === "needs_data" ? "Chưa đủ dữ liệu" : `Không thể hoàn tất (${result.status || "unknown"})`;
+    setResultCard(UI_LABELS[state.locale].currentRun, [headline], result?.terminalTreeId || state.treeId);
+    highlightPath(result);
+  } else {
+    setResultCard(UI_LABELS[state.locale].currentRun, [], tree.id);
+    clearPathHighlight();
+  }
   showStatus("");
-  clearPathHighlight();
 }
 
 function selectTree(treeId, message = "") {
@@ -1649,6 +1725,7 @@ function renderResult(result) {
   refreshLatestBpDisplay(state.context);
   refreshRegimenStableDisplay(state.context);
   markMissingInputs(result?.missingData || []);
+  state.lastRunResult = result || null;
   const headline = result.status === "completed"
     ? resultDisplayLabel(result)
     : result.status === "needs_data"
@@ -1671,6 +1748,7 @@ function applyPatientValues(values, message = "") {
   // A loaded preset/record is a new patient snapshot. Do not retain fields
   // that happened to be present for the previously loaded patient.
   state.context = { ...values };
+  state.lastRunResult = null;
   renderInputForm(currentTree());
   if (state.inputMode === "json") $("json-input").value = pretty(state.context);
   markMissingInputs([]);
@@ -1719,6 +1797,7 @@ function setPatientTab(tab) {
 
 function resetPatientData() {
   state.context = {};
+  state.lastRunResult = null;
   state.missingInputIds = new Set();
   $("preset-select").value = "";
   $("patient-record-id").value = "";
@@ -1779,6 +1858,13 @@ async function runClinicalFlowFromForm() {
 
 function schedulePathPreview() {
   clearTimeout(state.previewTimer);
+  // Keep the full clinical-flow trace when the user is just moving between
+  // linked trees. A new preview is only needed after the patient inputs
+  // change.
+  if (state.lastRunResult?.trace?.some((event) => event.treeId === state.treeId)) {
+    highlightPath(state.lastRunResult);
+    return;
+  }
   const sequence = ++state.previewSequence;
   let variables;
 
@@ -1873,10 +1959,10 @@ document.addEventListener("click", (event) => {
   const resultTree = event.target.closest?.("#current-run-tree[data-tree-id]");
   if (resultTree) selectTree(resultTree.dataset.treeId, state.locale === "en" ? "Opened linked tree." : "Đã mở cây liên quan.");
 });
-$("input-form").addEventListener("input", schedulePathPreview);
-$("input-form").addEventListener("change", () => { rememberCurrentForm(); markMissingInputs([]); schedulePathPreview(); });
+$("input-form").addEventListener("input", () => { state.lastRunResult = null; schedulePathPreview(); });
+$("input-form").addEventListener("change", () => { state.lastRunResult = null; rememberCurrentForm(); markMissingInputs([]); schedulePathPreview(); });
 $("input-form").addEventListener("input", () => { rememberCurrentForm(); markMissingInputs([]); });
-$("json-input").addEventListener("input", schedulePathPreview);
+$("json-input").addEventListener("input", () => { state.lastRunResult = null; schedulePathPreview(); });
 $("json-file").addEventListener("change", loadJsonFile);
 $("language-toggle").addEventListener("click", () => {
   state.locale = state.locale === "vi" ? "en" : "vi";

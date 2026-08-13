@@ -36,36 +36,34 @@ async function main() {
   assert.ok(bundle.trees.find((item) => item.id === "uncontrolled_resistant_hypertension"));
 
   const input = {
-    "bp.office1.systolicMmHg": "130",
-    "bp.office1.diastolicMmHg": "80",
-    "bp.office2.systolicMmHg": "130",
-    "bp.office2.diastolicMmHg": "80",
-    "bp.office3.systolicMmHg": "120",
-    "bp.office3.diastolicMmHg": "80",
-    "patient.diagnosisCodes": "373717006",
+    "bp.office.measurement1.systolicMmHg": "130",
+    "bp.office.measurement1.diastolicMmHg": "80",
+    "bp.office.measurement2.systolicMmHg": "130",
+    "bp.office.measurement2.diastolicMmHg": "80",
+    "bp.office.measurement3.systolicMmHg": "120",
+    "bp.office.measurement3.diastolicMmHg": "80",
+    "patient.conditionCodes": "NO_KNOWN_CODES",
   };
   const run = runEngine(bp.id, input);
   assert.equal(run.result.status, "completed");
-  assert.equal(run.result.resultCode, "normal_bp");
+  assert.equal(run.result.outcomeCode, "normal_bp");
   assert.ok(Array.isArray(run.result.trace));
   assert.deepEqual(missingRequiredVariables([bp.id], input, bundle), []);
-  const incomplete = runEngine(bp.id, { "bp.office1.systolicMmHg": 130 }, { strict: true });
+  const incomplete = runEngine(bp.id, { "bp.office.measurement1.systolicMmHg": 130 }, { strict: true });
   assert.equal(incomplete.result.status, "needs_data");
-  assert.ok(incomplete.result.missingData.includes("bp.office1.diastolicMmHg"));
+  assert.ok(incomplete.result.missingData.includes("bp.office.measurement1.diastolicMmHg"));
 
   const flowInput = {
-    "bp.category": "high_normal",
-    "risk.class": "low",
+    "hypertension.diagnosisCategory": "high_normal_bp",
     "encounter.number": 1,
     "patient.birthDate": "1990-01-01",
-    "patient.diagnosisCodes": "NO_KNOWN_CODES",
+    "patient.conditionCodes": "NO_KNOWN_CODES",
   };
   const flow = runClinicalFlow("bp_thresholds_targets", flowInput);
-  assert.equal(flow.result.terminalTreeId, "optimized_hypertension_treatment");
-  assert.equal(flow.result.resultCode, "new_patient_lifestyle_first");
-  assert.equal(flow.result.context["treatment.recommendation"], "lifestyle_first");
+  assert.equal(flow.result.terminalTreeId, "bp_thresholds_targets");
+  assert.equal(flow.result.outcomeCode, "lifestyle_change_and_recheck");
 
-  const defaultFlow = runClinicalFlow(undefined, { "bp.office1.systolicMmHg": 130 });
+  const defaultFlow = runClinicalFlow(undefined, { "bp.office.measurement1.systolicMmHg": 130 });
   assert.equal(defaultFlow.result.entryTreeId, "bp_diagnosis");
   assert.equal(defaultFlow.result.status, "needs_data");
 
@@ -131,14 +129,14 @@ async function main() {
       variables: input,
     });
     assert.equal(runApi.status, 200);
-    assert.equal(runApi.body.result.resultCode, "normal_bp");
+    assert.equal(runApi.body.result.outcomeCode, "normal_bp");
     assert.equal(runApi.body.result.patientId, "patient-smoke");
     assert.equal(runApi.body.result.asOf, "2026-08-11");
 
     const flowApi = await request(port, "POST", "/api/run-flow", { startTreeId: "bp_thresholds_targets", variables: flowInput });
     assert.equal(flowApi.status, 200);
-    assert.equal(flowApi.body.result.terminalTreeId, "optimized_hypertension_treatment");
-    assert.equal(flowApi.body.result.resultCode, "new_patient_lifestyle_first");
+    assert.equal(flowApi.body.result.terminalTreeId, "bp_thresholds_targets");
+    assert.equal(flowApi.body.result.outcomeCode, "lifestyle_change_and_recheck");
 
     const removedDraftApi = await request(port, "POST", "/api/run-draft", { treeId: bp.id, tree: bp, variables: input });
     assert.equal(removedDraftApi.status, 404);

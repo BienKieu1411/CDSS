@@ -134,7 +134,7 @@
         "type": "condition",
         "display": {
           "title": "Số nhóm thuốc hạ áp = 2?",
-          "shortLabel": "Đếm drug_classes"
+          "shortLabel": "Đếm nhóm thuốc hạ áp"
         },
         "logic": {
           "predicate": {
@@ -150,7 +150,7 @@
             "page": 1,
             "section": "Phân loại thuốc và tối ưu phác đồ",
             "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
-            "note": "drug_classes list có độ dài 2"
+            "note": "Danh sách nhóm thuốc hạ áp có đúng 2 nhóm"
           }
         ]
       },
@@ -179,7 +179,7 @@
         "type": "condition",
         "display": {
           "title": "Số nhóm thuốc hạ áp ≥3?",
-          "shortLabel": "≥3 drug classes"
+          "shortLabel": "Từ 3 nhóm thuốc hạ áp"
         },
         "logic": {
           "predicate": {
@@ -195,7 +195,7 @@
             "page": 1,
             "section": "Phân loại thuốc và tối ưu phác đồ",
             "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
-            "note": "drug_classes list có độ dài ≥3"
+            "note": "Danh sách nhóm thuốc hạ áp có từ 3 nhóm trở lên"
           }
         ]
       },
@@ -203,7 +203,7 @@
         "id": "treatment_drug_d_gate",
         "type": "condition",
         "display": {
-          "title": "drug_classes có nhóm D?",
+            "title": "Danh sách thuốc có nhóm D?",
           "shortLabel": "Kiểm tra nhóm D"
         },
         "logic": {
@@ -220,7 +220,7 @@
             "page": 1,
             "section": "Phân loại thuốc và tối ưu phác đồ",
             "tableOrFigure": "codex-clipboard-a6e04fc5-cc06-4938-982a-176da6ea8a69.png",
-            "note": "drug_classes là list loại thuốc A, B, C, D"
+              "note": "Danh sách thuốc được chuẩn hóa thành các nhóm A, B, C, D"
           }
         ]
       },
@@ -288,7 +288,7 @@
       }
     ],
     "notes": [
-      "drug_classes được chuẩn hóa thành medication.antihypertensiveDrugClasses, kiểu array, với phần tử A/B/C/D.",
+        "Danh sách thuốc được chuẩn hóa thành các nhóm A, B, C, D để đánh giá phác đồ.",
       "data_cf_latest_encounter được chuẩn hóa thành medication.regimenAtLeastFourWeeks, kiểu boolean; medication.regimenStartDate là biến độc lập để tạo/kiểm tra biến này.",
       "medication.regimenStartDate và medication.regimenAtLeastFourWeeks chưa có trong bản Excel hiện tại; cần bổ sung vào Variable Registry khi chốt catalog canonical.",
       "Khoảng xử lý trong sơ đồ được diễn giải là HATT 140–169 và HATTr 90–99; cần clinical review xác nhận nếu chỉ cần một trong hai chỉ số nằm trong khoảng."

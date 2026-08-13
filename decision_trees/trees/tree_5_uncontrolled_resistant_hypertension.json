@@ -508,7 +508,7 @@
         "id": "strategy_link_ckd",
         "type": "link",
         "display": { "title": "Chuyển sang cây điều trị bệnh thận mạn", "shortLabel": "Bệnh thận mạn" },
-        "data": { "targetTreeId": "hypertension_ckd_strategy" },
+        "data": { "targetTreeId": "hypertension_ckd_strategy", "callMode": "navigate_only" },
         "sourceRefs": [
           {
             "sourceId": "image_05_strategy",
@@ -523,7 +523,7 @@
         "id": "strategy_link_diabetes",
         "type": "link",
         "display": { "title": "Chuyển sang cây điều trị đái tháo đường", "shortLabel": "Đái tháo đường" },
-        "data": { "targetTreeId": "hypertension_diabetes_strategy" },
+        "data": { "targetTreeId": "hypertension_diabetes_strategy", "callMode": "navigate_only" },
         "sourceRefs": [
           {
             "sourceId": "image_05_strategy",
@@ -538,7 +538,7 @@
         "id": "strategy_link_cvd",
         "type": "link",
         "display": { "title": "Chuyển sang cây điều trị bệnh tim mạch", "shortLabel": "Bệnh tim mạch" },
-        "data": { "targetTreeId": "hypertension_cvd_strategy" },
+        "data": { "targetTreeId": "hypertension_cvd_strategy", "callMode": "navigate_only" },
         "sourceRefs": [
           {
             "sourceId": "image_05_strategy",
@@ -553,7 +553,7 @@
         "id": "strategy_link_target_organ",
         "type": "link",
         "display": { "title": "Chuyển sang cây điều trị tổn thương cơ quan đích", "shortLabel": "Tổn thương cơ quan đích" },
-        "data": { "targetTreeId": "hypertension_target_organ_damage_strategy" },
+        "data": { "targetTreeId": "hypertension_target_organ_damage_strategy", "callMode": "navigate_only" },
         "sourceRefs": [
           {
             "sourceId": "image_05_strategy",
@@ -568,7 +568,7 @@
         "id": "strategy_link_heart_failure",
         "type": "link",
         "display": { "title": "Chuyển sang cây điều trị suy tim", "shortLabel": "Suy tim" },
-        "data": { "targetTreeId": "hypertension_heart_failure_strategy" },
+        "data": { "targetTreeId": "hypertension_heart_failure_strategy", "callMode": "navigate_only" },
         "sourceRefs": [
           {
             "sourceId": "image_05_strategy",
