@@ -294,7 +294,7 @@
           "predicate": {
             "field": "risk.cardiovascularRiskClass",
             "op": "in",
-            "value": ["low", "low_medium", "medium", "medium_high"]
+            "value": ["low", "medium"]
           }
         },
         "onMissingData": "stop",

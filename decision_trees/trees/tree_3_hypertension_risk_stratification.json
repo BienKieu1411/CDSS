@@ -3,7 +3,7 @@
   "tree": {
     "id": "hypertension_risk_stratification",
     "name": "Cây 3 — Phân tầng nguy cơ tim mạch",
-    "purpose": "Phân tầng nguy cơ thấp, trung bình, cao hoặc mức giao nhau dựa trên bệnh đồng mắc, chẩn đoán HABTC/THA, huyết áp gần nhất và số lượng yếu tố nguy cơ.",
+    "purpose": "Phân tầng nguy cơ thấp, trung bình hoặc cao dựa trên bệnh đồng mắc, chẩn đoán HABTC/THA, huyết áp gần nhất và số lượng yếu tố nguy cơ.",
     "clinicalStatus": "draft",
     "entryNodeId": "risk_start",
     "inputVariables": [
@@ -164,12 +164,12 @@
         "id": "risk_habtc_low_medium",
         "type": "end",
         "display": {
-          "title": "Nguy cơ thấp/trung bình",
+          "title": "Nguy cơ trung bình",
           "detail": "HABTC với ≥3 yếu tố nguy cơ"
         },
         "data": {
-          "outcomeCode": "low_medium",
-          "sets": { "risk.cardiovascularRiskClass": "low_medium" }
+          "outcomeCode": "medium",
+          "sets": { "risk.cardiovascularRiskClass": "medium" }
         },
         "sourceRefs": [
           {
@@ -177,7 +177,7 @@
             "page": 1,
             "section": "Phân tầng nguy cơ tim mạch",
             "tableOrFigure": "codex-clipboard-e305bc3a-c43d-43c8-87da-fc8208bf0c9b.png",
-            "note": "HABTC, ≥3 YTNC → thấp/trung bình"
+            "note": "HABTC, ≥3 YTNC → trung bình"
           }
         ]
       },
@@ -303,8 +303,8 @@
       {
         "id": "risk_tha_degree2_medium_high",
         "type": "end",
-        "display": { "title": "Nguy cơ trung bình/cao", "detail": "THA độ 2 với 0–1 YTNC" },
-        "data": { "outcomeCode": "medium_high", "sets": { "risk.cardiovascularRiskClass": "medium_high" } }
+        "display": { "title": "Nguy cơ cao", "detail": "THA độ 2 với 0–1 YTNC" },
+        "data": { "outcomeCode": "high", "sets": { "risk.cardiovascularRiskClass": "high" } }
       },
       {
         "id": "risk_tha_degree2_high",
@@ -371,7 +371,7 @@
       "HABTC được chuẩn hóa là high_normal_bp; THA được chuẩn hóa là hypertension.",
       "Số lượng YTNC dùng risk.factorCount; các nhánh chính dùng 0–2, ≥3; THA độ 1 dùng 0, 1–2, ≥3; THA độ 2 dùng 0–1, ≥2 theo sơ đồ.",
       "HATT/HATTr gần nhất dùng bp.latestSystolicMmHg và bp.latestDiastolicMmHg từ Variable Registry.",
-      "Cây đang ở trạng thái draft; clinical review cần xác nhận cách gộp các nhãn giao nhau thấp/trung bình và trung bình/cao."
+      "Các mức nguy cơ giao nhau được hiển thị và truyền sang cây tiếp theo dưới dạng trung bình hoặc cao."
     ]
   }
 }
