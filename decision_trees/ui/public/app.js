@@ -104,6 +104,11 @@ const UI_LABELS = {
     live: "Live visualization",
     ready: "System Ready",
     language: "Switch language",
+    legendRoot: "Root",
+    legendDecision: "Decision",
+    legendRecommendation: "Recommendation",
+    legendInformation: "Information",
+    legendOutcome: "Outcome",
   },
   vi: {
     "bp.office.measurement1.systolicMmHg": "HATT lần đo 1",
@@ -163,6 +168,11 @@ const UI_LABELS = {
     live: "Hiển thị trực quan",
     ready: "Hệ thống sẵn sàng",
     language: "Chuyển ngôn ngữ",
+    legendRoot: "Bắt đầu",
+    legendDecision: "Điều kiện",
+    legendRecommendation: "Khuyến nghị",
+    legendInformation: "Thông tin",
+    legendOutcome: "Kết luận",
   },
 };
 
@@ -535,6 +545,11 @@ function applyLocale() {
   $("#patient-record-id").placeholder = labels.localRecordPlaceholder;
   $("#patient-record-help").textContent = labels.localRecordHelp;
   set("#open-patient-record", labels.open);
+  set("#legend-root", labels.legendRoot);
+  set("#legend-decision", labels.legendDecision);
+  set("#legend-recommendation", labels.legendRecommendation);
+  set("#legend-information", labels.legendInformation);
+  set("#legend-outcome", labels.legendOutcome);
   set(".preset-field span", labels.preset);
   set("#patient-tab-specs", labels.patientSpecs);
   set("#patient-tab-history", labels.clinicalHistory);
@@ -1668,7 +1683,7 @@ function updateViewPanels(tree) {
   document.querySelector(".explorer-sidebar").hidden = !isExplorer;
   document.querySelector(".builder-library").hidden = !isBuilder;
   document.querySelector(".builder-properties").hidden = !isBuilder;
-  document.querySelector(".legend-card").hidden = !isExplorer;
+  document.querySelector(".legend-card").hidden = false;
   document.querySelector(".builder-mode-switch").hidden = !isBuilder;
   $("node-count-label").textContent = `${tree.nodes.length} nodes`;
   document.querySelector(".visual-card h2").textContent = isExplorer

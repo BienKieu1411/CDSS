@@ -9,12 +9,13 @@
   --neutral-600: #6c757d;
   --neutral-900: #212529;
   --white: #ffffff;
-  --node-start: #00c0e8;
+  --node-start: #00c8b3;
   --node-decision-bg: #fffaf6;
   --node-decision: #ff8d28;
   --node-output-bg: #f3fffe;
   --node-output: #00c8b3;
   --node-link: #cb30e0;
+  --node-information: #2563eb;
   --danger: #ff383c;
   --success: #34c759;
   --shadow-1: 0 4px 6px rgba(33, 37, 41, .2), 0 0 1px rgba(33, 37, 41, .32);
@@ -790,7 +791,7 @@ body[data-view="builder"] .builder-properties {
   overflow: hidden;
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  grid-template-rows: 48px minmax(0, 1fr) 40px 24px;
+  grid-template-rows: 96px minmax(0, 1fr) 40px 24px;
   gap: 20px 16px;
   padding: 20px;
   background: var(--neutral-150);
@@ -876,7 +877,11 @@ body[data-view="explorer"] .visual-card h2 { font-size: 12px; }
 }
 
 .legend-card {
-  grid-column: 1 / -1;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: end;
+  transform: translateY(-8px);
   gap: 14px;
 }
 
@@ -886,6 +891,10 @@ body[data-view="builder"] .node-count-card {
 }
 
 body[data-view="explorer"] .legend-card {
+  display: flex;
+}
+
+body[data-view="builder"] .legend-card {
   display: flex;
 }
 
@@ -900,7 +909,7 @@ body[data-view="explorer"] .legend-card {
 .root-dot { background: var(--node-start); }
 .decision-dot { background: var(--node-decision); }
 .recommendation-dot { background: var(--node-output); }
-.information-dot { background: #3489eb; }
+.information-dot { background: var(--node-information); }
 .outcome-dot { background: var(--node-link); }
 
 .branch-small-icon {
