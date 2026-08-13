@@ -148,9 +148,9 @@
     ],
     "validation": {
       "trees": 5,
-      "variables": 50,
-      "nodes": 91,
-      "edges": 89,
+      "variables": 57,
+      "nodes": 102,
+      "edges": 102,
       "links": 18
     },
     "decision": {

@@ -144,10 +144,10 @@ def derive_patient_problem_variables(context: dict[str, Any]) -> dict[str, Any]:
     ))
     derived["treatment.mandatoryIndication"] = any(derived[key] for key in (
         "comorbidity.atheroscleroticCvd",
-        "comorbidity.heartFailure",
+        "comorbidity.heartFailureReducedEjectionFraction",
         "comorbidity.stroke",
         "comorbidity.ckd",
-        "comorbidity.diabetes",
+        "comorbidity.type2Diabetes",
     ))
     derived["treatment.hasHighRiskComorbidity"] = derived["risk.highRiskComorbidity"]
     return derived
@@ -245,10 +245,10 @@ def derive_patient_measurement_variables(context: dict[str, Any]) -> dict[str, A
 
     mandatory_fields = (
         "comorbidity.atheroscleroticCvd",
-        "comorbidity.heartFailure",
+        "comorbidity.heartFailureReducedEjectionFraction",
         "comorbidity.stroke",
         "comorbidity.ckd",
-        "comorbidity.diabetes",
+        "comorbidity.type2Diabetes",
     )
     mandatory = _derive_any_known({**context, **derived}, mandatory_fields)
     if mandatory is not None:
@@ -682,8 +682,23 @@ def run(bundle_path: Path, tree_id: str, context: dict[str, Any]) -> dict[str, A
     # Do not allow a JSON/API caller to override the derived latest BP.
     initial_context.pop("bp.latest.systolicMmHg", None)
     initial_context.pop("bp.latest.diastolicMmHg", None)
+    # These values are calculated from the current encounter BP and the two
+    # target values produced by Tree 2.  They are not user-entered switches.
+    for field in (
+        "bp.controlledAfterTwoDrugs",
+        "bp.controlledAfterThreeDrugs",
+        "bp.controlledAfterFourDrugs",
+    ):
+        initial_context.pop(field, None)
     # This is a derived duration, never a caller-supplied override.
     initial_context.pop("medication.regimenStableWeeks", None)
+    # Drug-class lists are calculated from the human-readable medication
+    # names and the persisted VN medication catalog.
+    for field in (
+        "medication.currentDrugClassList",
+        "medication.previousEncounterDrugClassList",
+    ):
+        initial_context.pop(field, None)
     initial_context.update(derive_patient_problem_variables(initial_context))
     initial_context.update(derive_patient_measurement_variables(initial_context))
     initial_context.update(derive_medication_variables(initial_context))

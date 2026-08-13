@@ -2,8 +2,8 @@
   "formatVersion": "decision-tree.v1",
   "tree": {
     "id": "bp_thresholds_targets",
-    "name": "Cây ngưỡng huyết áp và đích điều trị",
-    "purpose": "Xác định thay đổi lối sống ở lần khám đầu tiên và đích điều trị sau tái khám theo chẩn đoán từ Cây 1, nguy cơ và bệnh đồng mắc.",
+    "name": "BP Thresholds and Targets Tree",
+    "purpose": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng.",
     "clinicalStatus": "under_review",
     "entryNodeId": "threshold_start",
     "inputVariables": [
@@ -24,8 +24,8 @@
         "id": "threshold_start",
         "type": "start",
         "display": {
-          "title": "Bắt đầu xác định ngưỡng và đích điều trị",
-          "detail": "Nhận kết quả phân loại huyết áp từ Cây 1."
+          "title": "Ngưỡng HA và đích điều trị",
+          "detail": "Phân biệt HA bình thường-cao và THA ở người lớn."
         },
         "sourceRefs": [
           {
@@ -33,7 +33,7 @@
             "page": 1,
             "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
             "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Bắt đầu xác định ngưỡng và đích điều trị"
+            "note": "Ngưỡng HA và đích điều trị"
           }
         ]
       },
@@ -41,8 +41,7 @@
         "id": "threshold_high_normal",
         "type": "condition",
         "display": {
-          "title": "Người bệnh có huyết áp bình thường-cao?",
-          "detail": "Huyết áp bình thường-cao: HATT 130–139 mmHg hoặc HATTr 85–89 mmHg."
+          "title": "Người bệnh có huyết áp bình thường-cao?"
         },
         "sourceRefs": [
           {
@@ -65,8 +64,7 @@
         "id": "threshold_high_normal_encounter",
         "type": "condition",
         "display": {
-          "title": "Đây có phải lần khám đầu tiên không?",
-          "detail": "Encounter = 1: thay đổi lối sống và hẹn khám lại. Encounter >1: đánh giá đích điều trị."
+          "title": "Đây có phải lần khám đầu tiên không?"
         },
         "sourceRefs": [
           {
@@ -114,8 +112,7 @@
         "id": "threshold_hypertension_encounter",
         "type": "condition",
         "display": {
-          "title": "Đây có phải lần khám đầu tiên không?",
-          "detail": "Encounter = 1: thay đổi lối sống và hẹn khám lại. Encounter >1: kiểm tra nguy cơ và bệnh đồng mắc để xác định đích."
+          "title": "Đây có phải lần khám đầu tiên không?"
         },
         "sourceRefs": [
           {
@@ -163,8 +160,7 @@
         "id": "threshold_comorbidity",
         "type": "condition",
         "display": {
-          "title": "Người bệnh có bệnh đồng mắc?",
-          "detail": "Bệnh đồng mắc gồm bệnh tim mạch do xơ vữa, đái tháo đường, bệnh thận mạn hoặc bệnh đồng mắc nguy cơ cao."
+          "title": "Người bệnh có bệnh đồng mắc?"
         },
         "sourceRefs": [
           {
@@ -241,8 +237,7 @@
         "id": "threshold_link_treatment_high_normal_lifestyle",
         "type": "link",
         "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
-          "detail": "Tiếp tục với khuyến nghị thay đổi lối sống và hẹn khám lại."
+          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
         },
         "sourceRefs": [
           {
@@ -250,7 +245,7 @@
             "page": 1,
             "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
             "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Liên kết sang Cây 3 sau khi xác định khuyến nghị."
+            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
           }
         ],
         "data": {
@@ -265,8 +260,7 @@
         "id": "threshold_link_treatment_hypertension_lifestyle",
         "type": "link",
         "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
-          "detail": "Tiếp tục với khuyến nghị thay đổi lối sống và hẹn khám lại."
+          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
         },
         "sourceRefs": [
           {
@@ -274,7 +268,7 @@
             "page": 1,
             "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
             "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Liên kết sang Cây 3 sau khi xác định khuyến nghị."
+            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
           }
         ],
         "data": {
@@ -289,8 +283,7 @@
         "id": "threshold_link_treatment_comorbidity",
         "type": "link",
         "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
-          "detail": "Tiếp tục với đích điều trị <130/80 mmHg khi có bệnh đồng mắc."
+          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
         },
         "sourceRefs": [
           {
@@ -298,7 +291,7 @@
             "page": 1,
             "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
             "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Liên kết sang Cây 3 sau khi xác định đích điều trị."
+            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
           }
         ],
         "data": {
@@ -313,8 +306,7 @@
         "id": "threshold_link_treatment_standard",
         "type": "link",
         "display": {
-          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu",
-          "detail": "Tiếp tục với đích điều trị <140/80 mmHg khi không có bệnh đồng mắc."
+          "title": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
         },
         "sourceRefs": [
           {
@@ -322,7 +314,7 @@
             "page": 1,
             "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
             "tableOrFigure": "02_bp_thresholds_and_targets.png",
-            "note": "Liên kết sang Cây 3 sau khi xác định đích điều trị."
+            "note": "Chuyển sang Cây 3: Điều trị tăng huyết áp tối ưu"
           }
         ],
         "data": {
@@ -415,14 +407,11 @@
         "page": 1,
         "section": "Ngưỡng huyết áp ban đầu và đích điều trị",
         "tableOrFigure": "02_bp_thresholds_and_targets.png",
-        "note": "Cây 2 liên kết chẩn đoán từ Cây 1 với encounter, nguy cơ và bệnh đồng mắc để chọn thay đổi lối sống hoặc đích điều trị."
+        "note": "Chọn chiến lược thay đổi lối sống, điều trị thuốc và đích HA theo 3 nhóm đối tượng."
       }
     ],
     "notes": [
-      "Encounter = 1: thay đổi lối sống và hẹn khám lại.",
-      "Encounter >1: nếu vẫn còn huyết áp bình thường-cao thì xác định đích <130/80 mmHg.",
-      "Với tăng huyết áp tái khám: nguy cơ cao hoặc bệnh đồng mắc dùng đích <130/80 mmHg; không có bệnh đồng mắc dùng đích <140/80 mmHg.",
-      "Cần clinical review trước khi phê duyệt."
+      "Được chuyển đổi từ sơ đồ ảnh mục tiêu; cần clinical review trước khi phê duyệt."
     ]
   }
 }

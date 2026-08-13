@@ -357,6 +357,48 @@
       }
     },
     {
+      "id": "patient.diagnosisCodes",
+      "label": "Mã bệnh của người bệnh",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Danh sách mã ICD-10/SNOMED trong hồ sơ; engine tự kiểm tra để cập nhật các biến bệnh đồng mắc.",
+      "sourceSystem": "patient",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Danh sách mã ICD-10/SNOMED trong hồ sơ; engine tự kiểm tra để cập nhật các biến bệnh đồng mắc."
+        }
+      ],
+      "validation": {
+        "maxLength": 4000
+      }
+    },
+    {
+      "id": "patient.birthDate",
+      "label": "Ngày sinh",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Ngày sinh dùng để engine tự tính tuổi tại ngày khám; không nhập tuổi nếu đã có ngày sinh.",
+      "sourceSystem": "patient",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Ngày sinh dùng để engine tự tính tuổi tại ngày khám; không nhập tuổi nếu đã có ngày sinh."
+        }
+      ],
+      "validation": {
+        "maxLength": 10
+      }
+    },
+    {
       "id": "patient.ageYears",
       "label": "Tuổi bệnh nhân",
       "dataType": "integer",
@@ -491,6 +533,48 @@
       ]
     },
     {
+      "id": "comorbidity.heartFailureReducedEjectionFraction",
+      "label": "Suy tim phân suất tống máu giảm",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tự cập nhật từ mã bệnh suy tim phân suất tống máu giảm trong hồ sơ.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Tự cập nhật từ mã bệnh suy tim phân suất tống máu giảm trong hồ sơ."
+        }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ]
+    },
+    {
+      "id": "comorbidity.type2Diabetes",
+      "label": "Đái tháo đường type 2",
+      "dataType": "boolean",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Tự cập nhật từ mã bệnh đái tháo đường type 2 trong hồ sơ.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Tự cập nhật từ mã bệnh đái tháo đường type 2 trong hồ sơ."
+        }
+      ],
+      "derivedFrom": [
+        "patient.diagnosisCodes"
+      ]
+    },
+    {
       "id": "comorbidity.targetOrganDamageOrCvd",
       "label": "Tổn thương cơ quan đích hoặc bệnh tim mạch",
       "dataType": "boolean",
@@ -518,7 +602,7 @@
       "dataType": "boolean",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Biến dẫn xuất từ bệnh mạch vành/xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường.",
+      "definition": "Biến dẫn xuất từ đúng 5 bệnh của nhánh chỉ định bắt buộc: bệnh tim mạch do xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
@@ -526,15 +610,15 @@
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Biến dẫn xuất từ bệnh mạch vành/xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường."
+          "note": "Biến dẫn xuất từ đúng 5 bệnh của nhánh chỉ định bắt buộc: bệnh tim mạch do xơ vữa, suy tim, đột quỵ, bệnh thận mạn hoặc đái tháo đường."
         }
       ],
       "derivedFrom": [
         "comorbidity.atheroscleroticCvd",
-        "comorbidity.heartFailure",
+        "comorbidity.heartFailureReducedEjectionFraction",
         "comorbidity.stroke",
         "comorbidity.ckd",
-        "comorbidity.diabetes"
+        "comorbidity.type2Diabetes"
       ]
     },
     {
@@ -643,12 +727,12 @@
       ]
     },
     {
-      "id": "treatment.path",
-      "label": "Nhánh điều trị tối ưu",
+      "id": "treatment.initialRegimen",
+      "label": "Phác đồ khởi trị",
       "dataType": "enum",
       "unit": null,
       "requiredForEvaluation": false,
-      "definition": "Nhánh được chọn trong sơ đồ điều trị theo encounter và giai đoạn số nhóm thuốc.",
+      "definition": "Phác đồ khởi trị được chọn cho bệnh nhân mới hoặc khi có chỉ định bắt buộc.",
       "sourceSystem": "derived",
       "sourceRefs": [
         {
@@ -656,12 +740,91 @@
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Nhánh được chọn trong sơ đồ điều trị theo encounter và giai đoạn số nhóm thuốc."
+          "note": "Phác đồ khởi trị được chọn cho bệnh nhân mới hoặc khi có chỉ định bắt buộc."
+        }
+      ],
+      "allowedValues": [
+        "lifestyle_first",
+        "single_pill_abcd",
+        "combination_ac_or_d",
+        "mandatory_indication",
+        "review_required"
+      ]
+    },
+    {
+      "id": "treatment.mandatoryDisease",
+      "label": "Bệnh tạo chỉ định điều trị bắt buộc",
+      "dataType": "enum",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Một trong 5 bệnh được nhánh chỉ định bắt buộc xác định.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Một trong 5 bệnh được nhánh chỉ định bắt buộc xác định."
+        }
+      ],
+      "allowedValues": [
+        "coronary_artery_disease",
+        "heart_failure_reduced_ef",
+        "stroke",
+        "chronic_kidney_disease",
+        "type2_diabetes",
+        "review_required"
+      ]
+    },
+    {
+      "id": "treatment.mandatoryRegimen",
+      "label": "Định hướng điều trị theo bệnh đồng mắc",
+      "dataType": "string",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Nội dung định hướng điều trị được xuất theo bệnh tạo chỉ định bắt buộc.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Nội dung định hướng điều trị được xuất theo bệnh tạo chỉ định bắt buộc."
+        }
+      ],
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "treatment.path",
+      "label": "Nhánh điều trị tối ưu",
+      "dataType": "enum",
+      "unit": null,
+      "requiredForEvaluation": false,
+      "definition": "Nhánh được chọn trong sơ đồ điều trị theo encounter, bệnh đồng mắc và giai đoạn số nhóm thuốc.",
+      "sourceSystem": "derived",
+      "sourceRefs": [
+        {
+          "sourceId": "image_03_optimized_treatment",
+          "page": 1,
+          "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+          "tableOrFigure": "03_optimized_hypertension_treatment.png",
+          "note": "Nhánh được chọn trong sơ đồ điều trị theo encounter, bệnh đồng mắc và giai đoạn số nhóm thuốc."
         }
       ],
       "allowedValues": [
         "new_patient_initial_treatment",
+        "new_patient_lifestyle_first",
+        "new_patient_combination_start",
         "new_patient_mandatory_indication",
+        "mandatory_coronary_artery_disease",
+        "mandatory_heart_failure_reduced_ef",
+        "mandatory_stroke",
+        "mandatory_chronic_kidney_disease",
+        "mandatory_type2_diabetes",
         "followup_stage_1_escalate_two_drugs",
         "followup_two_drugs_controlled",
         "followup_escalate_three_drugs",
@@ -2102,15 +2265,24 @@
     {
       "id": "optimized_hypertension_treatment",
       "name": "Optimized Hypertension Treatment Tree",
-      "purpose": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2.",
+      "purpose": "Điều trị tăng huyết áp tối ưu theo bệnh đồng mắc, lần khám, danh sách nhóm thuốc và kiểm soát HA theo đích từ Cây 2.",
       "clinicalStatus": "under_review",
       "entryNodeId": "optimized_start",
       "inputVariables": [
+        "patient.diagnosisCodes",
         "patient.ageYears",
-        "bp.latest.systolicMmHg",
-        "bp.latest.diastolicMmHg",
         "bp.category",
+        "treatment.recommendation",
+        "risk.class",
         "treatment.mandatoryIndication",
+        "comorbidity.targetOrganDamageOrCvd",
+        "comorbidity.atheroscleroticCvd",
+        "comorbidity.heartFailure",
+        "comorbidity.heartFailureReducedEjectionFraction",
+        "comorbidity.stroke",
+        "comorbidity.ckd",
+        "comorbidity.diabetes",
+        "comorbidity.type2Diabetes",
         "treatment.targetSystolicMmHg",
         "treatment.targetDiastolicMmHg",
         "medication.previousEncounterDrugNames",
@@ -2118,11 +2290,13 @@
         "bp.controlledAfterTwoDrugs",
         "bp.controlledAfterThreeDrugs",
         "bp.controlledAfterFourDrugs",
-        "encounter.number",
-        "comorbidity.targetOrganDamageOrCvd"
+        "encounter.number"
       ],
       "outputVariables": [
-        "treatment.path"
+        "treatment.path",
+        "treatment.initialRegimen",
+        "treatment.mandatoryDisease",
+        "treatment.mandatoryRegimen"
       ],
       "linksTo": [
         "uncontrolled_resistant_hypertension"
@@ -2133,7 +2307,7 @@
           "type": "start",
           "display": {
             "title": "Điều trị tăng huyết áp tối ưu",
-            "detail": "Phân nhánh theo lần khám và giai đoạn số nhóm thuốc."
+            "detail": "Phân nhánh theo chỉ định bắt buộc, lần khám và giai đoạn số nhóm thuốc."
           },
           "sourceRefs": [
             {
@@ -2146,10 +2320,10 @@
           ]
         },
         {
-          "id": "optimized_entry_gate",
+          "id": "optimized_age_gate",
           "type": "condition",
           "display": {
-            "title": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
+            "title": "Người bệnh trên 18 tuổi?"
           },
           "sourceRefs": [
             {
@@ -2157,28 +2331,42 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Người lớn >18 tuổi và đã có phân loại HA cần flow điều trị?"
+              "note": "Người bệnh trên 18 tuổi?"
             }
           ],
           "logic": {
             "predicate": {
-              "all": [
-                {
-                  "field": "patient.ageYears",
-                  "op": "gt",
-                  "value": 18
-                },
-                {
-                  "field": "bp.category",
-                  "op": "in",
-                  "value": [
-                    "high_normal",
-                    "hypertension",
-                    "grade1",
-                    "grade2",
-                    "masked_hypertension"
-                  ]
-                }
+              "field": "patient.ageYears",
+              "op": "gt",
+              "value": 18
+            }
+          }
+        },
+        {
+          "id": "optimized_entry_gate",
+          "type": "condition",
+          "display": {
+            "title": "Đã có phân loại HA phù hợp với phác đồ này?"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Đã có phân loại HA phù hợp với phác đồ này?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "field": "bp.category",
+              "op": "in",
+              "value": [
+                "high_normal",
+                "hypertension",
+                "grade1",
+                "grade2",
+                "masked_hypertension"
               ]
             }
           }
@@ -2187,8 +2375,8 @@
           "id": "optimized_encounter_type",
           "type": "condition",
           "display": {
-            "title": "Đây là bệnh nhân mới (lần khám số 1)?",
-            "detail": "Lần khám = 1: không kiểm tra lại số lượng thuốc."
+            "title": "Đây có phải buổi tái khám theo dõi thuốc không?",
+            "detail": "Lần khám = 1 là bệnh nhân mới; lần khám >1 là tái khám."
           },
           "sourceRefs": [
             {
@@ -2196,22 +2384,22 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Đây là bệnh nhân mới (lần khám số 1)?"
+              "note": "Đây có phải buổi tái khám theo dõi thuốc không?"
             }
           ],
           "logic": {
             "predicate": {
               "field": "encounter.number",
-              "op": "eq",
+              "op": "gt",
               "value": 1
             }
           }
         },
         {
-          "id": "optimized_new_mandatory",
+          "id": "optimized_followup_mandatory",
           "type": "condition",
           "display": {
-            "title": "Bệnh nhân mới có chỉ định điều trị bắt buộc?"
+            "title": "Có chỉ định điều trị bắt buộc ở lần tái khám?"
           },
           "sourceRefs": [
             {
@@ -2219,7 +2407,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Bệnh nhân mới có chỉ định điều trị bắt buộc?"
+              "note": "Có chỉ định điều trị bắt buộc ở lần tái khám?"
             }
           ],
           "logic": {
@@ -2231,11 +2419,10 @@
           }
         },
         {
-          "id": "optimized_infer_new_mandatory",
-          "type": "end",
+          "id": "optimized_new_mandatory",
+          "type": "condition",
           "display": {
-            "title": "Bệnh nhân mới — điều trị theo bệnh đồng mắc",
-            "detail": "treatment.path = new_patient_mandatory_indication"
+            "title": "Có chỉ định điều trị bắt buộc ở lần khám đầu tiên?"
           },
           "sourceRefs": [
             {
@@ -2243,31 +2430,23 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Bệnh nhân mới — điều trị theo bệnh đồng mắc"
-            },
-            {
-              "sourceId": "image_03_optimized_treatment",
-              "page": 1,
-              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
-              "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Khởi trị theo chỉ định bắt buộc"
+              "note": "Có chỉ định điều trị bắt buộc ở lần khám đầu tiên?"
             }
           ],
-          "data": {
-            "resultCode": "new_patient_mandatory_indication",
-            "severity": "high",
-            "sets": {
-              "treatment.path": "new_patient_mandatory_indication"
-            },
-            "outcomeCode": "new_patient_mandatory_indication_started"
+          "logic": {
+            "predicate": {
+              "field": "treatment.mandatoryIndication",
+              "op": "eq",
+              "value": true
+            }
           }
         },
         {
-          "id": "optimized_infer_new",
-          "type": "end",
+          "id": "optimized_mandatory_branch",
+          "type": "branch",
           "display": {
-            "title": "Bệnh nhân mới — khởi trị phác đồ ban đầu",
-            "detail": "treatment.path = new_patient_initial_treatment"
+            "title": "Bệnh tạo chỉ định điều trị bắt buộc là bệnh nào?",
+            "detail": "Năm nhánh bệnh độc lập; không phân tầng nguy cơ trong nhánh này."
           },
           "sourceRefs": [
             {
@@ -2275,23 +2454,350 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Bệnh nhân mới — khởi trị phác đồ ban đầu"
-            },
+              "note": "Bệnh tạo chỉ định điều trị bắt buộc là bệnh nào?"
+            }
+          ],
+          "logic": {
+            "cases": [
+              {
+                "id": "coronary_artery_disease",
+                "label": "Bệnh tim mạch do xơ vữa",
+                "predicate": {
+                  "any": [
+                    {
+                      "field": "comorbidity.atheroscleroticCvd",
+                      "op": "eq",
+                      "value": true
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "heart_failure_reduced_ef",
+                "label": "Suy tim phân suất tống máu giảm",
+                "predicate": {
+                  "field": "comorbidity.heartFailureReducedEjectionFraction",
+                  "op": "eq",
+                  "value": true
+                }
+              },
+              {
+                "id": "stroke",
+                "label": "Tiền sử đột quỵ",
+                "predicate": {
+                  "field": "comorbidity.stroke",
+                  "op": "eq",
+                  "value": true
+                }
+              },
+              {
+                "id": "chronic_kidney_disease",
+                "label": "Bệnh thận mạn",
+                "predicate": {
+                  "field": "comorbidity.ckd",
+                  "op": "eq",
+                  "value": true
+                }
+              },
+              {
+                "id": "type2_diabetes",
+                "label": "Đái tháo đường type 2",
+                "predicate": {
+                  "field": "comorbidity.type2Diabetes",
+                  "op": "eq",
+                  "value": true
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "optimized_end_mandatory_cad",
+          "type": "end",
+          "display": {
+            "title": "Điều trị theo chỉ định bắt buộc — bệnh tim mạch do xơ vữa",
+            "detail": "treatment.path = mandatory_coronary_artery_disease\ntreatment.initialRegimen = mandatory_indication\ntreatment.mandatoryDisease = coronary_artery_disease\ntreatment.mandatoryRegimen = Định hướng A+B hoặc C theo bệnh tim mạch do xơ vữa."
+          },
+          "sourceRefs": [
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Khởi trị phác đồ ban đầu"
+              "note": "Điều trị theo chỉ định bắt buộc — bệnh tim mạch do xơ vữa"
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_coronary_artery_disease",
+            "outcomeCode": "mandatory_coronary_artery_disease",
+            "sets": {
+              "treatment.path": "mandatory_coronary_artery_disease",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "coronary_artery_disease",
+              "treatment.mandatoryRegimen": "Định hướng A+B hoặc C theo bệnh tim mạch do xơ vữa."
+            }
+          }
+        },
+        {
+          "id": "optimized_end_mandatory_hfref",
+          "type": "end",
+          "display": {
+            "title": "Điều trị theo chỉ định bắt buộc — suy tim phân suất tống máu giảm",
+            "detail": "treatment.path = mandatory_heart_failure_reduced_ef\ntreatment.initialRegimen = mandatory_indication\ntreatment.mandatoryDisease = heart_failure_reduced_ef\ntreatment.mandatoryRegimen = Định hướng A+B+SGLT2i+MRA theo phác đồ suy tim phân suất tống máu giảm."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị theo chỉ định bắt buộc — suy tim phân suất tống máu giảm"
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_heart_failure_reduced_ef",
+            "outcomeCode": "mandatory_heart_failure_reduced_ef",
+            "sets": {
+              "treatment.path": "mandatory_heart_failure_reduced_ef",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "heart_failure_reduced_ef",
+              "treatment.mandatoryRegimen": "Định hướng A+B+SGLT2i+MRA theo phác đồ suy tim phân suất tống máu giảm."
+            }
+          }
+        },
+        {
+          "id": "optimized_end_mandatory_stroke",
+          "type": "end",
+          "display": {
+            "title": "Điều trị theo chỉ định bắt buộc — tiền sử đột quỵ",
+            "detail": "treatment.path = mandatory_stroke\ntreatment.initialRegimen = mandatory_indication\ntreatment.mandatoryDisease = stroke\ntreatment.mandatoryRegimen = Định hướng A+D theo tiền sử đột quỵ."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị theo chỉ định bắt buộc — tiền sử đột quỵ"
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_stroke",
+            "outcomeCode": "mandatory_stroke",
+            "sets": {
+              "treatment.path": "mandatory_stroke",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "stroke",
+              "treatment.mandatoryRegimen": "Định hướng A+D theo tiền sử đột quỵ."
+            }
+          }
+        },
+        {
+          "id": "optimized_end_mandatory_ckd",
+          "type": "end",
+          "display": {
+            "title": "Điều trị theo chỉ định bắt buộc — bệnh thận mạn",
+            "detail": "treatment.path = mandatory_chronic_kidney_disease\ntreatment.initialRegimen = mandatory_indication\ntreatment.mandatoryDisease = chronic_kidney_disease\ntreatment.mandatoryRegimen = Định hướng A+C hoặc D theo bệnh thận mạn."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị theo chỉ định bắt buộc — bệnh thận mạn"
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_chronic_kidney_disease",
+            "outcomeCode": "mandatory_chronic_kidney_disease",
+            "sets": {
+              "treatment.path": "mandatory_chronic_kidney_disease",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "chronic_kidney_disease",
+              "treatment.mandatoryRegimen": "Định hướng A+C hoặc D theo bệnh thận mạn."
+            }
+          }
+        },
+        {
+          "id": "optimized_end_mandatory_dm2",
+          "type": "end",
+          "display": {
+            "title": "Điều trị theo chỉ định bắt buộc — đái tháo đường type 2",
+            "detail": "treatment.path = mandatory_type2_diabetes\ntreatment.initialRegimen = mandatory_indication\ntreatment.mandatoryDisease = type2_diabetes\ntreatment.mandatoryRegimen = Định hướng A+C hoặc D theo bệnh đái tháo đường type 2."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Điều trị theo chỉ định bắt buộc — đái tháo đường type 2"
+            }
+          ],
+          "data": {
+            "resultCode": "mandatory_type2_diabetes",
+            "outcomeCode": "mandatory_type2_diabetes",
+            "sets": {
+              "treatment.path": "mandatory_type2_diabetes",
+              "treatment.initialRegimen": "mandatory_indication",
+              "treatment.mandatoryDisease": "type2_diabetes",
+              "treatment.mandatoryRegimen": "Định hướng A+C hoặc D theo bệnh đái tháo đường type 2."
+            }
+          }
+        },
+        {
+          "id": "optimized_new_recommendation",
+          "type": "condition",
+          "display": {
+            "title": "Bệnh nhân mới có chỉ định thay đổi lối sống trước không?",
+            "detail": "Bệnh nhân mới không kiểm tra số lượng thuốc đang dùng."
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Bệnh nhân mới có chỉ định thay đổi lối sống trước không?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "any": [
+                {
+                  "field": "treatment.recommendation",
+                  "op": "eq",
+                  "value": "lifestyle_first"
+                },
+                {
+                  "field": "bp.category",
+                  "op": "eq",
+                  "value": "high_normal"
+                },
+                {
+                  "field": "risk.class",
+                  "op": "eq",
+                  "value": "low"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "optimized_end_new_lifestyle",
+          "type": "end",
+          "display": {
+            "title": "Thay đổi lối sống và hẹn đánh giá lại",
+            "detail": "treatment.path = new_patient_lifestyle_first\ntreatment.initialRegimen = lifestyle_first"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Thay đổi lối sống và hẹn đánh giá lại"
+            }
+          ],
+          "data": {
+            "resultCode": "new_patient_lifestyle_first",
+            "outcomeCode": "new_patient_lifestyle_first",
+            "sets": {
+              "treatment.path": "new_patient_lifestyle_first",
+              "treatment.initialRegimen": "lifestyle_first"
+            }
+          }
+        },
+        {
+          "id": "optimized_initial_risk",
+          "type": "condition",
+          "display": {
+            "title": "Có nguy cơ cao, bệnh đồng mắc hoặc tăng huyết áp từ độ 1?"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Có nguy cơ cao, bệnh đồng mắc hoặc tăng huyết áp từ độ 1?"
+            }
+          ],
+          "logic": {
+            "predicate": {
+              "any": [
+                {
+                  "field": "risk.class",
+                  "op": "eq",
+                  "value": "high"
+                },
+                {
+                  "field": "comorbidity.targetOrganDamageOrCvd",
+                  "op": "eq",
+                  "value": true
+                },
+                {
+                  "field": "bp.category",
+                  "op": "in",
+                  "value": [
+                    "hypertension",
+                    "grade1",
+                    "grade2"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "optimized_end_new_combination",
+          "type": "end",
+          "display": {
+            "title": "Khởi trị phối hợp A+C hoặc D",
+            "detail": "treatment.path = new_patient_combination_start\ntreatment.initialRegimen = combination_ac_or_d"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Khởi trị phối hợp A+C hoặc D"
+            }
+          ],
+          "data": {
+            "resultCode": "new_patient_combination_start",
+            "outcomeCode": "new_patient_combination_start",
+            "sets": {
+              "treatment.path": "new_patient_combination_start",
+              "treatment.initialRegimen": "combination_ac_or_d"
+            }
+          }
+        },
+        {
+          "id": "optimized_end_new_single_pill",
+          "type": "end",
+          "display": {
+            "title": "Khởi trị viên phối hợp A+B+C+D",
+            "detail": "treatment.path = new_patient_initial_treatment\ntreatment.initialRegimen = single_pill_abcd"
+          },
+          "sourceRefs": [
+            {
+              "sourceId": "image_03_optimized_treatment",
+              "page": 1,
+              "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
+              "tableOrFigure": "03_optimized_hypertension_treatment.png",
+              "note": "Khởi trị viên phối hợp A+B+C+D"
             }
           ],
           "data": {
             "resultCode": "new_patient_initial_treatment",
-            "severity": "high",
+            "outcomeCode": "new_patient_initial_treatment",
             "sets": {
-              "treatment.path": "new_patient_initial_treatment"
-            },
-            "outcomeCode": "new_patient_initial_treatment_started"
+              "treatment.path": "new_patient_initial_treatment",
+              "treatment.initialRegimen": "single_pill_abcd"
+            }
           }
         },
         {
@@ -2405,8 +2911,8 @@
           "id": "optimized_control_after_two",
           "type": "condition",
           "display": {
-            "title": "Huyết áp đã kiểm soát sau 2 nhóm thuốc?",
-            "detail": "Cờ được clinical flow tính theo đích của Cây 2."
+            "title": "Huyết áp lần này thấp hơn đích sau giai đoạn 2 nhóm thuốc?",
+            "detail": "Đã kiểm soát khi cả HATT và HATTr lần đo gần nhất đều thấp hơn đích Cây 2."
           },
           "sourceRefs": [
             {
@@ -2414,7 +2920,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Huyết áp đã kiểm soát sau 2 nhóm thuốc?"
+              "note": "Huyết áp lần này thấp hơn đích sau giai đoạn 2 nhóm thuốc?"
             }
           ],
           "logic": {
@@ -2429,7 +2935,7 @@
           "id": "optimized_infer_two_controlled",
           "type": "end",
           "display": {
-            "title": "Giai đoạn 2 thuốc — huyết áp đã kiểm soát",
+            "title": "Giai đoạn 2 thuốc — tiếp tục phác đồ",
             "detail": "treatment.path = followup_two_drugs_controlled"
           },
           "sourceRefs": [
@@ -2438,14 +2944,14 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Giai đoạn 2 thuốc — huyết áp đã kiểm soát"
+              "note": "Giai đoạn 2 thuốc — tiếp tục phác đồ"
             },
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Duy trì 2 thuốc và theo dõi"
+              "note": "Tiếp tục phác đồ 2 thuốc và theo dõi"
             }
           ],
           "data": {
@@ -2461,7 +2967,7 @@
           "id": "optimized_infer_escalate_three",
           "type": "end",
           "display": {
-            "title": "Giai đoạn 2 thuốc — huyết áp chưa kiểm soát, tăng lên 3 thuốc",
+            "title": "Giai đoạn 2 thuốc — tăng lên 3 thuốc",
             "detail": "treatment.path = followup_escalate_three_drugs"
           },
           "sourceRefs": [
@@ -2470,7 +2976,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Giai đoạn 2 thuốc — huyết áp chưa kiểm soát, tăng lên 3 thuốc"
+              "note": "Giai đoạn 2 thuốc — tăng lên 3 thuốc"
             },
             {
               "sourceId": "image_03_optimized_treatment",
@@ -2516,8 +3022,8 @@
           "id": "optimized_control_after_three",
           "type": "condition",
           "display": {
-            "title": "Huyết áp đã kiểm soát sau 3 nhóm thuốc?",
-            "detail": "Cờ được clinical flow tính theo đích của Cây 2."
+            "title": "Huyết áp lần này thấp hơn đích sau giai đoạn 3 nhóm thuốc?",
+            "detail": "Đã kiểm soát khi cả HATT và HATTr lần đo gần nhất đều thấp hơn đích Cây 2."
           },
           "sourceRefs": [
             {
@@ -2525,7 +3031,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Huyết áp đã kiểm soát sau 3 nhóm thuốc?"
+              "note": "Huyết áp lần này thấp hơn đích sau giai đoạn 3 nhóm thuốc?"
             }
           ],
           "logic": {
@@ -2540,7 +3046,7 @@
           "id": "optimized_infer_three_controlled",
           "type": "end",
           "display": {
-            "title": "Giai đoạn 3 thuốc — huyết áp đã kiểm soát",
+            "title": "Giai đoạn 3 thuốc — tiếp tục phác đồ",
             "detail": "treatment.path = followup_three_drugs_controlled"
           },
           "sourceRefs": [
@@ -2549,14 +3055,14 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Giai đoạn 3 thuốc — huyết áp đã kiểm soát"
+              "note": "Giai đoạn 3 thuốc — tiếp tục phác đồ"
             },
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Duy trì 3 thuốc và theo dõi"
+              "note": "Tiếp tục phác đồ 3 thuốc và theo dõi"
             }
           ],
           "data": {
@@ -2572,7 +3078,7 @@
           "id": "optimized_infer_escalate_four",
           "type": "end",
           "display": {
-            "title": "Giai đoạn 3 thuốc — huyết áp chưa kiểm soát, tăng lên 4 thuốc",
+            "title": "Giai đoạn 3 thuốc — tăng lên 4 thuốc",
             "detail": "treatment.path = followup_escalate_four_drugs"
           },
           "sourceRefs": [
@@ -2581,7 +3087,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Giai đoạn 3 thuốc — huyết áp chưa kiểm soát, tăng lên 4 thuốc"
+              "note": "Giai đoạn 3 thuốc — tăng lên 4 thuốc"
             },
             {
               "sourceId": "image_03_optimized_treatment",
@@ -2627,8 +3133,8 @@
           "id": "optimized_control_after_four",
           "type": "condition",
           "display": {
-            "title": "Huyết áp đã kiểm soát sau 4 nhóm thuốc?",
-            "detail": "Cờ được clinical flow tính theo đích của Cây 2."
+            "title": "Huyết áp lần này thấp hơn đích sau giai đoạn 4 nhóm thuốc?",
+            "detail": "Đã kiểm soát khi cả HATT và HATTr lần đo gần nhất đều thấp hơn đích Cây 2."
           },
           "sourceRefs": [
             {
@@ -2636,7 +3142,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Huyết áp đã kiểm soát sau 4 nhóm thuốc?"
+              "note": "Huyết áp lần này thấp hơn đích sau giai đoạn 4 nhóm thuốc?"
             }
           ],
           "logic": {
@@ -2651,7 +3157,7 @@
           "id": "optimized_infer_four_controlled",
           "type": "end",
           "display": {
-            "title": "Giai đoạn 4 thuốc — huyết áp đã kiểm soát",
+            "title": "Giai đoạn 4 thuốc — tiếp tục phác đồ",
             "detail": "treatment.path = followup_four_drugs_controlled"
           },
           "sourceRefs": [
@@ -2660,14 +3166,14 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Giai đoạn 4 thuốc — huyết áp đã kiểm soát"
+              "note": "Giai đoạn 4 thuốc — tiếp tục phác đồ"
             },
             {
               "sourceId": "image_03_optimized_treatment",
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Duy trì 4 thuốc và theo dõi"
+              "note": "Tiếp tục phác đồ 4 thuốc và theo dõi"
             }
           ],
           "data": {
@@ -2683,7 +3189,7 @@
           "id": "optimized_infer_resistant",
           "type": "inference",
           "display": {
-            "title": "Giai đoạn 4 thuốc — huyết áp chưa kiểm soát, chuyển phân loại",
+            "title": "Giai đoạn 4 thuốc — chuyển phân loại không kiểm soát/kháng trị",
             "detail": "treatment.path = resistant_referral"
           },
           "sourceRefs": [
@@ -2692,7 +3198,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Giai đoạn 4 thuốc — huyết áp chưa kiểm soát, chuyển phân loại"
+              "note": "Giai đoạn 4 thuốc — chuyển phân loại không kiểm soát/kháng trị"
             },
             {
               "sourceId": "image_05_uncontrolled_resistant",
@@ -2714,7 +3220,7 @@
           "id": "optimized_link_resistant",
           "type": "link",
           "display": {
-            "title": "Chuyển cây không kiểm soát/kháng trị"
+            "title": "Chuyển Cây 5 — phân loại không kiểm soát/kháng trị"
           },
           "sourceRefs": [
             {
@@ -2722,7 +3228,7 @@
               "page": 1,
               "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
               "tableOrFigure": "03_optimized_hypertension_treatment.png",
-              "note": "Chuyển cây không kiểm soát/kháng trị"
+              "note": "Chuyển Cây 5 — phân loại không kiểm soát/kháng trị"
             },
             {
               "sourceId": "image_05_uncontrolled_resistant",
@@ -2744,7 +3250,7 @@
           "type": "end",
           "display": {
             "title": "Chưa đủ dữ liệu chọn giai đoạn điều trị",
-            "detail": "treatment.path = review_required"
+            "detail": "treatment.path = review_required\ntreatment.initialRegimen = review_required"
           },
           "sourceRefs": [
             {
@@ -2759,7 +3265,8 @@
             "resultCode": "optimized_treatment_review_required",
             "outcomeCode": "optimized_treatment_review_required",
             "sets": {
-              "treatment.path": "review_required"
+              "treatment.path": "review_required",
+              "treatment.initialRegimen": "review_required"
             }
           }
         }
@@ -2767,42 +3274,120 @@
       "edges": [
         {
           "from": "optimized_start",
-          "to": "optimized_entry_gate",
+          "to": "optimized_age_gate",
           "when": "default"
+        },
+        {
+          "from": "optimized_age_gate",
+          "to": "optimized_entry_gate",
+          "when": "true",
+          "label": "Trên 18 tuổi"
+        },
+        {
+          "from": "optimized_age_gate",
+          "to": "optimized_end_review",
+          "when": "false",
+          "label": "Chưa đủ tuổi hoặc thiếu tuổi"
         },
         {
           "from": "optimized_entry_gate",
           "to": "optimized_encounter_type",
           "when": "true",
-          "label": "Đủ điều kiện"
+          "label": "Phân loại HA phù hợp"
         },
         {
           "from": "optimized_entry_gate",
           "to": "optimized_end_review",
           "when": "false",
-          "label": "Không"
+          "label": "Phân loại HA chưa phù hợp"
+        },
+        {
+          "from": "optimized_encounter_type",
+          "to": "optimized_followup_mandatory",
+          "when": "true",
+          "label": "Lần khám >1"
         },
         {
           "from": "optimized_encounter_type",
           "to": "optimized_new_mandatory",
-          "when": "true",
+          "when": "false",
           "label": "Lần khám =1"
         },
         {
-          "from": "optimized_encounter_type",
+          "from": "optimized_followup_mandatory",
+          "to": "optimized_mandatory_branch",
+          "when": "true",
+          "label": "Có chỉ định bắt buộc"
+        },
+        {
+          "from": "optimized_followup_mandatory",
           "to": "optimized_followup_count_valid",
           "when": "false",
-          "label": "Tái khám — lần >1"
+          "label": "Không có chỉ định bắt buộc"
         },
         {
           "from": "optimized_new_mandatory",
-          "to": "optimized_infer_new_mandatory",
+          "to": "optimized_mandatory_branch",
           "when": "true",
-          "label": "Có"
+          "label": "Có chỉ định bắt buộc"
         },
         {
           "from": "optimized_new_mandatory",
-          "to": "optimized_infer_new",
+          "to": "optimized_new_recommendation",
+          "when": "false",
+          "label": "Không có chỉ định bắt buộc"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_end_mandatory_cad",
+          "when": "coronary_artery_disease",
+          "label": "Bệnh tim mạch do xơ vữa"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_end_mandatory_hfref",
+          "when": "heart_failure_reduced_ef",
+          "label": "Suy tim phân suất tống máu giảm"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_end_mandatory_stroke",
+          "when": "stroke",
+          "label": "Tiền sử đột quỵ"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_end_mandatory_ckd",
+          "when": "chronic_kidney_disease",
+          "label": "Bệnh thận mạn"
+        },
+        {
+          "from": "optimized_mandatory_branch",
+          "to": "optimized_end_mandatory_dm2",
+          "when": "type2_diabetes",
+          "label": "Đái tháo đường type 2"
+        },
+        {
+          "from": "optimized_new_recommendation",
+          "to": "optimized_end_new_lifestyle",
+          "when": "true",
+          "label": "Cần thay đổi lối sống trước"
+        },
+        {
+          "from": "optimized_new_recommendation",
+          "to": "optimized_initial_risk",
+          "when": "false",
+          "label": "Cần điều trị thuốc"
+        },
+        {
+          "from": "optimized_initial_risk",
+          "to": "optimized_end_new_combination",
+          "when": "true",
+          "label": "Có nguy cơ/bệnh đồng mắc/THA từ độ 1"
+        },
+        {
+          "from": "optimized_initial_risk",
+          "to": "optimized_end_new_single_pill",
           "when": "false",
           "label": "Không"
         },
@@ -2822,7 +3407,7 @@
           "from": "optimized_previous_count_one",
           "to": "optimized_infer_stage_one",
           "when": "true",
-          "label": "1 thuốc"
+          "label": "1 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_one",
@@ -2834,7 +3419,7 @@
           "from": "optimized_previous_count_two",
           "to": "optimized_control_after_two",
           "when": "true",
-          "label": "2 thuốc"
+          "label": "2 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_two",
@@ -2858,7 +3443,7 @@
           "from": "optimized_previous_count_three",
           "to": "optimized_control_after_three",
           "when": "true",
-          "label": "3 thuốc"
+          "label": "3 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_three",
@@ -2882,7 +3467,7 @@
           "from": "optimized_previous_count_four",
           "to": "optimized_control_after_four",
           "when": "true",
-          "label": "4 thuốc"
+          "label": "4 nhóm thuốc"
         },
         {
           "from": "optimized_previous_count_four",
@@ -2914,7 +3499,7 @@
           "page": 1,
           "section": "Sơ đồ điều trị tăng huyết áp tối ưu",
           "tableOrFigure": "03_optimized_hypertension_treatment.png",
-          "note": "Điều trị tăng huyết áp tối ưu bằng thay đổi lối sống, kiểm tra số nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
+          "note": "Điều trị tăng huyết áp tối ưu theo bệnh đồng mắc, lần khám, danh sách nhóm thuốc và kiểm soát HA theo đích từ Cây 2."
         }
       ],
       "notes": [

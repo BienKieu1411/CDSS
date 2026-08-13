@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import json
 
-from decision_trees.config.paths import BUNDLE_PATH
+from decision_trees.config.paths import BUNDLE_PATH, CONTRACTS_DIR
 from decision_trees.runtime.decision_tree_engine import (
     derive_bp_control_variables,
     derive_medication_variables,
@@ -97,12 +97,7 @@ def test_antihypertensive_names_are_grouped_without_counting_duplicate_classes()
     derived = derive_medication_variables({
         "medication.currentDrugNames": "Losartan, amlodipine, indapamide, spironolactone",
     })
-    assert derived["medication.currentDrugClassCodes"] == "arb,ccb,diuretic,mra"
     assert derived["medication.currentDrugClassList"] == ["arb", "ccb", "diuretic", "mra"]
-    assert derived["medication.currentDrugClassCount"] == 4
-    assert derived["medication.currentIncludesDiuretic"] is True
-    assert derived["medication.currentUnmappedDrugNames"] == ""
-    assert derived["medication.currentHasUnmappedDrug"] is False
 
 
 def test_bp_control_is_derived_from_current_encounter_and_tree_two_target() -> None:
@@ -120,9 +115,8 @@ def test_bp_control_is_derived_from_current_encounter_and_tree_two_target() -> N
 
 
 def test_antihypertensive_catalog_supports_vietnamese_table_groups() -> None:
-    bundle = json.loads(BUNDLE_PATH.read_text(encoding="utf-8"))
-    variable = next(item for item in bundle["variables"] if item["id"] == "medication.drugClass")
-    assert variable["allowedValues"] == ["acei", "arb", "ccb", "beta_blocker", "diuretic", "mra", "other"]
+    catalog = json.loads((CONTRACTS_DIR / "antihypertensive_medication_catalog.json").read_text(encoding="utf-8"))
+    assert [item["code"] for item in catalog["classes"]] == ["acei", "arb", "ccb", "beta_blocker", "diuretic", "mra", "other"]
 
 
 def test_expected_patient_measurements_are_derived() -> None:
@@ -253,7 +247,7 @@ def test_tree_five_classifies_two_drug_regimen_as_uncontrolled() -> None:
     })
     assert result["status"] == "completed"
     assert result["resultCode"] == "uncontrolled_htn_arm"
-    assert result["context"]["medication.currentDrugClassCount"] == 2
+    assert result["context"]["medication.currentDrugClassList"] == ["arb", "ccb"]
 
 
 def test_tree_five_classifies_three_drugs_with_diuretic_as_resistant() -> None:
@@ -266,8 +260,7 @@ def test_tree_five_classifies_three_drugs_with_diuretic_as_resistant() -> None:
     })
     assert result["status"] == "completed"
     assert result["resultCode"] == "resistant_htn_arm"
-    assert result["context"]["medication.currentDrugClassCount"] == 3
-    assert result["context"]["medication.currentIncludesDiuretic"] is True
+    assert result["context"]["medication.currentDrugClassList"] == ["arb", "ccb", "diuretic"]
 
 
 def test_tree_five_defers_when_derived_regimen_duration_is_under_four_weeks() -> None:
@@ -307,7 +300,7 @@ def test_tree_five_uses_the_recognized_drug_class_list() -> None:
     })
     assert result["status"] == "completed"
     assert result["resultCode"] == "resistant_agent_count_review_required"
-    assert result["context"]["medication.currentDrugClassCount"] == 1
+    assert result["context"]["medication.currentDrugClassList"] == ["arb"]
 
 
 def test_tree_five_reports_regimen_start_date_when_duration_source_is_missing() -> None:
@@ -332,15 +325,14 @@ def test_tree_three_uses_previous_encounter_drug_list_and_escalates_by_control()
         "encounter.number": 2,
         "patient.diagnosisCodes": "",
         "medication.previousEncounterDrugNames": "Losartan, amlodipine",
-        "bp.controlledAfterTwoDrugs": False,
-        "bp.controlledAfterThreeDrugs": False,
-        "bp.controlledAfterFourDrugs": False,
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "treatment.targetSystolicMmHg": 140,
+        "treatment.targetDiastolicMmHg": 80,
     })
     assert result["status"] == "completed"
     assert result["resultCode"] == "followup_escalate_three_drugs"
-    assert result["context"]["medication.previousEncounterDrugClassCodes"] == "arb,ccb"
     assert result["context"]["medication.previousEncounterDrugClassList"] == ["arb", "ccb"]
-    assert result["context"]["medication.previousEncounterAgentCount"] == 2
 
 
 def test_tree_three_new_patient_does_not_use_current_drug_count() -> None:
@@ -357,7 +349,7 @@ def test_tree_three_new_patient_does_not_use_current_drug_count() -> None:
     })
     assert result["status"] == "completed"
     assert result["resultCode"] == "new_patient_lifestyle_first"
-    assert result["context"]["medication.currentDrugClassCount"] == 3
+    assert result["context"]["medication.currentDrugClassList"] == ["arb", "ccb", "diuretic"]
 
 
 def test_tree_three_encounter_condition_uses_followup_for_encounter_greater_than_one() -> None:
@@ -447,9 +439,10 @@ def test_tree_three_links_four_drug_uncontrolled_case_to_tree_five() -> None:
         "encounter.number": 2,
         "patient.diagnosisCodes": "",
         "medication.previousEncounterDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
-        "bp.controlledAfterFourDrugs": False,
         "bp.office3.systolicMmHg": 150,
         "bp.office3.diastolicMmHg": 95,
+        "treatment.targetSystolicMmHg": 140,
+        "treatment.targetDiastolicMmHg": 80,
         "medication.regimenStartDate": "2026-07-14",
         "asOf": "2026-08-11",
         "medication.currentDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
@@ -482,7 +475,8 @@ def test_full_clinical_flow_passes_tree_outputs_forward_to_tree_five() -> None:
         "medication.previousEncounterDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
         "medication.currentDrugNames": "Losartan, amlodipine, bisoprolol, indapamide",
         "medication.regimenStartDate": "2026-07-14",
-        "bp.controlledAfterFourDrugs": False,
+        "treatment.targetSystolicMmHg": 140,
+        "treatment.targetDiastolicMmHg": 80,
     }, start_tree_id="bp_diagnosis")
     assert result["status"] == "completed"
     assert result["terminalTreeId"] == "uncontrolled_resistant_hypertension"

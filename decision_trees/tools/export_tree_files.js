@@ -13,6 +13,10 @@ const sharedVariableIds = new Set([
   ...mapping.independent,
   ...mapping.dependent,
 ].map((item) => item.canonicalId));
+const treeVariableIds = new Set(bundle.trees.flatMap((tree) => [
+  ...(tree.inputVariables || []),
+  ...(tree.outputVariables || []),
+]));
 
 fs.mkdirSync(outputDir, { recursive: true });
 
@@ -37,7 +41,9 @@ fs.writeFileSync(path.join(outputDir, "clinical_variables.json"), `${JSON.string
   formatVersion: "clinical-variable-catalog.v1",
   locale: variables.locale,
   source: "expected_variable_mapping.json",
-  variables: variables.variables.filter((variable) => sharedVariableIds.has(variable.id)),
+  // Keep the agreed shared catalog and every variable explicitly consumed or
+  // produced by one of the five active trees.
+  variables: variables.variables.filter((variable) => sharedVariableIds.has(variable.id) || treeVariableIds.has(variable.id)),
 }, null, 2)}\n`);
 
 console.log(JSON.stringify({

@@ -42,9 +42,10 @@ TEST_CASES = {
         "encounter.number": 2,
         "patient.diagnosisCodes": "",
         "medication.previousEncounterDrugNames": "Losartan, amlodipine",
-        "bp.controlledAfterTwoDrugs": False,
-        "bp.controlledAfterThreeDrugs": False,
-        "bp.controlledAfterFourDrugs": False,
+        "bp.office3.systolicMmHg": 150,
+        "bp.office3.diastolicMmHg": 95,
+        "treatment.targetSystolicMmHg": 140,
+        "treatment.targetDiastolicMmHg": 80,
     },
     "hypertension_risk_stratification": {
         "bp.office3.systolicMmHg": 150,
